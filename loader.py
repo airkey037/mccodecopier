@@ -3,7 +3,9 @@
 # Import all needed libraries
 from argparse import ArgumentParser
 import logging
-from sys import stdout
+from sys import stdout, exit
+from yaml import safe_load, YAMLError
+from pathlib import Path
 import os
 # Function to read n last lines without loading whole log file
 def read_last_messages(path, n=1):
@@ -38,7 +40,29 @@ LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.
 # Initalize argument parser
 parser = ArgumentParser(description="Anarchia.GG Code Copier is listening for reward codes in the chat and copies it to clipboard")
 parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
+parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file")
 args = parser.parse_args()
 # Initalize logger
 logging.basicConfig(level=LOGLVLS[args.loglevel],stream=stdout,format="[%(asctime)s] [%(levelname)s] %(message)s")
 logging.info("Anarchia.GG Code Copier started")
+# Read configuration file
+logging.debug("Trying to load config file")
+config_file = Path(args.config)
+logging.debug(f"Path to config file: {config_file.absolute()}")
+try:
+    with open(config_file.absolute(),encoding="utf-8") as f:
+        config = safe_load(f)
+        logging.debug("Configuration has been loaded successfully")
+except FileNotFoundError:
+    logging.error("Config file doesn't exist!")
+    exit(os.EX_NOINPUT)
+except PermissionError:
+    logging.error(f"Can't open {config_file}: Permission Denied")
+    exit(os.EX_NOPERM)
+except YAMLError:
+    logging.error(f"Invalid YAML syntax")
+    exit(os.EX_CONFIG)
+except Exception as e:
+    logging.debug(f"Program error: {e}")
+    logging.critical("Internal app error")
+    exit(os.EX_SOFTWARE)
