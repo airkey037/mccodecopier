@@ -61,7 +61,10 @@ class Minecraft:
 class AnarchiaGG(Minecraft):
     def __init__(self,mc_log_file:str,nicknames:list):
         super().__init__(mc_log_file=mc_log_file)
-        self.nicknames=tuple(nicknames)
+        if nicknames == None:
+            self.nicknames=tuple()
+        else:
+            self.nicknames=tuple(nicknames)
         self.codes = []
         self.wins = []
         self.my_wins = 0
@@ -121,6 +124,30 @@ def main():
     except Exception as e:
         logging.debug(f"Program error: {e}")
         logging.critical("Internal app error")
+        exit(os.EX_SOFTWARE)
+    # Create an object to manage chat reading
+    try:
+        logging.debug("Trying to create object")
+        nicks = config.get("nicknames")
+        chat = AnarchiaGG(mc_log_file=config["log_file"],nicknames=nicks)
+        logging.debug("Object was created successfully")
+        logging.debug(f"Log file path: {Path(config["log_file"]).absolute()}")
+        if not nicks:
+            logging.debug("Nick list is empty")
+        else:
+            logging.debug(f"Nicks marked as mine: {", ".join(nicks)}")
+    except KeyError:
+        logging.error("Can't read log file path from config file!")
+        exit(os.EX_CONFIG)
+    except FileNotFoundError as e:
+        logging.error(str(e))
+        exit(os.EX_NOINPUT)
+    except PermissionError as e:
+        logging.error(str(e))
+        exit(os.EX_NOPERM)
+    except Exception as e:
+        logging.debug(f"Program error: {e}")
+        logging.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
 if __name__=="__main__":
     main()
