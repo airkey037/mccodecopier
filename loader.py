@@ -41,6 +41,7 @@ def tail(path, n=1):
 # Make class to manage chat messages
 class Minecraft:
     def __init__(self,mc_log_file:str):
+        # Get full path to log file and try to open it
         self.logfile = Path(mc_log_file)
         try:
             with open(self.logfile):
@@ -50,9 +51,11 @@ class Minecraft:
         except PermissionError:
             raise PermissionError(f"Can't open {self.logfile}: Permission denied") from None
     def is_mc_running(self)->bool:
+        # Check is Minecraft running by checking log
         lastlines = tail(self.logfile,n=5)
         return not " [Render thread/INFO]: Stopping!" in "".join(lastlines)
     def read_raw_messages(self,n=1)->tuple:
+        # Read only messages from chat and remove all log-like formatting
         if not self.is_mc_running():
             return tuple()
         messages = []
@@ -64,6 +67,7 @@ class Minecraft:
 class AnarchiaGG(Minecraft):
     def __init__(self,mc_log_file:str,nicknames:list):
         super().__init__(mc_log_file=mc_log_file)
+        # Load all accepted nicknames
         if nicknames == None:
             self.nicknames=tuple()
         else:
@@ -72,6 +76,7 @@ class AnarchiaGG(Minecraft):
         self.wins = []
         self.my_wins = 0
     def get_code(self,n=1)->str:
+        # Search for code to copy
         lastlines=self.read_raw_messages(n=n)
         for l in lastlines:
             if "Przepisz kod " in l and " aby otrzymać nagrodę!" in l:
@@ -81,6 +86,7 @@ class AnarchiaGG(Minecraft):
                     return code
         return None
     def get_winner(self,n=1)->dict:
+        # Search for winner info to save it
         lastlines=self.read_raw_messages(n=n)
         for l in lastlines:
             if "Gracz " in l and " jako pierwszy przepisał kod w czasie " in l and "s i otrzymał(a) 3 Klucze AFK!" in l:
@@ -98,17 +104,17 @@ class AnarchiaGG(Minecraft):
 # Class to send notifications
 class Notify:
     def __init__(self,send):
+        # Throws ImportError when lib is not installed and "send" parameter is set to true
         if send:
             from plyer import notification
         self.send = send
     def send_notification(self,title,msg):
+        # Send notification
         if self.send:
             from plyer import notification
             notification.notify(app_name="MC Code Copier",timeout=5,title=title,message=msg)
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
-# Define some variables
-running = True
 # Main function contains all code that should be executed when this program is NOT IMPORTED
 def main():
     # Initalize argument parser
@@ -124,6 +130,7 @@ def main():
     config_file = Path(args.config)
     logging.debug(f"Path to config file: {config_file.absolute()}")
     try:
+        # Try to load config file
         with open(config_file.absolute(),encoding="utf-8") as f:
             config = safe_load(f)
             logging.debug("Configuration has been loaded successfully")
@@ -155,6 +162,7 @@ def main():
         logging.error("Can't read log file path from config file!")
         exit(os.EX_CONFIG)
     except FileNotFoundError as e:
+        # AnarchiaGG class throws FileNotFoundError and PermissionError with already prepared message, so we can only catch it and exit with specific code
         logging.error(str(e))
         exit(os.EX_NOINPUT)
     except PermissionError as e:
@@ -164,18 +172,23 @@ def main():
         logging.debug(f"Program error: {e}")
         logging.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
+    # Define some variables
+    running = True
+    # Function will run when SIGINT or SIGTERM is received to safely stop program
     def stop(signum, frame):
         logging.info(f"Received {Signals(signum).name}, QUITTING!")
-        global running
+        nonlocal running
         running = False
     signal(SIGINT,stop)
     signal(SIGTERM,stop)
+    # Read from config file how many lines should we read backwards
     linestoread = config.get("read_lines")
     if not linestoread:
         logging.error("Amount of lines to check isn't specified in config file!")
         exit(os.EX_CONFIG)
     else:
         logging.debug(f"Last lines to read: {linestoread}")
+    # Read from config file how frequently should we scan the chat
     sleepms = config.get("scan_frequency")
     if not sleepms:
         logging.error("Scan frequency isn't specified in config file!")
@@ -193,12 +206,17 @@ def main():
     except ImportError:
         logging.critical("Can't send notifications because plyer lib isn't installed! Disable notifications in config or run: pip install plyer")
         exit(os.EX_UNAVAILABLE)
+    # Start main loop
     logging.info("Started listening")
     while running:
+        # Get tick start time
         stime = time()
+        # Try to load code and winner info
         code = chat.get_code(n=linestoread)
         winner = chat.get_winner(n=linestoread)
+        # If code has appeared...
         if code:
+            # Process, copy and display info about it
             codets = datetime.now()
             addtots = config.get("suggest_timeout")
             if addtots:
@@ -209,15 +227,19 @@ def main():
             logging.info(sendtxt)
             notifications.send_notification("Code appeared",sendtxt)
             # Code processing here ---------------------------------------------------------
+        # If winer info has appeared...
         if winner:
+            # Process and save it
             if winner["me"]:
                 logging.info(f"You have re-writed the code in {winner["time"]}s")
             else:
                 logging.warning(f"Player {winner["player"]} re-writed the code in {winner["time"]}s")
             # Winner processing here -------------------------------------------------------
+        # Sleep loop
         timetosleep = (sleepms/1000)-(time()-stime)
         if timetosleep > 0:
             sleep(timetosleep)
+    # This part will be executed after loop ends
     logging.info("Program finished job")
 if __name__=="__main__":
     main()
