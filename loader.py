@@ -64,6 +64,7 @@ class AnarchiaGG(Minecraft):
         self.nicknames=tuple(nicknames)
         self.codes = []
         self.wins = []
+        self.my_wins = 0
     def get_code(self,n=1)->str:
         lastlines=self.read_raw_messages(n=n)
         for l in lastlines:
@@ -72,6 +73,21 @@ class AnarchiaGG(Minecraft):
                 if code not in self.codes:
                     self.codes.append(code)
                     return code
+        return None
+    def get_winner(self,n=1)->dict:
+        lastlines=self.read_raw_messages(n=n)
+        for l in lastlines:
+            if "Gracz " in l and " jako pierwszy przepisał kod w czasie " in l and "s i otrzymał(a) 3 Klucze AFK!" in l:
+                splitted = l.split(" jako pierwszy przepisał kod w czasie ")
+                player = splitted[0].removeprefix("Gracz ")
+                time = float(splitted[1].split(" ")[0].replace("s",""))
+                isitme = player in self.nicknames
+                infod={"player":player,"time":time,"me":isitme}
+                if infod not in self.wins:
+                    self.wins.append(infod)
+                    if isitme:
+                        self.my_wins += 1
+                    return infod
         return None
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
