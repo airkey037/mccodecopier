@@ -8,6 +8,7 @@ from yaml import safe_load, YAMLError
 from pathlib import Path
 from signal import signal, SIGTERM, SIGINT, Signals
 from time import sleep, time
+from datetime import datetime, timedelta
 import os
 # Function to read n last lines without loading whole log file
 def tail(path, n=1):
@@ -94,6 +95,16 @@ class AnarchiaGG(Minecraft):
                         self.my_wins += 1
                     return infod
         return None
+# Class to send notifications
+class Notify:
+    def __init__(self,send):
+        if send:
+            from plyer import notification
+        self.send = send
+    def send_notification(self,title,msg):
+        if self.send:
+            from plyer import notification
+            notification.notify(app_name="MC Code Copier",timeout=5,title=title,message=msg)
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Define some variables
@@ -131,7 +142,7 @@ def main():
         exit(os.EX_SOFTWARE)
     # Create an object to manage chat reading
     try:
-        logging.debug("Trying to create object")
+        logging.debug("Trying to create AnarchiaGG object")
         nicks = config.get("nicknames")
         chat = AnarchiaGG(mc_log_file=config["log_file"],nicknames=nicks)
         logging.debug("Object was created successfully")
@@ -171,13 +182,32 @@ def main():
         exit(os.EX_CONFIG)
     else:
         logging.debug(f"Sleep time: {sleepms}")
+    # Initalize notification class
+    sendnf = config.get("send_notifications")
+    try:
+        logging.debug("Trying to initalize Notify class")
+        if not sendnf:
+            logging.debug("NOTE: Notification sending is disabled, so program is only initalizing class, not importing lib!")
+        notifications = Notify(sendnf)
+        logging.debug("Initalized successfully!")
+    except ImportError:
+        logging.critical("Can't send notifications because plyer lib isn't installed! Disable notifications in config or run: pip install plyer")
+        exit(os.EX_UNAVAILABLE)
     logging.info("Started listening")
     while running:
         stime = time()
         code = chat.get_code(n=linestoread)
         winner = chat.get_winner(n=linestoread)
         if code:
-            logging.info(f"Code {code} was found!")
+            codets = datetime.now()
+            addtots = config.get("suggest_timeout")
+            if addtots:
+                sendin = codets + timedelta(0,addtots)
+                sendtxt = f"Code {code} was found! Send it at: {sendin.hour}:{sendin.minute}:{sendin.second}"
+            else:
+                sendtxt = f"Code {code} was found!"
+            logging.info(sendtxt)
+            notifications.send_notification("Code appeared",sendtxt)
             # Code processing here ---------------------------------------------------------
         if winner:
             if winner["me"]:
