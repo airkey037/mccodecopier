@@ -10,6 +10,7 @@ from signal import signal, SIGTERM, SIGINT, Signals
 from time import sleep, time
 from datetime import datetime, timedelta
 import os
+from csv import DictReader, DictWriter
 # Function to read n last lines without loading whole log file
 def tail(path, n=1):
     if n <= 0:
@@ -128,6 +129,23 @@ class CodeCopy:
         if self.copysw:
             from pyperclip import copy
             copy(code)
+# Class to create and use .csv files
+class CSV:
+    def __init__(self,file):
+        # If file is set to None, we will not make any changes
+        if file:
+            try:
+                with open(file,encoding="utf-8") as f:
+                    reader=DictReader(f)
+                    if reader.fieldnames != ["ID","Nick","Time","Timestamp","Me"]:
+                        raise ValueError("File that you specified have different header names")
+            except FileNotFoundError:
+                # Create new file
+                with open(file,mode="w",newline="",encoding="utf-8") as f:
+                    writer=DictWriter(f,fieldnames=["ID","Nick","Time","Timestamp","Me"])
+                    writer.writeheader()
+            except PermissionError:
+                raise PermissionError(f"Can't open {file}: Permission denied")
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
