@@ -6,6 +6,8 @@ import logging
 from sys import stdout, exit
 from yaml import safe_load, YAMLError
 from pathlib import Path
+from signal import signal, SIGTERM, SIGINT, Signals
+from time import sleep
 import os
 # Function to read n last lines without loading whole log file
 def tail(path, n=1):
@@ -94,6 +96,8 @@ class AnarchiaGG(Minecraft):
         return None
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
+# Define some variables
+running = True
 # Main function contains all code that should be executed when this program is NOT IMPORTED
 def main():
     # Initalize argument parser
@@ -149,5 +153,14 @@ def main():
         logging.debug(f"Program error: {e}")
         logging.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
+    def stop(signum, frame):
+        logging.info(f"Received {Signals(signum).name}, QUITTING!")
+        global running
+        running = False
+    signal(SIGINT,stop)
+    signal(SIGTERM,stop)
+    logging.info("Started listening")
+    while running:
+        sleep(1) # Temporary
 if __name__=="__main__":
     main()
