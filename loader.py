@@ -65,6 +65,20 @@ class Minecraft:
             if " [System] [CHAT] " in msg:
                 messages.append(msg.split(" [System] [CHAT] ")[1])
         return tuple(messages)
+class Code:
+    def __init__(self,code:str,timestamp:datetime,player:str,time:float,nicknames:tuple):
+        self.code = code
+        self.timestamp = timestamp
+        self.player = player
+        self.time = time
+        self.isitme = player in nicknames
+    def to_csv(self):
+        return [self.code,self.player,self.time,self.timestamp.isoformat(timespec="seconds"),self.isitme]
+    def to_msg(self):
+        if self.isitme:
+            return f"You have re-writed the code in {self.time}s"
+        else:
+            return f"Player {self.player} re-writed the code in {self.time}s"
 class AnarchiaGG(Minecraft):
     def __init__(self,mc_log_file:str,nicknames:list):
         super().__init__(mc_log_file=mc_log_file)
@@ -76,6 +90,8 @@ class AnarchiaGG(Minecraft):
         self.codes = []
         self.wins = []
         self.my_wins = 0
+        self.last_code = None
+        self.last_code_ts = None
     def get_code(self,n=1)->str:
         # Search for code to copy
         lastlines=self.read_raw_messages(n=n)
@@ -84,6 +100,8 @@ class AnarchiaGG(Minecraft):
                 code = l.split("Przepisz kod ")[1].split(" ")[0]
                 if code not in self.codes:
                     self.codes.append(code)
+                    self.last_code = code
+                    self.last_code_ts = datetime.now()
                     return code
         return None
     def get_winner(self,n=1)->dict:
@@ -94,13 +112,14 @@ class AnarchiaGG(Minecraft):
                 splitted = l.split(" jako pierwszy przepisał kod w czasie ")
                 player = splitted[0].removeprefix("Gracz ")
                 time = float(splitted[1].split(" ")[0].replace("s",""))
-                isitme = player in self.nicknames
-                infod={"player":player,"time":time,"me":isitme}
-                if infod not in self.wins:
-                    self.wins.append(infod)
-                    if isitme:
+                infoobj = Code(self.last_code,self.last_code_ts,player,time,self.nicknames)
+                self.last_code = None
+                self.last_code_ts = None
+                if infoobj not in self.wins:
+                    self.wins.append(infoobj)
+                    if infoobj.isitme:
                         self.my_wins += 1
-                    return infod
+                    return infoobj
         return None
 # Class to send notifications
 class Notify:
@@ -142,7 +161,7 @@ class CSV:
             except FileNotFoundError:
                 # Create new file
                 with open(file,mode="w",newline="",encoding="utf-8") as f:
-                    writer=DictWriter(f,fieldnames=["ID","Nick","Time","Timestamp","Me"])
+                    writer=DictWriter(f,fieldnames=["Code","Nick","Time","Timestamp","Me"])
                     writer.writeheader()
             except PermissionError:
                 raise PermissionError(f"Can't open {file}: Permission denied")
@@ -275,15 +294,10 @@ def main():
             codecopy.copy(code)
             logging.info(sendtxt)
             notifications.send_notification("Code appeared",sendtxt)
-            # Code processing here ---------------------------------------------------------
         # If winer info has appeared...
         if winner:
             # Process and save it
-            if winner["me"]:
-                logging.info(f"You have re-writed the code in {winner["time"]}s")
-            else:
-                logging.warning(f"Player {winner["player"]} re-writed the code in {winner["time"]}s")
-            # Winner processing here -------------------------------------------------------
+            logging.info(winner.to_msg())
         # Sleep loop
         timetosleep = (sleepms/1000)-(time()-stime)
         if timetosleep > 0:
