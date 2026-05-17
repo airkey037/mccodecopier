@@ -49,15 +49,30 @@ class Minecraft:
     def is_mc_running(self)->bool:
         lastlines = tail(self.logfile,n=5)
         return not " [Render thread/INFO]: Stopping!" in "".join(lastlines)
-    def read_raw_messages(self,n=1):
+    def read_raw_messages(self,n=1)->tuple:
         if not self.is_mc_running():
-            return ()
+            return tuple()
         messages = []
         lastmsgs=tail(path=self.logfile,n=n)
         for msg in lastmsgs:
             if " [System] [CHAT] " in msg:
                 messages.append(msg.split(" [System] [CHAT] ")[1])
         return tuple(messages)
+class AnarchiaGG(Minecraft):
+    def __init__(self,mc_log_file:str,nicknames:list):
+        super().__init__(mc_log_file=mc_log_file)
+        self.nicknames=tuple(nicknames)
+        self.codes = []
+        self.wins = []
+    def get_code(self,n=1)->str:
+        lastlines=self.read_raw_messages(n=n)
+        for l in lastlines:
+            if "Przepisz kod " in l and " aby otrzymać nagrodę!" in l:
+                code = l.split("Przepisz kod ")[1].split(" ")[0]
+                if code not in self.codes:
+                    self.codes.append(code)
+                    return code
+        return None
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
