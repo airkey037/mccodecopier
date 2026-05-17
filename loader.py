@@ -104,7 +104,7 @@ class AnarchiaGG(Minecraft):
 # Class to send notifications
 class Notify:
     def __init__(self,send):
-        # Throws ImportError when lib is not installed and "send" parameter is set to true
+        # Throws ImportError when lib is not installed and "send" parameter is set to True
         if send:
             from plyer import notification
         self.send = send
@@ -113,6 +113,21 @@ class Notify:
         if self.send:
             from plyer import notification
             notification.notify(app_name="MC Code Copier",timeout=5,title=title,message=msg)
+# Class to copy code to the clipboard
+class CodeCopy:
+    def __init__(self,copy):
+        # This part throws ImportError when library is not installed but "copy" parameter is set to True
+        if copy:
+            from pyperclip import copy as pypercopy, PyperclipException
+            try:
+                pypercopy("Hello World from MC Code Copier! :)")
+            except PyperclipException as e:
+                raise RuntimeError(str(e)) from None
+        self.copy = copy
+    def copy(self,code):
+        if self.copy:
+            from pyperclip import copy
+            copy(code)
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
@@ -205,6 +220,21 @@ def main():
         logging.debug("Initalized successfully!")
     except ImportError:
         logging.critical("Can't send notifications because plyer lib isn't installed! Disable notifications in config or run: pip install plyer")
+        exit(os.EX_UNAVAILABLE)
+    # Initalize CodeCopy class
+    copysetting = config.get("copy_to_clipboard")
+    try:
+        logging.debug("Trying to initalize CodeCopy class")
+        if not copysetting:
+            logging.debug("NOTE: Copying code to clipboard sending is disabled, so program is only initalizing class, not importing lib!")
+        codecopy = CodeCopy(copysetting)
+        logging.debug("Initalized successfully!")
+    except ImportError:
+        logging.critical("Can't copy to clipboard because pyperclip lib is not installed! Disable copy_to_clipboard in config file or run: pip install pyperclip")
+        exit(os.EX_UNAVAILABLE)
+    except RuntimeError as e:
+        logging.debug(f"Original error message: {e}")
+        logging.critical("Can't copy anything to clipboard because copying backend is not installed! See -loglevel debug for more details")
         exit(os.EX_UNAVAILABLE)
     # Start main loop
     logging.info("Started listening")
