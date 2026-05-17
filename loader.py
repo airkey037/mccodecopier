@@ -8,7 +8,7 @@ from yaml import safe_load, YAMLError
 from pathlib import Path
 import os
 # Function to read n last lines without loading whole log file
-def read_last_messages(path, n=1):
+def tail(path, n=1):
     if n <= 0:
         return ()
     lines = []
@@ -35,6 +35,29 @@ def read_last_messages(path, n=1):
         if buffer and len(lines) < n:
             lines.append(buffer[::-1].decode(errors="replace"))
     return tuple(reversed(lines))
+# Make class to manage chat messages
+class Minecraft:
+    def __init__(self,mc_log_file:str):
+        self.logfile = Path(mc_log_file)
+        try:
+            with open(self.logfile):
+                pass
+        except FileNotFoundError:
+            raise FileNotFoundError(f"File {self.logfile} can't be found!") from None
+        except PermissionError:
+            raise PermissionError(f"Can't open {self.logfile}: Permission denied") from None
+    def is_mc_running(self)->bool:
+        lastlines = tail(self.logfile,n=5)
+        return not " [Render thread/INFO]: Stopping!" in "".join(lastlines)
+    def read_raw_messages(self,n=1):
+        if not self.is_mc_running():
+            return ()
+        messages = []
+        lastmsgs=tail(path=self.logfile,n=n)
+        for msg in lastmsgs:
+            if " [System] [CHAT] " in msg:
+                messages.append(msg.split(" [System] [CHAT] ")[1])
+        return tuple(messages)
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
