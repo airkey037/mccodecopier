@@ -7,7 +7,7 @@ from sys import stdout, exit
 from yaml import safe_load, YAMLError
 from pathlib import Path
 from signal import signal, SIGTERM, SIGINT, Signals
-from time import sleep
+from time import sleep, time
 import os
 # Function to read n last lines without loading whole log file
 def tail(path, n=1):
@@ -137,7 +137,7 @@ def main():
         logging.debug("Object was created successfully")
         logging.debug(f"Log file path: {Path(config["log_file"]).absolute()}")
         if not nicks:
-            logging.debug("Nick list is empty")
+            logging.warning("Nick list is empty")
         else:
             logging.debug(f"Nicks marked as mine: {", ".join(nicks)}")
     except KeyError:
@@ -159,8 +159,35 @@ def main():
         running = False
     signal(SIGINT,stop)
     signal(SIGTERM,stop)
+    linestoread = config.get("read_lines")
+    if not linestoread:
+        logging.error("Amount of lines to check isn't specified in config file!")
+        exit(os.EX_CONFIG)
+    else:
+        logging.debug(f"Last lines to read: {linestoread}")
+    sleepms = config.get("scan_frequency")
+    if not sleepms:
+        logging.error("Scan frequency isn't specified in config file!")
+        exit(os.EX_CONFIG)
+    else:
+        logging.debug(f"Sleep time: {sleepms}")
     logging.info("Started listening")
     while running:
-        sleep(1) # Temporary
+        stime = time()
+        code = chat.get_code(n=linestoread)
+        winner = chat.get_winner(n=linestoread)
+        if code:
+            logging.info(f"Code {code} was found!")
+            # Code processing here ---------------------------------------------------------
+        if winner:
+            if winner["me"]:
+                logging.info(f"You have re-writed the code in {winner["time"]}s")
+            else:
+                logging.warning(f"Player {winner["player"]} re-writed the code in {winner["time"]}s")
+            # Winner processing here -------------------------------------------------------
+        timetosleep = (sleepms/1000)-(time()-stime)
+        if timetosleep > 0:
+            sleep(timetosleep)
+    logging.info("Program finished job")
 if __name__=="__main__":
     main()
