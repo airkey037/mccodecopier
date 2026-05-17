@@ -123,9 +123,9 @@ class CodeCopy:
                 pypercopy("Hello World from MC Code Copier! :)")
             except PyperclipException as e:
                 raise RuntimeError(str(e)) from None
-        self.copy = copy
+        self.copysw = copy
     def copy(self,code):
-        if self.copy:
+        if self.copysw:
             from pyperclip import copy
             copy(code)
 # Match log level names with log levels
@@ -254,6 +254,7 @@ def main():
                 sendtxt = f"Code {code} was found! Send it at: {sendin.hour}:{sendin.minute}:{sendin.second}"
             else:
                 sendtxt = f"Code {code} was found!"
+            codecopy.copy(code)
             logging.info(sendtxt)
             notifications.send_notification("Code appeared",sendtxt)
             # Code processing here ---------------------------------------------------------
