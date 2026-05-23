@@ -69,16 +69,21 @@ class Code:
     def __init__(self,code:str,timestamp:datetime,player:str,time:float,nicknames:tuple):
         self.code = code
         if timestamp:
+            self.tsobj = timestamp
             self.timestamp = timestamp.isoformat(timespec="seconds")
         else:
-            self.timestamp = None
+            timediff = datetime.now().astimezone()-timedelta(seconds=time)
+            self.tsobj = timediff
+            self.timestamp = timediff.isoformat(timespec="seconds")
         self.player = player
         self.time = time
         self.isitme = player in nicknames
     def __eq__(self,other):
         return self.code == other.code and self.timestamp == other.timestamp and self.player == other.player and self.time == other.time and self.isitme == other.isitme
     def to_csv(self):
-        return [self.code,self.player,self.time,self.timestamp,self.isitme]
+        return (self.code,self.player,self.time,self.timestamp,self.isitme)
+    def to_mysql(self):
+        return (self.code,self.tsobj,self.time,self.player,self.isitme)
     def to_msg(self):
         if self.isitme:
             return f"You have re-writed the code in {self.time}s"
@@ -126,6 +131,12 @@ class AnarchiaGG(Minecraft):
                         self.my_wins += 1
                     return infoobj
         return None
+    def get_stats(self)->dict:
+        try:
+            my_wins_percentage = round(self.my_wins/len(self.codes)*100,2)
+        except ZeroDivisionError:
+            my_wins_percentage = 0
+        return {"total_codes":len(self.codes),"total_keys":len(self.codes)*3,"my_codes":self.my_wins,"my_keys":self.my_wins*3,"my_wins_percentage":my_wins_percentage}
 # Class to send notifications
 class Notify:
     def __init__(self,send):
@@ -342,6 +353,12 @@ def main():
         if timetosleep > 0:
             sleep(timetosleep)
     # This part will be executed after loop ends
+    logging.info("### STATISTICS ###")
+    stats = chat.get_stats()
+    logging.info(f"Total codes captured: {stats.get("total_codes")}")
+    logging.info(f"Codes re-writed by me: {stats.get("my_codes")}")
+    logging.info(f"Keys received by me: {stats.get("my_keys")}")
+    logging.info(f"My wins percentage: {stats.get("my_wins_percentage")}%")
     logging.info("Program finished job")
 if __name__=="__main__":
     main()
