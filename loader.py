@@ -8,9 +8,9 @@ from yaml import safe_load, YAMLError
 from pathlib import Path
 from signal import signal, SIGTERM, SIGINT, Signals
 from time import sleep, time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
-from csv import DictReader, DictWriter
+from csv import DictReader, DictWriter, writer
 # Function to read n last lines without loading whole log file
 def tail(path, n=1):
     if n <= 0:
@@ -68,12 +68,17 @@ class Minecraft:
 class Code:
     def __init__(self,code:str,timestamp:datetime,player:str,time:float,nicknames:tuple):
         self.code = code
-        self.timestamp = timestamp
+        if timestamp:
+            self.timestamp = timestamp.isoformat(timespec="seconds")
+        else:
+            self.timestamp = None
         self.player = player
         self.time = time
         self.isitme = player in nicknames
+    def __eq__(self,other):
+        return self.code == other.code and self.timestamp == other.timestamp and self.player == other.player and self.time == other.time and self.isitme == other.isitme
     def to_csv(self):
-        return [self.code,self.player,self.time,self.timestamp.isoformat(timespec="seconds"),self.isitme]
+        return [self.code,self.player,self.time,self.timestamp,self.isitme]
     def to_msg(self):
         if self.isitme:
             return f"You have re-writed the code in {self.time}s"
@@ -101,16 +106,16 @@ class AnarchiaGG(Minecraft):
                 if code not in self.codes:
                     self.codes.append(code)
                     self.last_code = code
-                    self.last_code_ts = datetime.now()
+                    self.last_code_ts = datetime.now().astimezone()
                     return code
         return None
-    def get_winner(self,n=1)->dict:
+    def get_winner(self,n=1):
         # Search for winner info to save it
         lastlines=self.read_raw_messages(n=n)
         for l in lastlines:
-            if "Gracz " in l and " jako pierwszy przepisał kod w czasie " in l and "s i otrzymał(a) 3 Klucze AFK!" in l:
+            if "Gracz " in l and " jako pierwszy przepisał kod w czasie " in l and "s i otrzymał(a) 3 Klucze AFK!" in l and self.last_code and self.last_code_ts:
                 splitted = l.split(" jako pierwszy przepisał kod w czasie ")
-                player = splitted[0].removeprefix("Gracz ")
+                player = splitted[0].split("Gracz ")[1]
                 time = float(splitted[1].split(" ")[0].replace("s",""))
                 infoobj = Code(self.last_code,self.last_code_ts,player,time,self.nicknames)
                 self.last_code = None
@@ -152,19 +157,27 @@ class CodeCopy:
 class CSV:
     def __init__(self,file):
         # If file is set to None, we will not make any changes
+        self.file = file
+        self.field_names=["Code","Nick","Time","Timestamp","Me"]
         if file:
             try:
                 with open(file,encoding="utf-8") as f:
                     reader=DictReader(f)
-                    if reader.fieldnames != ["ID","Nick","Time","Timestamp","Me"]:
+                    if reader.fieldnames != self.field_names:
                         raise ValueError("File that you specified have different header names")
             except FileNotFoundError:
                 # Create new file
                 with open(file,mode="w",newline="",encoding="utf-8") as f:
-                    writer=DictWriter(f,fieldnames=["Code","Nick","Time","Timestamp","Me"])
+                    writer=DictWriter(f,fieldnames=self.field_names)
                     writer.writeheader()
             except PermissionError:
                 raise PermissionError(f"Can't open {file}: Permission denied")
+    def append_code_info(self,codeobj):
+        if self.file:
+            toappend = codeobj.to_csv()
+            with open(self.file,mode="a",newline="",encoding="utf-8") as f:
+                wrt=writer(f)
+                wrt.writerow(toappend)
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
@@ -258,6 +271,10 @@ def main():
     except ImportError:
         logging.critical("Can't send notifications because plyer lib isn't installed! Disable notifications in config or run: pip install plyer")
         exit(os.EX_UNAVAILABLE)
+    except Exception as e:
+        logging.debug(f"Program error: {e}")
+        logging.critical("Internal app error!")
+        exit(os.EX_SOFTWARE)
     # Initalize CodeCopy class
     copysetting = config.get("copy_to_clipboard")
     try:
@@ -273,6 +290,27 @@ def main():
         logging.debug(f"Original error message: {e}")
         logging.critical("Can't copy anything to clipboard because copying backend is not installed! See -loglevel debug for more details")
         exit(os.EX_UNAVAILABLE)
+    except Exception as e:
+        logging.debug(f"Program error: {e}")
+        logging.critical("Internal app error!")
+        exit(os.EX_SOFTWARE)
+    # Initalize CSV class
+    savetocsv = config.get("save_to_csv")
+    try:
+        logging.debug("Trying to initalize CSV class")
+        if not savetocsv:
+            logging.debug("NOTE: CSV report saving is disabled, so program is only initalizing class, not importing lib!")
+        csvf = CSV(savetocsv)
+        logging.debug("Initalized successfully!")
+    except PermissionError as e:
+        logging.error(str(e))
+        exit(os.EX_NOPERM)
+    except ValueError as e:
+        logging.warning(str(e))
+    except Exception as e:
+        logging.debug(f"Program error: {e}")
+        logging.critical("Internal app error!")
+        exit(os.EX_SOFTWARE)
     # Start main loop
     logging.info("Started listening")
     while running:
@@ -284,7 +322,7 @@ def main():
         # If code has appeared...
         if code:
             # Process, copy and display info about it
-            codets = datetime.now()
+            codets = datetime.now(timezone.utc).astimezone()
             addtots = config.get("suggest_timeout")
             if addtots:
                 sendin = codets + timedelta(0,addtots)
@@ -298,6 +336,7 @@ def main():
         if winner:
             # Process and save it
             logging.info(winner.to_msg())
+            csvf.append_code_info(winner)
         # Sleep loop
         timetosleep = (sleepms/1000)-(time()-stime)
         if timetosleep > 0:
