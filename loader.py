@@ -183,6 +183,35 @@ class CSV:
             with open(self.file,mode="a",newline="",encoding="utf-8") as f:
                 wrt=writer(f)
                 wrt.writerow(toappend)
+# Class to save codes data to MySQL/MariaDB
+class MySQL:
+    def __init__(self,hostname,user,password,database,port=3306):
+        CREATE_TABLE_QUERY='''CREATE TABLE IF NOT EXISTS`wins_log`(`id`int(11)NOT NULL AUTO_INCREMENT COMMENT'Primary key',`code`varchar(10)DEFAULT NULL COMMENT'String that contains key, that player had to re-write',`appear_time`timestamp NOT NULL DEFAULT current_timestamp()COMMENT'Shows exact time when code appeared',`rewrite_time`float NOT NULL COMMENT'Time (in seconds) in what time player have re-writed the code',`nick`varchar(16)NOT NULL COMMENT'Who sent the code',`is_it_me`tinyint(1)NOT NULL COMMENT'True if I won the code',PRIMARY KEY(`id`))ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;'''
+        self.hostname = hostname
+        self.user = user
+        self.password = password
+        self.database = database
+        self.port = port
+        import mysql.connector
+        try:
+            conn = mysql.connector.connect(host=hostname,user=user,password=password,database=database,port=port)
+            if conn:
+                stmt = conn.cursor()
+                stmt.execute(CREATE_TABLE_QUERY)
+                conn.commit()
+                stmt.close()
+                conn.close()
+        except mysql.connector.Error as err:
+            if err.errno == 1045:
+                raise PermissionError(f"User {user} can't connect to the database {database}: Permission Denied") from None
+            elif err.errno == 2003:
+                raise ConnectionRefusedError(f"Can't connect to the MySQL server because server address {hostname}:{port} isn't known") from None
+            elif err.errno == 1044:
+                raise PermissionError(f"User {user} can't access to the {database} DB: Permission Denied or this database isn't existing") from None
+            elif err.errno == 1142:
+                raise PermissionError(f"User {user} can't execute required commands: Permission Denied. Please make sure user {user} can run at least CREATE and INSERT in {database} DB") from None
+            else:
+                raise RuntimeError(str(err)) from None
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
