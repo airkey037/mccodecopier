@@ -139,31 +139,25 @@ class AnarchiaGG(Minecraft):
         return {"total_codes":len(self.codes),"total_keys":len(self.codes)*3,"my_codes":self.my_wins,"my_keys":self.my_wins*3,"my_wins_percentage":my_wins_percentage}
 # Class to send notifications
 class Notify:
-    def __init__(self,send):
-        # Throws ImportError when lib is not installed and "send" parameter is set to True
-        if send:
-            from plyer import notification
-        self.send = send
+    def __init__(self):
+        # Throws ImportError when lib is not installed
+        from plyer import notification
     def send_notification(self,title,msg):
         # Send notification
-        if self.send:
-            from plyer import notification
-            notification.notify(app_name="MC Code Copier",timeout=5,title=title,message=msg)
+        from plyer import notification
+        notification.notify(app_name="MC Code Copier",timeout=5,title=title,message=msg)
 # Class to copy code to the clipboard
 class CodeCopy:
-    def __init__(self,copy):
-        # This part throws ImportError when library is not installed but "copy" parameter is set to True
-        if copy:
-            from pyperclip import copy as pypercopy, PyperclipException
-            try:
-                pypercopy("Hello World from MC Code Copier! :)")
-            except PyperclipException as e:
-                raise RuntimeError(str(e)) from None
-        self.copysw = copy
+    def __init__(self):
+        # This part throws ImportError when library is not installed
+        from pyperclip import copy as pypercopy, PyperclipException
+        try:
+            pypercopy("Hello World from MC Code Copier! :)")
+        except PyperclipException as e:
+            raise RuntimeError(str(e)) from None
     def copy(self,code):
-        if self.copysw:
-            from pyperclip import copy
-            copy(code)
+        from pyperclip import copy
+        copy(code)
 # Class to create and use .csv files
 class CSV:
     def __init__(self,file):
@@ -274,11 +268,10 @@ def main():
     # Initalize notification class
     sendnf = config.get("send_notifications")
     try:
-        logging.debug("Trying to initalize Notify class")
-        if not sendnf:
-            logging.debug("NOTE: Notification sending is disabled, so program is only initalizing class, not importing lib!")
-        notifications = Notify(sendnf)
-        logging.debug("Initalized successfully!")
+        if sendnf:
+            logging.debug("Trying to initalize Notify class")
+            notifications = Notify()
+            logging.debug("Initalized successfully!")
     except ImportError:
         logging.critical("Can't send notifications because plyer lib isn't installed! Disable notifications in config or run: pip install plyer")
         exit(os.EX_UNAVAILABLE)
@@ -289,11 +282,10 @@ def main():
     # Initalize CodeCopy class
     copysetting = config.get("copy_to_clipboard")
     try:
-        logging.debug("Trying to initalize CodeCopy class")
-        if not copysetting:
-            logging.debug("NOTE: Copying code to clipboard sending is disabled, so program is only initalizing class, not importing lib!")
-        codecopy = CodeCopy(copysetting)
-        logging.debug("Initalized successfully!")
+        if copysetting:
+            logging.debug("Trying to initalize CodeCopy class")
+            codecopy = CodeCopy()
+            logging.debug("Initalized successfully!")
     except ImportError:
         logging.critical("Can't copy to clipboard because pyperclip lib is not installed! Disable copy_to_clipboard in config file or run: pip install pyperclip")
         exit(os.EX_UNAVAILABLE)
@@ -308,11 +300,10 @@ def main():
     # Initalize CSV class
     savetocsv = config.get("save_to_csv")
     try:
-        logging.debug("Trying to initalize CSV class")
-        if not savetocsv:
-            logging.debug("NOTE: CSV report saving is disabled, so program is only initalizing class, not importing lib!")
-        csvf = CSV(savetocsv)
-        logging.debug("Initalized successfully!")
+        if savetocsv:
+            logging.debug("Trying to initalize CSV class")
+            csvf = CSV(savetocsv)
+            logging.debug("Initalized successfully!")
     except PermissionError as e:
         logging.error(str(e))
         exit(os.EX_NOPERM)
@@ -340,14 +331,17 @@ def main():
                 sendtxt = f"Code {code} was found! Send it at: {sendin.hour}:{sendin.minute}:{sendin.second}"
             else:
                 sendtxt = f"Code {code} was found!"
-            codecopy.copy(code)
             logging.info(sendtxt)
-            notifications.send_notification("Code appeared",sendtxt)
+            if copysetting:
+                codecopy.copy(code)
+            if sendnf:
+                notifications.send_notification("Code appeared",sendtxt)
         # If winer info has appeared...
         if winner:
             # Process and save it
             logging.info(winner.to_msg())
-            csvf.append_code_info(winner)
+            if savetocsv:
+                csvf.append_code_info(winner)
         # Sleep loop
         timetosleep = (sleepms/1000)-(time()-stime)
         if timetosleep > 0:
