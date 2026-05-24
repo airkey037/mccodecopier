@@ -232,63 +232,66 @@ def main():
     # Initalize argument parser
     parser = ArgumentParser(description="Anarchia.GG Code Copier is listening for reward codes in the chat and copies it to clipboard")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
+    parser.add_argument("-all_logs","-vv",action="store_true",help="Show logs from all libraries")
     parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file")
     args = parser.parse_args()
     # Initalize logger
-    logging.basicConfig(level=LOGLVLS[args.loglevel],stream=stdout,format="[%(asctime)s] [%(levelname)s] %(message)s")
-    logging.info("Anarchia.GG Code Copier started")
+    logging.basicConfig(level=logging.CRITICAL+1 if not args.all_logs else LOGLVLS[args.loglevel],stream=stdout,format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"if args.all_logs else"[%(asctime)s] [%(levelname)s] %(message)s")
+    logger = logging.getLogger(__name__)
+    logger.setLevel(LOGLVLS[args.loglevel])
+    logger.info("Anarchia.GG Code Copier started")
     # Read configuration file
-    logging.debug("Trying to load config file")
+    logger.debug("Trying to load config file")
     config_file = Path(args.config)
-    logging.debug(f"Path to config file: {config_file.absolute()}")
+    logger.debug(f"Path to config file: {config_file.absolute()}")
     try:
         # Try to load config file
         with open(config_file.absolute(),encoding="utf-8") as f:
             config = safe_load(f)
-            logging.debug("Configuration has been loaded successfully")
+            logger.debug("Configuration has been loaded successfully")
     except FileNotFoundError:
-        logging.error("Config file doesn't exist!")
+        logger.error("Config file doesn't exist!")
         exit(os.EX_NOINPUT)
     except PermissionError:
-        logging.error(f"Can't open {config_file}: Permission Denied")
+        logger.error(f"Can't open {config_file}: Permission Denied")
         exit(os.EX_NOPERM)
     except YAMLError:
-        logging.error(f"Invalid YAML syntax")
+        logger.error(f"Invalid YAML syntax")
         exit(os.EX_CONFIG)
     except Exception as e:
-        logging.debug(f"Program error: {e}")
-        logging.critical("Internal app error")
+        logger.debug(f"Program error: {e}")
+        logger.critical("Internal app error")
         exit(os.EX_SOFTWARE)
     # Create an object to manage chat reading
     try:
-        logging.debug("Trying to create AnarchiaGG object")
+        logger.debug("Trying to create AnarchiaGG object")
         nicks = config.get("nicknames")
         chat = AnarchiaGG(mc_log_file=config["log_file"],nicknames=nicks)
-        logging.debug("Object was created successfully")
-        logging.debug(f"Log file path: {Path(config["log_file"]).absolute()}")
+        logger.debug("Object was created successfully")
+        logger.debug(f"Log file path: {Path(config["log_file"]).absolute()}")
         if not nicks:
-            logging.warning("Nick list is empty")
+            logger.warning("Nick list is empty")
         else:
-            logging.debug(f"Nicks marked as mine: {", ".join(nicks)}")
+            logger.debug(f"Nicks marked as mine: {", ".join(nicks)}")
     except KeyError:
-        logging.error("Can't read log file path from config file!")
+        logger.error("Can't read log file path from config file!")
         exit(os.EX_CONFIG)
     except FileNotFoundError as e:
         # AnarchiaGG class throws FileNotFoundError and PermissionError with already prepared message, so we can only catch it and exit with specific code
-        logging.error(str(e))
+        logger.error(str(e))
         exit(os.EX_NOINPUT)
     except PermissionError as e:
-        logging.error(str(e))
+        logger.error(str(e))
         exit(os.EX_NOPERM)
     except Exception as e:
-        logging.debug(f"Program error: {e}")
-        logging.critical("Internal app error!")
+        logger.debug(f"Program error: {e}")
+        logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Define some variables
     running = True
     # Function will run when SIGINT or SIGTERM is received to safely stop program
     def stop(signum, frame):
-        logging.info(f"Received {Signals(signum).name}, QUITTING!")
+        logger.info(f"Received {Signals(signum).name}, QUITTING!")
         nonlocal running
         running = False
     signal(SIGINT,stop)
@@ -296,89 +299,89 @@ def main():
     # Read from config file how many lines should we read backwards
     linestoread = config.get("read_lines")
     if not linestoread:
-        logging.error("Amount of lines to check isn't specified in config file!")
+        logger.error("Amount of lines to check isn't specified in config file!")
         exit(os.EX_CONFIG)
     else:
-        logging.debug(f"Last lines to read: {linestoread}")
+        logger.debug(f"Last lines to read: {linestoread}")
     # Read from config file how frequently should we scan the chat
     sleepms = config.get("scan_frequency")
     if not sleepms:
-        logging.error("Scan frequency isn't specified in config file!")
+        logger.error("Scan frequency isn't specified in config file!")
         exit(os.EX_CONFIG)
     else:
-        logging.debug(f"Sleep time: {sleepms}")
+        logger.debug(f"Sleep time: {sleepms}")
     # Initalize notification class
     sendnf = config.get("send_notifications")
     try:
         if sendnf:
-            logging.debug("Trying to initalize Notify class")
+            logger.debug("Trying to initalize Notify class")
             notifications = Notify()
-            logging.debug("Initalized successfully!")
+            logger.debug("Initalized successfully!")
     except ImportError:
-        logging.critical("Can't send notifications because plyer lib isn't installed! Disable notifications in config or run: pip install plyer")
+        logger.critical("Can't send notifications because plyer lib isn't installed! Disable notifications in config or run: pip install plyer")
         exit(os.EX_UNAVAILABLE)
     except Exception as e:
-        logging.debug(f"Program error: {e}")
-        logging.critical("Internal app error!")
+        logger.debug(f"Program error: {e}")
+        logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Initalize CodeCopy class
     copysetting = config.get("copy_to_clipboard")
     try:
         if copysetting:
-            logging.debug("Trying to initalize CodeCopy class")
+            logger.debug("Trying to initalize CodeCopy class")
             codecopy = CodeCopy()
-            logging.debug("Initalized successfully!")
+            logger.debug("Initalized successfully!")
     except ImportError:
-        logging.critical("Can't copy to clipboard because pyperclip lib is not installed! Disable copy_to_clipboard in config file or run: pip install pyperclip")
+        logger.critical("Can't copy to clipboard because pyperclip lib is not installed! Disable copy_to_clipboard in config file or run: pip install pyperclip")
         exit(os.EX_UNAVAILABLE)
     except RuntimeError as e:
-        logging.debug(f"Original error message: {e}")
-        logging.critical("Can't copy anything to clipboard because copying backend is not installed! See -loglevel debug for more details")
+        logger.debug(f"Original error message: {e}")
+        logger.critical("Can't copy anything to clipboard because copying backend is not installed! See -loglevel debug for more details")
         exit(os.EX_UNAVAILABLE)
     except Exception as e:
-        logging.debug(f"Program error: {e}")
-        logging.critical("Internal app error!")
+        logger.debug(f"Program error: {e}")
+        logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Initalize CSV class
     savetocsv = config.get("save_to_csv")
     try:
         if savetocsv:
-            logging.debug("Trying to initalize CSV class")
+            logger.debug("Trying to initalize CSV class")
             csvf = CSV(savetocsv)
-            logging.debug("Initalized successfully!")
+            logger.debug("Initalized successfully!")
     except PermissionError as e:
-        logging.error(str(e))
+        logger.error(str(e))
         exit(os.EX_NOPERM)
     except ValueError as e:
-        logging.warning(str(e))
+        logger.warning(str(e))
     except Exception as e:
-        logging.debug(f"Program error: {e}")
-        logging.critical("Internal app error!")
+        logger.debug(f"Program error: {e}")
+        logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Initalize MySQL class
     savetomysql = config.get("mysql")
     try:
         if savetomysql:
-            logging.debug("Trying to initalize MySQL class")
+            logger.debug("Trying to initalize MySQL class")
             mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql["port"],user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"])
-            logging.debug("Initalized successfully!")
+            logger.debug("Initalized successfully!")
     except ImportError:
-        logging.critical("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
+        logger.critical("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
         exit(os.EX_UNAVAILABLE)
     except PermissionError as perr:
-        logging.error(str(perr))
+        logger.error(str(perr))
         exit(os.EX_NOPERM)
     except ConnectionRefusedError as crerr:
-        logging.error(str(crerr))
+        logger.error(str(crerr))
         exit(os.EX_NOHOST)
     except RuntimeError as rerr:
-        logging.critical(f"Internal MySQL error: {rerr}")
+        logger.critical(f"Internal MySQL error: {rerr}")
     except Exception as e:
-        logging.debug(f"Program error: {e}")
-        logging.critical("Internal app error!")
+        logger.debug(f"Program error: {e}")
+        logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Start main loop
-    logging.info("Started listening")
+    logger.info("Started listening")
     while running:
         # Get tick start time
         stime = time()
@@ -395,7 +398,7 @@ def main():
                 sendtxt = f"Code {code} was found! Send it at: {sendin.hour}:{sendin.minute}:{sendin.second}"
             else:
                 sendtxt = f"Code {code} was found!"
-            logging.info(sendtxt)
+            logger.info(sendtxt)
             if copysetting:
                 codecopy.copy(code)
             if sendnf:
@@ -403,7 +406,7 @@ def main():
         # If winer info has appeared...
         if winner:
             # Process and save it
-            logging.info(winner.to_msg())
+            logger.info(winner.to_msg())
             if savetocsv:
                 csvf.append_code_info(winner)
         # Sleep loop
@@ -411,12 +414,12 @@ def main():
         if timetosleep > 0:
             sleep(timetosleep)
     # This part will be executed after loop ends
-    logging.info("### STATISTICS ###")
+    logger.info("### STATISTICS ###")
     stats = chat.get_stats()
-    logging.info(f"Total codes captured: {stats.get("total_codes")}")
-    logging.info(f"Codes re-writed by me: {stats.get("my_codes")}")
-    logging.info(f"Keys received by me: {stats.get("my_keys")}")
-    logging.info(f"My wins percentage: {stats.get("my_wins_percentage")}%")
-    logging.info("Program finished job")
+    logger.info(f"Total codes captured: {stats.get("total_codes")}")
+    logger.info(f"Codes re-writed by me: {stats.get("my_codes")}")
+    logger.info(f"Keys received by me: {stats.get("my_keys")}")
+    logger.info(f"My wins percentage: {stats.get("my_wins_percentage")}%")
+    logger.info("Program finished job")
 if __name__=="__main__":
     main()
