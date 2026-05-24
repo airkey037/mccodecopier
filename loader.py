@@ -229,6 +229,8 @@ class MySQL:
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
 def main():
+    # Save start time
+    start_time = datetime.now()
     # Initalize argument parser
     parser = ArgumentParser(description="Anarchia.GG Code Copier is listening for reward codes in the chat and copies it to clipboard")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
@@ -347,6 +349,7 @@ def main():
     try:
         if savetocsv:
             logger.debug("Trying to initalize CSV class")
+            logger.debug(f"Saving to file: {savetocsv}")
             csvf = CSV(savetocsv)
             logger.debug("Initalized successfully!")
     except PermissionError as e:
@@ -363,7 +366,10 @@ def main():
     try:
         if savetomysql:
             logger.debug("Trying to initalize MySQL class")
-            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql["port"],user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"])
+            logger.debug(f"Connecting to server: {savetomysql["host"]}:{savetomysql.get("port")if savetomysql.get("port")else"3306"}")
+            logger.debug(f"Authenticating by user: {savetomysql["user"]} (Using password: {"Yes"if savetomysql.get("password")else"No"})")
+            logger.debug(f"Using database: {savetomysql["database"]}")
+            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port")if savetomysql.get("port")else 3306,user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"])
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.critical("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
@@ -374,8 +380,12 @@ def main():
     except ConnectionRefusedError as crerr:
         logger.error(str(crerr))
         exit(os.EX_NOHOST)
+    except KeyError:
+        logger.error("Some values in config file are missing! Make sure you've set host, port (optional, by default 3306), user, password and database!")
+        exit(os.EX_CONFIG)
     except RuntimeError as rerr:
         logger.critical(f"Internal MySQL error: {rerr}")
+        exit(os.EX_SOFTWARE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
@@ -409,6 +419,15 @@ def main():
             logger.info(winner.to_msg())
             if savetocsv:
                 csvf.append_code_info(winner)
+            if savetomysql:
+                try:
+                    mysqlf.append_code_info(winner)
+                except RuntimeError as e:
+                    logger.warning(f"Code info wasn't saved to MySQL. MySQL error: {e}")
+                except Exception as e:
+                    logger.debug(f"Program error: {e}")
+                    logger.critical("Internal app error!")
+                    exit(os.EX_SOFTWARE)
         # Sleep loop
         timetosleep = (sleepms/1000)-(time()-stime)
         if timetosleep > 0:
@@ -416,6 +435,8 @@ def main():
     # This part will be executed after loop ends
     logger.info("### STATISTICS ###")
     stats = chat.get_stats()
+    total_runtime = datetime.now()-start_time
+    logger.info(f"Total runtime: {total_runtime}")
     logger.info(f"Total codes captured: {stats.get("total_codes")}")
     logger.info(f"Codes re-writed by me: {stats.get("my_codes")}")
     logger.info(f"Keys received by me: {stats.get("my_keys")}")
