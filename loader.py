@@ -186,7 +186,7 @@ class CSV:
 # Class to save codes data to MySQL/MariaDB
 class MySQL:
     def __init__(self,hostname,user,password,database,port=3306):
-        CREATE_TABLE_QUERY='''CREATE TABLE IF NOT EXISTS`wins_log`(`id`int(11)NOT NULL AUTO_INCREMENT COMMENT'Primary key',`code`varchar(10)DEFAULT NULL COMMENT'String that contains key, that player had to re-write',`appear_time`timestamp NOT NULL DEFAULT current_timestamp()COMMENT'Shows exact time when code appeared',`rewrite_time`float NOT NULL COMMENT'Time (in seconds) in what time player have re-writed the code',`nick`varchar(16)NOT NULL COMMENT'Who sent the code',`is_it_me`tinyint(1)NOT NULL COMMENT'True if I won the code',PRIMARY KEY(`id`))ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;'''
+        CREATE_TABLE_QUERY='''CREATE TABLE IF NOT EXISTS`wins_log`(`id`int(11)NOT NULL AUTO_INCREMENT COMMENT'Primary key',`code`varchar(10)DEFAULT NULL COMMENT'String that contains key, that player had to re-write',`appear_time`timestamp NOT NULL DEFAULT current_timestamp()COMMENT'Shows exact time when code appeared',`rewrite_time`float NOT NULL COMMENT'Time (in seconds) in what time player have re-writed the code',`nick`varchar(16)NOT NULL COMMENT'Who sent the code',`is_it_me`tinyint(1)NOT NULL COMMENT'True if I won the code',PRIMARY KEY(`id`))ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;'''
         self.hostname = hostname
         self.user = user
         self.password = password
@@ -212,6 +212,19 @@ class MySQL:
                 raise PermissionError(f"User {user} can't execute required commands: Permission Denied. Please make sure user {user} can run at least CREATE and INSERT in {database} DB") from None
             else:
                 raise RuntimeError(str(err)) from None
+    def append_code_info(self,codeobj):
+        values = codeobj.to_mysql()
+        import mysql.connector
+        try:
+            conn = mysql.connector.connect(host=self.hostname,user=self.user,password=self.password,database=self.database,port=self.port)
+            if conn:
+                stmt = conn.cursor()
+                stmt.execute("insert into`wins_log`(`code`,`appear_time`,`rewrite_time`,`nick`,`is_it_me`)values(%s,%s,%s,%s,%s);",values)
+                conn.commit()
+                stmt.close()
+                conn.close()
+        except mysql.connector.Error as err:
+            raise RuntimeError(str(err)) from None
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
@@ -338,6 +351,28 @@ def main():
         exit(os.EX_NOPERM)
     except ValueError as e:
         logging.warning(str(e))
+    except Exception as e:
+        logging.debug(f"Program error: {e}")
+        logging.critical("Internal app error!")
+        exit(os.EX_SOFTWARE)
+    # Initalize MySQL class
+    savetomysql = config.get("mysql")
+    try:
+        if savetomysql:
+            logging.debug("Trying to initalize MySQL class")
+            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql["port"],user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"])
+            logging.debug("Initalized successfully!")
+    except ImportError:
+        logging.critical("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
+        exit(os.EX_UNAVAILABLE)
+    except PermissionError as perr:
+        logging.error(str(perr))
+        exit(os.EX_NOPERM)
+    except ConnectionRefusedError as crerr:
+        logging.error(str(crerr))
+        exit(os.EX_NOHOST)
+    except RuntimeError as rerr:
+        logging.critical(f"Internal MySQL error: {rerr}")
     except Exception as e:
         logging.debug(f"Program error: {e}")
         logging.critical("Internal app error!")
