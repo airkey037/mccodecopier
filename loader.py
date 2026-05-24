@@ -66,32 +66,46 @@ class Minecraft:
                 messages.append(msg.split(" [System] [CHAT] ")[1])
         return tuple(messages)
 class Code:
-    def __init__(self,code:str,timestamp:datetime,player:str,time:float,nicknames:tuple):
+    def __init__(self,code:str,timestamp:datetime,player:str,time:float,nicknames:tuple,quietlog:bool=False):
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        if quietlog:
+            self.logger.setLevel(logging.CRITICAL+1)
         self.code = code
+        self.logger.debug(f"Creating Code object for code: {code}")
         if timestamp:
             self.tsobj = timestamp
             self.timestamp = timestamp.isoformat(timespec="seconds")
+            self.logger.debug(f"Date loaded from given parameter: {self.tsobj}")
         else:
             timediff = datetime.now().astimezone()-timedelta(seconds=time)
             self.tsobj = timediff
             self.timestamp = timediff.isoformat(timespec="seconds")
+            self.logger.debug(f"Date calculated from current time and re-write time: {self.tsobj}")
         self.player = player
         self.time = time
         self.isitme = player in nicknames
+        self.logger.debug(f"Loaded informations. Player: {self.player} ({"Me"if self.isitme else "Not me"}); Re-write time: {self.time}")
     def __eq__(self,other):
         return self.code == other.code and self.timestamp == other.timestamp and self.player == other.player and self.time == other.time and self.isitme == other.isitme
     def to_csv(self):
+        self.logger.debug("Exporting data to format expected by CSV class")
         return (self.code,self.player,self.time,self.timestamp,self.isitme)
     def to_mysql(self):
+        self.logger.debug("Exporting data to format expected by MySQL class")
         return (self.code,self.tsobj,self.time,self.player,self.isitme)
     def to_msg(self):
+        self.logger.debug("Exporting data to plain text format")
         if self.isitme:
             return f"You have re-writed the code in {self.time}s"
         else:
             return f"Player {self.player} re-writed the code in {self.time}s"
 class AnarchiaGG(Minecraft):
-    def __init__(self,mc_log_file:str,nicknames:list):
+    def __init__(self,mc_log_file:str,nicknames:list,quietlog:bool=False):
         super().__init__(mc_log_file=mc_log_file)
+        # Create in-class logger
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        if quietlog:
+            self.logger.setLevel(logging.CRITICAL+1)
         # Load all accepted nicknames
         if nicknames == None:
             self.nicknames=tuple()
@@ -109,9 +123,12 @@ class AnarchiaGG(Minecraft):
             if "Przepisz kod " in l and " aby otrzymać nagrodę!" in l:
                 code = l.split("Przepisz kod ")[1].split(" ")[0]
                 if code not in self.codes:
+                    self.logger.debug(f"Found unknown code: {code}")
                     self.codes.append(code)
                     self.last_code = code
                     self.last_code_ts = datetime.now().astimezone()
+                    self.logger.debug(f"Last code variable is set to {self.last_code}")
+                    self.logger.debug(f"Last code timestamp variable is set to {self.last_code_ts}")
                     return code
         return None
     def get_winner(self,n=1):
@@ -122,16 +139,22 @@ class AnarchiaGG(Minecraft):
                 splitted = l.split(" jako pierwszy przepisał kod w czasie ")
                 player = splitted[0].split("Gracz ")[1]
                 time = float(splitted[1].split(" ")[0].replace("s",""))
+                self.logger.debug(f"Found new winner info! Player: {player}; Time: {time}")
                 infoobj = Code(self.last_code,self.last_code_ts,player,time,self.nicknames)
+                self.logger.debug(f"Loaded last code variable: {self.last_code}")
+                self.logger.debug(f"Loaded last code timestamp variable: {self.last_code_ts}")
                 self.last_code = None
                 self.last_code_ts = None
+                self.logger.debug("Both values set to None")
                 if infoobj not in self.wins:
                     self.wins.append(infoobj)
                     if infoobj.isitme:
                         self.my_wins += 1
+                        self.logger.debug("Sender is classified as me, incrementing my_wins counter")
                     return infoobj
         return None
     def get_stats(self)->dict:
+        self.logger.debug("Calculating all statistics...")
         try:
             my_wins_percentage = round(self.my_wins/len(self.codes)*100,2)
         except ZeroDivisionError:
@@ -139,68 +162,113 @@ class AnarchiaGG(Minecraft):
         return {"total_codes":len(self.codes),"total_keys":len(self.codes)*3,"my_codes":self.my_wins,"my_keys":self.my_wins*3,"my_wins_percentage":my_wins_percentage}
 # Class to send notifications
 class Notify:
-    def __init__(self):
+    def __init__(self,quietlog:bool=False):
+        # Define logger
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        if quietlog:
+            self.logger.setLevel(logging.CRITICAL+1)
         # Throws ImportError when lib is not installed
         from plyer import notification
+        self.logger.debug("plyer lib was imported successfully")
     def send_notification(self,title,msg):
         # Send notification
         from plyer import notification
+        self.logger.debug(f"Sending notification with app name 'MC Code Copier', title '{title}' and content '{msg}'")
         notification.notify(app_name="MC Code Copier",timeout=5,title=title,message=msg)
 # Class to copy code to the clipboard
 class CodeCopy:
-    def __init__(self):
+    def __init__(self,quietlog:bool=False):
+        # Define logger
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        if quietlog:
+            self.logger.setLevel(logging.CRITICAL+1)
         # This part throws ImportError when library is not installed
-        from pyperclip import copy as pypercopy, PyperclipException
+        from pyperclip import copy as pypercopy, paste as pyperpaste, PyperclipException
+        self.logger.debug("pyperclip lib was imported successfully")
         try:
-            pypercopy("Hello World from MC Code Copier! :)")
+            sample_text="Hello World from MC Code Copier! :)"
+            self.logger.debug(f"Trying to copy sample text: {sample_text}")
+            pypercopy(sample_text)
+            pasted_text=pyperpaste()
+            self.logger.debug(f"Pasted text: {pasted_text}")
+            if sample_text != pasted_text:
+                self.logger.warning("Something went wrong: Copied and pasted texts aren't the same values!")
         except PyperclipException as e:
             raise RuntimeError(str(e)) from None
-    def copy(self,code):
+    def copy(self,code:str):
         from pyperclip import copy
+        self.logger.debug(f"Copying {code}")
         copy(code)
 # Class to create and use .csv files
 class CSV:
-    def __init__(self,file):
+    def __init__(self,file:str,quietlog:bool=False):
+        # Create logger
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        if quietlog:
+            self.logger.setLevel(logging.CRITICAL+1)
         # If file is set to None, we will not make any changes
         self.file = file
         self.field_names=["Code","Nick","Time","Timestamp","Me"]
         if file:
+            self.logger.debug(f"Given file path: {file}")
             try:
                 with open(file,encoding="utf-8") as f:
+                    self.logger.debug("Opened CSV file")
                     reader=DictReader(f)
                     if reader.fieldnames != self.field_names:
+                        self.logger.debug(f"Loaded field names: {", ".join(reader.fieldnames)}")
+                        self.logger.debug(f"Expected field names: {", ".join(self.field_names)}")
                         raise ValueError("File that you specified have different header names")
             except FileNotFoundError:
                 # Create new file
+                self.logger.debug("File doesn't exists, creating a blank one")
                 with open(file,mode="w",newline="",encoding="utf-8") as f:
                     writer=DictWriter(f,fieldnames=self.field_names)
                     writer.writeheader()
             except PermissionError:
                 raise PermissionError(f"Can't open {file}: Permission denied")
+        else:
+            self.logger.debug(f"File path wasn't given, skipping")
     def append_code_info(self,codeobj):
         if self.file:
+            self.logger.debug("Loading code info to append...")
             toappend = codeobj.to_csv()
+            self.logger.debug(f"Loaded values: {toappend}")
             with open(self.file,mode="a",newline="",encoding="utf-8") as f:
+                self.logger.debug("File was opened")
                 wrt=writer(f)
                 wrt.writerow(toappend)
+                self.logger.debug("Successfully writed all needed data")
 # Class to save codes data to MySQL/MariaDB
 class MySQL:
-    def __init__(self,hostname,user,password,database,port=3306):
+    def __init__(self,hostname:str,user:str,password:str,database:str,port=3306,quietlog:bool=False):
         CREATE_TABLE_QUERY='''CREATE TABLE IF NOT EXISTS`wins_log`(`id`int(11)NOT NULL AUTO_INCREMENT COMMENT'Primary key',`code`varchar(10)DEFAULT NULL COMMENT'String that contains key, that player had to re-write',`appear_time`timestamp NOT NULL DEFAULT current_timestamp()COMMENT'Shows exact time when code appeared',`rewrite_time`float NOT NULL COMMENT'Time (in seconds) in what time player have re-writed the code',`nick`varchar(16)NOT NULL COMMENT'Who sent the code',`is_it_me`tinyint(1)NOT NULL COMMENT'True if I won the code',PRIMARY KEY(`id`))ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;'''
         self.hostname = hostname
         self.user = user
         self.password = password
         self.database = database
         self.port = port
+        # Define logger
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        if quietlog:
+            self.logger.setLevel(logging.CRITICAL+1)
         import mysql.connector
+        self.logger.debug("Imported mysql.connector")
         try:
+            self.logger.debug(f"Connecting to server: {self.hostname}:{self.port}")
+            self.logger.debug(f"Authenticating by user: {self.user} (Using password: {"Yes"if self.password else"No"})")
+            self.logger.debug(f"Using database: {self.database}")
+            self.logger.debug("Trying to connect...")
             conn = mysql.connector.connect(host=hostname,user=user,password=password,database=database,port=port)
             if conn:
+                self.logger.debug("Connection established")
                 stmt = conn.cursor()
                 stmt.execute(CREATE_TABLE_QUERY)
+                self.logger.debug("Executed CREATE TABLE query")
                 conn.commit()
                 stmt.close()
                 conn.close()
+                self.logger.debug("Connection and cursor closed")
         except mysql.connector.Error as err:
             if err.errno == 1045:
                 raise PermissionError(f"User {user} can't connect to the database {database}: Permission Denied") from None
@@ -213,16 +281,25 @@ class MySQL:
             else:
                 raise RuntimeError(str(err)) from None
     def append_code_info(self,codeobj):
+        self.logger.debug("Loading code info to append...")
         values = codeobj.to_mysql()
+        self.logger.debug(f"Code info loaded: {values}")
         import mysql.connector
+        self.logger.debug("Imported mysql.connector")
         try:
+            self.logger.debug(f"Connecting to server: {self.hostname}:{self.port}")
+            self.logger.debug(f"Authenticating by user: {self.user} (Using password: {"Yes"if self.password else"No"})")
+            self.logger.debug(f"Using database: {self.database}")
             conn = mysql.connector.connect(host=self.hostname,user=self.user,password=self.password,database=self.database,port=self.port)
             if conn:
+                self.logger.debug("Connection established")
                 stmt = conn.cursor()
                 stmt.execute("insert into`wins_log`(`code`,`appear_time`,`rewrite_time`,`nick`,`is_it_me`)values(%s,%s,%s,%s,%s);",values)
                 conn.commit()
+                self.logger.debug("Inserted new row to the database")
                 stmt.close()
                 conn.close()
+                self.logger.debug("Connection and cursor closed")
         except mysql.connector.Error as err:
             raise RuntimeError(str(err)) from None
 # Match log level names with log levels
@@ -234,11 +311,18 @@ def main():
     # Initalize argument parser
     parser = ArgumentParser(description="Anarchia.GG Code Copier is listening for reward codes in the chat and copies it to clipboard")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
-    parser.add_argument("-all_logs","-vv",action="store_true",help="Show logs from all libraries")
     parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file")
     args = parser.parse_args()
+    if args.loglevel == "debug":
+        logger_format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
+        logger_quiet=False
+        logger_global_lvl=logging.DEBUG
+    else:
+        logger_format="[%(asctime)s] [%(levelname)s] %(message)s"
+        logger_quiet=True
+        logger_global_lvl=logging.CRITICAL+1
     # Initalize logger
-    logging.basicConfig(level=logging.CRITICAL+1 if not args.all_logs else LOGLVLS[args.loglevel],stream=stdout,format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"if args.all_logs else"[%(asctime)s] [%(levelname)s] %(message)s")
+    logging.basicConfig(level=logger_global_lvl,stream=stdout,format=logger_format)
     logger = logging.getLogger(__name__)
     logger.setLevel(LOGLVLS[args.loglevel])
     logger.info("Anarchia.GG Code Copier started")
@@ -317,7 +401,7 @@ def main():
     try:
         if sendnf:
             logger.debug("Trying to initalize Notify class")
-            notifications = Notify()
+            notifications = Notify(quietlog=logger_quiet)
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.critical("Can't send notifications because plyer lib isn't installed! Disable notifications in config or run: pip install plyer")
@@ -331,7 +415,7 @@ def main():
     try:
         if copysetting:
             logger.debug("Trying to initalize CodeCopy class")
-            codecopy = CodeCopy()
+            codecopy = CodeCopy(quietlog=logger_quiet)
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.critical("Can't copy to clipboard because pyperclip lib is not installed! Disable copy_to_clipboard in config file or run: pip install pyperclip")
@@ -349,8 +433,7 @@ def main():
     try:
         if savetocsv:
             logger.debug("Trying to initalize CSV class")
-            logger.debug(f"Saving to file: {savetocsv}")
-            csvf = CSV(savetocsv)
+            csvf = CSV(savetocsv,quietlog=logger_quiet)
             logger.debug("Initalized successfully!")
     except PermissionError as e:
         logger.error(str(e))
@@ -366,20 +449,23 @@ def main():
     try:
         if savetomysql:
             logger.debug("Trying to initalize MySQL class")
-            logger.debug(f"Connecting to server: {savetomysql["host"]}:{savetomysql.get("port")if savetomysql.get("port")else"3306"}")
-            logger.debug(f"Authenticating by user: {savetomysql["user"]} (Using password: {"Yes"if savetomysql.get("password")else"No"})")
-            logger.debug(f"Using database: {savetomysql["database"]}")
-            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port")if savetomysql.get("port")else 3306,user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"])
+            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port")if savetomysql.get("port")else 3306,user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],quietlog=logger_quiet)
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.critical("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
         exit(os.EX_UNAVAILABLE)
     except PermissionError as perr:
-        logger.error(str(perr))
-        exit(os.EX_NOPERM)
+        if savetomysql.get("optional"):
+            logger.warning(str(perr))
+        else:
+            logger.error(str(perr))
+            exit(os.EX_NOPERM)
     except ConnectionRefusedError as crerr:
-        logger.error(str(crerr))
-        exit(os.EX_NOHOST)
+        if savetomysql.get("optional"):
+            logger.warning(str(crerr))
+        else:
+            logger.error(str(crerr))
+            exit(os.EX_NOHOST)
     except KeyError:
         logger.error("Some values in config file are missing! Make sure you've set host, port (optional, by default 3306), user, password and database!")
         exit(os.EX_CONFIG)
