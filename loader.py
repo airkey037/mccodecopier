@@ -66,10 +66,8 @@ class Minecraft:
                 messages.append(msg.split(" [System] [CHAT] ")[1])
         return tuple(messages)
 class Code:
-    def __init__(self,code:str,timestamp:datetime,player:str,time:float,nicknames:tuple,quietlog:bool=False):
+    def __init__(self,code:str,timestamp:datetime,player:str,time:float,nicknames:tuple):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        if quietlog:
-            self.logger.setLevel(logging.CRITICAL+1)
         self.code = code
         self.logger.debug(f"Creating Code object for code: {code}")
         if timestamp:
@@ -100,12 +98,10 @@ class Code:
         else:
             return f"Player {self.player} re-writed the code in {self.time}s"
 class AnarchiaGG(Minecraft):
-    def __init__(self,mc_log_file:str,nicknames:list,quietlog:bool=False):
+    def __init__(self,mc_log_file:str,nicknames:list):
         super().__init__(mc_log_file=mc_log_file)
         # Create in-class logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        if quietlog:
-            self.logger.setLevel(logging.CRITICAL+1)
         # Load all accepted nicknames
         if nicknames == None:
             self.nicknames=tuple()
@@ -162,11 +158,9 @@ class AnarchiaGG(Minecraft):
         return {"total_codes":len(self.codes),"total_keys":len(self.codes)*3,"my_codes":self.my_wins,"my_keys":self.my_wins*3,"my_wins_percentage":my_wins_percentage}
 # Class to send notifications
 class Notify:
-    def __init__(self,quietlog:bool=False):
+    def __init__(self):
         # Define logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        if quietlog:
-            self.logger.setLevel(logging.CRITICAL+1)
         # Throws ImportError when lib is not installed
         from plyer import notification
         self.logger.debug("plyer lib was imported successfully")
@@ -177,11 +171,9 @@ class Notify:
         notification.notify(app_name="MC Code Copier",timeout=5,title=title,message=msg)
 # Class to copy code to the clipboard
 class CodeCopy:
-    def __init__(self,quietlog:bool=False):
+    def __init__(self):
         # Define logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        if quietlog:
-            self.logger.setLevel(logging.CRITICAL+1)
         # This part throws ImportError when library is not installed
         from pyperclip import copy as pypercopy, paste as pyperpaste, PyperclipException
         self.logger.debug("pyperclip lib was imported successfully")
@@ -201,11 +193,9 @@ class CodeCopy:
         copy(code)
 # Class to create and use .csv files
 class CSV:
-    def __init__(self,file:str,quietlog:bool=False):
+    def __init__(self,file:str):
         # Create logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        if quietlog:
-            self.logger.setLevel(logging.CRITICAL+1)
         # If file is set to None, we will not make any changes
         self.file = file
         self.field_names=["Code","Nick","Time","Timestamp","Me"]
@@ -241,7 +231,7 @@ class CSV:
                 self.logger.debug("Successfully writed all needed data")
 # Class to save codes data to MySQL/MariaDB
 class MySQL:
-    def __init__(self,hostname:str,user:str,password:str,database:str,port=3306,quietlog:bool=False):
+    def __init__(self,hostname:str,user:str,password:str,database:str,port=3306):
         CREATE_TABLE_QUERY='''CREATE TABLE IF NOT EXISTS`wins_log`(`id`int(11)NOT NULL AUTO_INCREMENT COMMENT'Primary key',`code`varchar(10)DEFAULT NULL COMMENT'String that contains key, that player had to re-write',`appear_time`timestamp NOT NULL DEFAULT current_timestamp()COMMENT'Shows exact time when code appeared',`rewrite_time`float NOT NULL COMMENT'Time (in seconds) in what time player have re-writed the code',`nick`varchar(16)NOT NULL COMMENT'Who sent the code',`is_it_me`tinyint(1)NOT NULL COMMENT'True if I won the code',PRIMARY KEY(`id`))ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;'''
         self.hostname = hostname
         self.user = user
@@ -250,8 +240,6 @@ class MySQL:
         self.port = port
         # Define logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        if quietlog:
-            self.logger.setLevel(logging.CRITICAL+1)
         import mysql.connector
         self.logger.debug("Imported mysql.connector")
         try:
@@ -302,6 +290,88 @@ class MySQL:
                 self.logger.debug("Connection and cursor closed")
         except mysql.connector.Error as err:
             raise RuntimeError(str(err)) from None
+# Class to manage configuration
+class Config:
+    def defaultconf(self,path:str):
+        fullpath = Path(path)
+        self.logger.debug(f"Trying to create new config file in {fullpath.resolve()}")
+        if fullpath.exists():
+            self.logger.error("Config file already exists!")
+            exit(os.EX_CANTCREAT)
+        DEFAULT_CONFIG_FILE=f'''# MC Code Copier default config file\n# Program maintainer: AirKeyooo <airkeyooo@gmail.com>\n# Generated: {datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")}\n\n# Add path to your latest.log file\nlog_file: /path/to/latest.log\n\n# How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage\nread_lines: 2\n\n# Should program send notifications about new codes?\n# WARNING: Requires plyer module, which can be installed using: `pip install plyer`\nsend_notifications: false\n\n# Suggest when user should send code to don't look suspicious\n# Give value in seconds. If you don't want to use this function, comment it or set value to 0\nsuggest_timeout: 5\n\n# Should program automatically copy received code to the clipboard?\n# WARNING: Requires pyperclib module, which can be installed using: `pip install pyperclip`\ncopy_to_clipboard: false\n\n# Save results to .csv file\n# If you don't want to use this function, comment line below\nsave_to_csv: /path/to/file.csv\n\n# Set all nicknames that are yours\n# If you don't want to set your nicknames, comment/remove whole section below\nnicknames:\n  - Nickname1\n  - Nickname2\n\n# How frequently (in ms) chat should be scanned.\n# e.g. 200 -> messages will be scanned every 200ms\n# Smaller delay may improve efficiency, but will end up with higher CPU and disk usage\nscan_frequency: 300\n\n# MySQL DB Access config\n# If you want to use MySQL, uncomment all lines below and type your credentials\n# When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work\n# If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')\n# Minimal required user permissions: CREATE, INSERT\n# WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`\n#mysql:\n#  host: localhost\n#  port: 3306\n#  user: root\n#  password: \n#  database: my_database\n#  optional: false'''
+        try:
+            with open(file=fullpath.resolve(),mode="w",encoding="utf-8") as f:
+                f.write(DEFAULT_CONFIG_FILE)
+            self.logger.info("Default config file was created successfully")
+            exit(os.EX_OK)
+        except PermissionError:
+            self.logger.error(f"Can't save file in {fullpath.resolve()}: Permission Denied")
+            exit(os.EX_NOPERM)
+        except Exception as e:
+            self.logger.debug(f"Program error: {e}")
+            self.logger.critical("Internal app error!")
+            exit(os.EX_SOFTWARE)
+    def __init__(self,args):
+        # Create class-level logger
+        self.logger=logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        if args.default_config:
+            # Create default configuration file
+            self.defaultconf(args.config)
+        # Try to read config from configuration file
+        configfile=Path(args.config)
+        self.logger.debug(f"Path to configuration file: {configfile.resolve()}")
+        try:
+            self.logger.debug("Trying to load config file")
+            with open(file=configfile.resolve(),mode="r",encoding="utf-8") as f:
+                config = safe_load(f)
+                self.logger.debug("Config file was loaded successfully. Configuration:")
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Config file doesn't exist!")
+        except YAMLError:
+            raise SyntaxError(f"Invalid YAML syntax in config file!")
+        except PermissionError:
+            raise PermissionError(f"Can't open {configfile.resolve()}: Permission Denied")
+        except Exception as e:
+            self.logger.debug(f"Program error: {e}")
+            raise Exception
+        try:
+            self.log_file=Path(config.get("log_file"))
+            self.logger.debug(f"Path to latest.log file: {self.log_file.resolve()}")
+            if not self.log_file.exists():
+                self.logger.warning(f"Log file in {self.log_file.absolute()} doesn't exist!")
+        except TypeError:
+            self.logger.error("Path to log file isn't specified!")
+            raise KeyError
+        self.read_lines=config.get("read_lines")
+        if self.read_lines:
+            self.logger.debug(f"Read n lines backwards: {self.read_lines}")
+        else:
+            self.logger.error("read_lines value isn't specified!")
+            raise KeyError
+        self.send_notifications=bool(config.get("send_notifications"))
+        self.logger.debug("Program will send notifications" if self.send_notifications else "Program won't send notifications")
+        self.suggest_timeout=config.get("suggest_timeout")
+        if not self.suggest_timeout:
+            self.suggest_timeout=0
+        self.logger.debug(f"Suggest timeout: {self.suggest_timeout}")
+        self.copy_to_clipboard=bool(config.get("copy_to_clipboard"))
+        self.logger.debug("Program will copy code to clipboard" if self.copy_to_clipboard else "Program won't copy code to clipboard")
+        self.save_to_csv=config.get("save_to_csv")
+        self.logger.debug(f"Save history to CSV file: {Path(self.save_to_csv).resolve()}" if self.save_to_csv else "Program won't save history to CSV file")
+        self.nicknames=config.get("nicknames")
+        if self.nicknames:
+            self.logger.debug(f"Nicknames marked as mine: {", ".join(self.nicknames)}")
+        else:
+            self.nicknames=[]
+            self.logger.warning("Nick list is empty")
+        self.scan_frequency=config.get("scan_frequency")
+        if self.scan_frequency:
+            self.logger.debug(f"Chat will be scanned every {self.scan_frequency}ms")
+        else:
+            self.logger.error("scan_frequency isn't specified!")
+            raise KeyError
+        self.mysql=config.get("mysql")
+        self.logger.debug("MySQL/MariaDB support is "+"enabled"if self.mysql else "disabled")
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
@@ -309,52 +379,48 @@ def main():
     # Save start time
     start_time = datetime.now()
     # Initalize argument parser
-    parser = ArgumentParser(description="Anarchia.GG Code Copier is listening for reward codes in the chat and copies it to clipboard")
+    parser = ArgumentParser(description="MC Code Copier is listening for reward codes (In Anarchia.GG's OneBlock) in the chat, copies it to clipboard and stores it")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
-    parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file")
+    parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file. Settings passed as argumens will ALWAYS overwrite settings in config file")
+    parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path. If path points to file that already exists, program will skip it")
     args = parser.parse_args()
     if args.loglevel == "debug":
         logger_format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
-        logger_quiet=False
         logger_global_lvl=logging.DEBUG
     else:
         logger_format="[%(asctime)s] [%(levelname)s] %(message)s"
-        logger_quiet=True
         logger_global_lvl=logging.CRITICAL+1
     # Initalize logger
     logging.basicConfig(level=logger_global_lvl,stream=stdout,format=logger_format)
     logger = logging.getLogger(__name__)
     logger.setLevel(LOGLVLS[args.loglevel])
     logger.info("Anarchia.GG Code Copier started")
-    # Read configuration file
-    logger.debug("Trying to load config file")
-    config_file = Path(args.config)
-    logger.debug(f"Path to config file: {config_file.absolute()}")
+    # Initalize Config class
     try:
-        # Try to load config file
-        with open(config_file.absolute(),encoding="utf-8") as f:
-            config = safe_load(f)
-            logger.debug("Configuration has been loaded successfully")
-    except FileNotFoundError:
-        logger.error("Config file doesn't exist!")
+        logger.debug("Trying to initalize config class")
+        config = Config(args)
+        logger.debug("Config class initalized successfully")
+    except FileNotFoundError as e:
+        logger.error(e)
         exit(os.EX_NOINPUT)
-    except PermissionError:
-        logger.error(f"Can't open {config_file}: Permission Denied")
+    except PermissionError as e:
+        logger.error(e)
         exit(os.EX_NOPERM)
-    except YAMLError:
-        logger.error(f"Invalid YAML syntax")
+    except SyntaxError as e:
+        logger.error(e)
         exit(os.EX_CONFIG)
-    except Exception as e:
-        logger.debug(f"Program error: {e}")
-        logger.critical("Internal app error")
+    except KeyError:
+        exit(os.EX_CONFIG)
+    except Exception:
+        logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Create an object to manage chat reading
     try:
         logger.debug("Trying to create AnarchiaGG object")
-        nicks = config.get("nicknames")
-        chat = AnarchiaGG(mc_log_file=config["log_file"],nicknames=nicks)
+        nicks = config.nicknames
+        chat = AnarchiaGG(mc_log_file=config.log_file,nicknames=nicks)
         logger.debug("Object was created successfully")
-        logger.debug(f"Log file path: {Path(config["log_file"]).absolute()}")
+        logger.debug(f"Log file path: {Path(config.log_file).resolve()}")
         if not nicks:
             logger.warning("Nick list is empty")
         else:
@@ -383,25 +449,25 @@ def main():
     signal(SIGINT,stop)
     signal(SIGTERM,stop)
     # Read from config file how many lines should we read backwards
-    linestoread = config.get("read_lines")
+    linestoread = config.read_lines
     if not linestoread:
         logger.error("Amount of lines to check isn't specified in config file!")
         exit(os.EX_CONFIG)
     else:
         logger.debug(f"Last lines to read: {linestoread}")
     # Read from config file how frequently should we scan the chat
-    sleepms = config.get("scan_frequency")
+    sleepms = config.scan_frequency
     if not sleepms:
         logger.error("Scan frequency isn't specified in config file!")
         exit(os.EX_CONFIG)
     else:
         logger.debug(f"Sleep time: {sleepms}")
     # Initalize notification class
-    sendnf = config.get("send_notifications")
+    sendnf = config.send_notifications
     try:
         if sendnf:
             logger.debug("Trying to initalize Notify class")
-            notifications = Notify(quietlog=logger_quiet)
+            notifications = Notify()
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.critical("Can't send notifications because plyer lib isn't installed! Disable notifications in config or run: pip install plyer")
@@ -411,11 +477,11 @@ def main():
         logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Initalize CodeCopy class
-    copysetting = config.get("copy_to_clipboard")
+    copysetting = config.copy_to_clipboard
     try:
         if copysetting:
             logger.debug("Trying to initalize CodeCopy class")
-            codecopy = CodeCopy(quietlog=logger_quiet)
+            codecopy = CodeCopy()
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.critical("Can't copy to clipboard because pyperclip lib is not installed! Disable copy_to_clipboard in config file or run: pip install pyperclip")
@@ -429,11 +495,11 @@ def main():
         logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Initalize CSV class
-    savetocsv = config.get("save_to_csv")
+    savetocsv = config.save_to_csv
     try:
         if savetocsv:
             logger.debug("Trying to initalize CSV class")
-            csvf = CSV(savetocsv,quietlog=logger_quiet)
+            csvf = CSV(savetocsv,)
             logger.debug("Initalized successfully!")
     except PermissionError as e:
         logger.error(str(e))
@@ -445,11 +511,11 @@ def main():
         logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Initalize MySQL class
-    savetomysql = config.get("mysql")
+    savetomysql = config.mysql
     try:
         if savetomysql:
             logger.debug("Trying to initalize MySQL class")
-            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port")if savetomysql.get("port")else 3306,user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],quietlog=logger_quiet)
+            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port")if savetomysql.get("port")else 3306,user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],)
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.critical("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
@@ -488,7 +554,7 @@ def main():
         if code:
             # Process, copy and display info about it
             codets = datetime.now(timezone.utc).astimezone()
-            addtots = config.get("suggest_timeout")
+            addtots = config.suggest_timeout
             if addtots:
                 sendin = codets + timedelta(0,addtots)
                 sendtxt = f"Code {code} was found! Send it at: {sendin.hour}:{sendin.minute}:{sendin.second}"
