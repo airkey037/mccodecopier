@@ -9,6 +9,8 @@ from pathlib import Path
 from signal import signal, SIGTERM, SIGINT, Signals
 from time import sleep, time
 from datetime import datetime, timedelta, timezone
+from subprocess import run as subrun
+from platform import system
 import os
 from csv import DictReader, DictWriter, writer
 # Function to read n last lines without loading whole log file
@@ -161,14 +163,28 @@ class Notify:
     def __init__(self):
         # Define logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        # Throws ImportError when lib is not installed
-        from plyer import notification
-        self.logger.debug("plyer lib was imported successfully")
+        # Try to find out is notify-send installed and are we operating on Linux
+        self.logger.debug("Checking is your operating system supporting this function")
+        SUPPORTED_OS=["Linux"]
+        if system() not in SUPPORTED_OS:
+            self.logger.error(f"You can't use notifications function because you are running on {system()}! Currently, you can only use it on those OSes: {", ".join(SUPPORTED_OS)}")
+            raise RuntimeError
+        if system() == "Linux":
+            self.logger.debug(f"Running on Linux, checking is notify-send installed")
+            try:
+                nfsendver=subrun(["notify-send","--version"],text=True,capture_output=True)
+                if nfsendver.returncode == 0:
+                    self.logger.debug(f"notify-send is installed! Version: {nfsendver.stdout.strip()}")
+                else:
+                    self.logger.debug(f"notify-send error: {nfsendver.stderr}")
+                    self.logger.warning("notify-send is installed but finished with an error. Program belives that everything is working correctly, so continuing its work. For more details please check -loglevel debug")
+            except FileNotFoundError:
+                self.logger.error("notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.")
+                raise RuntimeError
     def send_notification(self,title,msg):
         # Send notification
-        from plyer import notification
         self.logger.debug(f"Sending notification with app name 'MC Code Copier', title '{title}' and content '{msg}'")
-        notification.notify(app_name="MC Code Copier",timeout=5,title=title,message=msg)
+        subrun(["notify-send","--app-name=MC Code Copier",title,msg])
 # Class to copy code to the clipboard
 class CodeCopy:
     def __init__(self):
@@ -298,7 +314,7 @@ class Config:
         if fullpath.exists():
             self.logger.error("Config file already exists!")
             exit(os.EX_CANTCREAT)
-        DEFAULT_CONFIG_FILE=f'''# MC Code Copier default config file\n# Program maintainer: AirKeyooo <airkeyooo@gmail.com>\n# Generated: {datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")}\n\n# Add path to your latest.log file\nlog_file: /path/to/latest.log\n\n# How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage\nread_lines: 2\n\n# Should program send notifications about new codes?\n# WARNING: Requires plyer module, which can be installed using: `pip install plyer`\nsend_notifications: false\n\n# Suggest when user should send code to don't look suspicious\n# Give value in seconds. If you don't want to use this function, comment it or set value to 0\nsuggest_timeout: 5\n\n# Should program automatically copy received code to the clipboard?\n# WARNING: Requires pyperclib module, which can be installed using: `pip install pyperclip`\ncopy_to_clipboard: false\n\n# Save results to .csv file\n# If you don't want to use this function, comment line below\nsave_to_csv: /path/to/file.csv\n\n# Set all nicknames that are yours\n# If you don't want to set your nicknames, comment/remove whole section below\nnicknames:\n  - Nickname1\n  - Nickname2\n\n# How frequently (in ms) chat should be scanned.\n# e.g. 200 -> messages will be scanned every 200ms\n# Smaller delay may improve efficiency, but will end up with higher CPU and disk usage\nscan_frequency: 300\n\n# MySQL DB Access config\n# If you want to use MySQL, uncomment all lines below and type your credentials\n# When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work\n# If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')\n# Minimal required user permissions: CREATE, INSERT\n# WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`\n#mysql:\n#  host: localhost\n#  port: 3306\n#  user: root\n#  password: \n#  database: my_database\n#  optional: false'''
+        DEFAULT_CONFIG_FILE=f'''# MC Code Copier default config file\n# Program maintainer: AirKeyooo <airkeyooo@gmail.com>\n# Generated: {datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")}\n\n# Add path to your latest.log file\nlog_file: /path/to/latest.log\n\n# How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage\nread_lines: 2\n\n# Should program send notifications about new codes?\n# WARNING: Works only on Linux and ends with error on any other OS!\nsend_notifications: false\n\n# Suggest when user should send code to don't look suspicious\n# Give value in seconds. If you don't want to use this function, comment it or set value to 0\nsuggest_timeout: 5\n\n# Should program automatically copy received code to the clipboard?\n# WARNING: Requires pyperclib module, which can be installed using: `pip install pyperclip`\ncopy_to_clipboard: false\n\n# Save results to .csv file\n# If you don't want to use this function, comment line below\nsave_to_csv: /path/to/file.csv\n\n# Set all nicknames that are yours\n# If you don't want to set your nicknames, comment/remove whole section below\nnicknames:\n  - Nickname1\n  - Nickname2\n\n# How frequently (in ms) chat should be scanned.\n# e.g. 200 -> messages will be scanned every 200ms\n# Smaller delay may improve efficiency, but will end up with higher CPU and disk usage\nscan_frequency: 300\n\n# MySQL DB Access config\n# If you want to use MySQL, uncomment all lines below and type your credentials\n# When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work\n# If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')\n# Minimal required user permissions: CREATE, INSERT\n# WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`\n#mysql:\n#  host: localhost\n#  port: 3306\n#  user: root\n#  password: \n#  database: my_database\n#  optional: false'''
         try:
             with open(file=fullpath.resolve(),mode="w",encoding="utf-8") as f:
                 f.write(DEFAULT_CONFIG_FILE)
@@ -469,8 +485,7 @@ def main():
             logger.debug("Trying to initalize Notify class")
             notifications = Notify()
             logger.debug("Initalized successfully!")
-    except ImportError:
-        logger.critical("Can't send notifications because plyer lib isn't installed! Disable notifications in config or run: pip install plyer")
+    except RuntimeError:
         exit(os.EX_UNAVAILABLE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
