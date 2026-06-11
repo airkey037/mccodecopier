@@ -4,7 +4,11 @@
 from argparse import ArgumentParser
 import logging
 from sys import stdout, exit
-from yaml import safe_load, YAMLError
+try:
+    from yaml import safe_load, YAMLError
+except ImportError:
+    print("pyyaml lib isn't installed! Install it using: pip install pyyaml")
+    exit(1)
 from pathlib import Path
 from signal import signal, SIGTERM, SIGINT, Signals
 from time import sleep, time
