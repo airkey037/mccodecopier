@@ -17,6 +17,7 @@ from subprocess import run as subrun
 from platform import system
 import os
 from csv import DictReader, DictWriter, writer
+import ctypes
 # Function to read n last lines without loading whole log file
 def tail(path, n=1):
     if n <= 0:
@@ -45,6 +46,14 @@ def tail(path, n=1):
         if buffer and len(lines) < n:
             lines.append(buffer[::-1].decode(errors="replace"))
     return tuple(reversed(lines))
+# Function to check program privileges
+def is_root():
+    if hasattr(os,"getuid"):
+        return os.getuid()==0
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin() != 0
+    except AttributeError:
+        return False
 # Make class to manage chat messages
 class Minecraft:
     def __init__(self,mc_log_file:str):
@@ -494,6 +503,7 @@ def main():
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
     parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file. Settings passed as argumens will ALWAYS overwrite settings in config file")
     parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path. If path points to file that already exists, program will skip it")
+    parser.add_argument("-runasroot",action="store_true",help="Make possible for program to run as root")
     args = parser.parse_args()
     if args.loglevel == "debug":
         logger_format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
@@ -506,6 +516,17 @@ def main():
     logger = logging.getLogger(__name__)
     logger.setLevel(LOGLVLS[args.loglevel])
     logger.info("Anarchia.GG Code Copier started")
+    # Check program privileges
+    logger.debug("Checking program privileges")
+    amirooted=is_root()
+    if amirooted:
+        if args.runasroot:
+            logger.critical("Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it.")
+        else:
+            logger.critical("Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it. Run it as a normal user! But if you really want to continue (VERY UNRECOMMENDED), add -runasroot flag (but keep in mind that you are doing it for YOUR OWN RESPONSIBILITY!!)")
+            exit(1)
+    else:
+        logger.debug("Program is not running as root/admin, continuing safely")
     # Initalize Config class
     try:
         logger.debug("Trying to initalize config class")
