@@ -233,6 +233,8 @@ class CSV:
                     writer.writeheader()
             except PermissionError:
                 raise PermissionError(f"Can't open {file}: Permission denied")
+            except IsADirectoryError:
+                raise IsADirectoryError(f"Can't open {file} - this path points to a directory!")
         else:
             self.logger.debug(f"File path wasn't given, skipping")
     def append_code_info(self,codeobj):
@@ -335,14 +337,103 @@ class Config:
             self.defaultconf(args.config)
         # Try to read config from configuration file
         configfile=Path(args.config)
-        self.logger.debug(f"Path to configuration file: {configfile.resolve()}")
+        self.logger.debug(f"Path to configuration file loaded from parameter: {configfile.resolve()}"+" (default)"if configfile.name=="config.yml"else"")
+        if not configfile.exists():
+            self.logger.debug("Config file doesn't exist, trying to load it from other paths")
+            if system()=="Linux":
+                # Here you can add possible config files location - first items have bigger priority
+                LINUX_PATHS=["/etc/codecopier.yml","/etc/codecopier/config.yml","/etc/codecopier/codecopier.yml"]
+                LINUX_PATHS_WITH_HOME=[".config/codecopier.yml",".config/codecopier/config.yml",".config/codecopier/codecopier.yml"]
+                homedir=Path(os.getenv("HOME"))
+                self.logger.debug("Operating on Linux, trying to load some config files...")
+                for path in reversed(LINUX_PATHS):
+                    pathto=Path(path)
+                    if pathto.exists():
+                        self.logger.debug(f"Path {pathto.resolve()} exists, checking is it file")
+                        if pathto.is_file():
+                            self.logger.debug(f"File {pathto.resolve()} exists! Trying to read it...")
+                            try:
+                                with open(file=pathto.resolve(),mode="r",encoding="utf-8"):
+                                    pass
+                                configfile=pathto
+                                self.logger.debug(f"Found readable file: {configfile.resolve()} Searching further for other possible file with higher priority...")
+                            except PermissionError:
+                                self.logger.warning(f"Possible config file {pathto.resolve()} exists, but program can't read it: No permission. Skipping it and searching other locations...")
+                        else:
+                            self.logger.warning(f"Possible config {pathto.resolve()} exists, but it is a directory! Skipping!")
+                    else:
+                        self.logger.debug(f"{pathto.resolve()} doesn't exist")
+                for path in reversed(LINUX_PATHS_WITH_HOME):
+                    pathto=homedir/path
+                    if pathto.exists():
+                        self.logger.debug(f"Path {pathto.resolve()} exists, checking is it file")
+                        if pathto.is_file():
+                            self.logger.debug(f"File {pathto.resolve()} exists! Trying to read it...")
+                            try:
+                                with open(file=pathto.resolve(),mode="r",encoding="utf-8"):
+                                    pass
+                                configfile=pathto
+                                self.logger.debug(f"Found readable file: {configfile.resolve()} Searching further for other possible file with higher priority...")
+                            except PermissionError:
+                                self.logger.warning(f"Possible config file {pathto.resolve()} exists, but program can't read it: No permission. Skipping it and searching other locations...")
+                        else:
+                            self.logger.warning(f"Possible config {pathto.resolve()} exists, but it is a directory! Skipping!")
+                    else:
+                        self.logger.debug(f"{pathto.resolve()} doesn't exist")
+            elif system()=="Windows":
+                self.logger.debug("Operating on Windows, trying to load some config files...")
+                WINDOWS_PROGRAM_PATHS=["codecopier/config.yml","codecopier/codecopier.yml","CodeCopier/config.yml","CodeCopier/codecopier.yml","CodeCopier/CodeCopier.yml"]
+                WINDOWS_PROGRAM_LOCATIONS=[os.getenv("APPDATA"),os.getenv("PROGRAMDATA"),os.getenv("LOCALAPPDATA")]
+                for progl in WINDOWS_PROGRAM_LOCATIONS:
+                    for progp in WINDOWS_PROGRAM_PATHS:
+                        pathto=Path(progl)/progp
+                        if pathto.exists():
+                            self.logger.debug(f"Path {pathto.resolve()} exists, checking is it file")
+                            if pathto.is_file():
+                                self.logger.debug(f"File {pathto.resolve()} exists! Trying to read it...")
+                                try:
+                                    with open(file=pathto.resolve(),mode="r",encoding="utf-8"):
+                                        pass
+                                    configfile=pathto
+                                    self.logger.debug(f"Found readable file: {configfile.resolve()} Searching further for other possible file with higher priority...")
+                                except PermissionError:
+                                    self.logger.warning(f"Possible config file {pathto.resolve()} exists, but program can't read it: No permission. Skipping it and searching other locations...")
+                            else:
+                                self.logger.warning(f"Possible config {pathto.resolve()} exists, but it is a directory! Skipping!")
+                        else:
+                            self.logger.debug(f"{pathto.resolve()} doesn't exist")
+            # Read config file from special env variable: CODECOPIER_CONFIG
+            self.logger.debug("Trying to load config file path from environment variable CODECOPIER_CONFIG")
+            pathfromenv=os.getenv("CODECOPIER_CONFIG")
+            if pathfromenv:
+                pathto=Path(pathfromenv)
+                self.logger.debug(f"Variable exists! Path: {pathto.resolve()}")
+                if pathto.exists():
+                    self.logger.debug("Checking is it file")
+                    if pathto.is_file():
+                        self.logger.debug("File exists, so trying to read it")
+                        try:
+                            with open(file=pathto.resolve(),mode="r",encoding="utf-8"):
+                                pass
+                            self.logger.debug("File exists and it is readable, so using it as a primary config file")
+                            configfile=pathto
+                        except PermissionError:
+                            self.logger.warning(f"Config file that you specified in CODECOPIER_CONFIG environment variable exists, but program don't have permissions to run it. Using path from -config parameter")
+                    else:
+                        self.logger.warning("Path that you have specified in CODECOPIER_CONFIG environment variable points to a directory! Skipping, using path from -config parameter")
+                else:
+                    self.logger.warning(f"Config file that you specified in CODECOPIER_CONFIG environment variable doesn't exist! Using path from -config parameter")
+            else:
+                self.logger.debug("Environment variable CODECOPIER_CONFIG doesn't exist")
         try:
-            self.logger.debug("Trying to load config file")
+            self.logger.debug(f"Trying to load config file from {configfile.resolve()}")
             with open(file=configfile.resolve(),mode="r",encoding="utf-8") as f:
                 config = safe_load(f)
                 self.logger.debug("Config file was loaded successfully. Configuration:")
         except FileNotFoundError:
             raise FileNotFoundError(f"Config file doesn't exist!")
+        except IsADirectoryError:
+            raise FileNotFoundError(f"Path that you have specified points to a directory!")
         except YAMLError:
             raise SyntaxError(f"Invalid YAML syntax in config file!")
         except PermissionError:
@@ -519,6 +610,9 @@ def main():
     except PermissionError as e:
         logger.error(str(e))
         exit(os.EX_NOPERM)
+    except IsADirectoryError as e:
+        logger.error(e)
+        exit(os.EX_OSFILE)
     except ValueError as e:
         logger.warning(str(e))
     except Exception as e:
