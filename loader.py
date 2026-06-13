@@ -171,6 +171,11 @@ class AnarchiaGG(Minecraft):
         except ZeroDivisionError:
             my_wins_percentage = 0
         return {"total_codes":len(self.codes),"total_keys":len(self.codes)*3,"my_codes":self.my_wins,"my_keys":self.my_wins*3,"my_wins_percentage":my_wins_percentage}
+# Custom program exception
+class MCError(Exception):
+    def __init__(self,message:str,returncode:int=1):
+        super().__init__(message)
+        self.returncode = returncode
 # Class to send notifications
 class Notify:
     def __init__(self):
@@ -204,8 +209,11 @@ class CodeCopy:
         # Define logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         # This part throws ImportError when library is not installed
-        from pyperclip import copy as pypercopy, paste as pyperpaste, PyperclipException
-        self.logger.debug("pyperclip lib was imported successfully")
+        try:
+            from pyperclip import copy as pypercopy, paste as pyperpaste, PyperclipException
+            self.logger.debug("pyperclip lib was imported successfully")
+        except ImportError:
+            raise RuntimeError("Can't copy to clipboard because pyperclip lib is not installed! If you want to use this function, run: pip install pyperclip")
         try:
             sample_text="Hello World from MC Code Copier! :)"
             self.logger.debug(f"Trying to copy sample text: {sample_text}")
@@ -215,7 +223,8 @@ class CodeCopy:
             if sample_text != pasted_text:
                 self.logger.warning("Something went wrong: Copied and pasted texts aren't the same values!")
         except PyperclipException as e:
-            raise RuntimeError(str(e)) from None
+            self.logger.debug(f"Original error message: {e}")
+            raise RuntimeError("Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info"+". You are on Linux, so you can check is your copying backend (like wl-copy) installed"if system()=="Linux"else"")
     def copy(self,code:str):
         from pyperclip import copy
         self.logger.debug(f"Copying {code}")
@@ -502,7 +511,7 @@ def main():
     parser = ArgumentParser(description="MC Code Copier is listening for reward codes (In Anarchia.GG's OneBlock) in the chat, copies it to clipboard and stores it")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
     parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file. Settings passed as argumens will ALWAYS overwrite settings in config file")
-    parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path. If path points to file that already exists, program will skip it")
+    parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path")
     parser.add_argument("-runasroot",action="store_true",help="Make possible for program to run as root")
     args = parser.parse_args()
     if args.loglevel == "debug":
@@ -614,12 +623,8 @@ def main():
             logger.debug("Trying to initalize CodeCopy class")
             codecopy = CodeCopy()
             logger.debug("Initalized successfully!")
-    except ImportError:
-        logger.critical("Can't copy to clipboard because pyperclip lib is not installed! Disable copy_to_clipboard in config file or run: pip install pyperclip")
-        exit(os.EX_UNAVAILABLE)
     except RuntimeError as e:
-        logger.debug(f"Original error message: {e}")
-        logger.critical("Can't copy anything to clipboard because copying backend is not installed! See -loglevel debug for more details")
+        logger.error(e)
         exit(os.EX_UNAVAILABLE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
@@ -652,7 +657,7 @@ def main():
             mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port")if savetomysql.get("port")else 3306,user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],)
             logger.debug("Initalized successfully!")
     except ImportError:
-        logger.critical("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
+        logger.error("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
         exit(os.EX_UNAVAILABLE)
     except PermissionError as perr:
         if savetomysql.get("optional"):
@@ -670,7 +675,7 @@ def main():
         logger.error("Some values in config file are missing! Make sure you've set host, port (optional, by default 3306), user, password and database!")
         exit(os.EX_CONFIG)
     except RuntimeError as rerr:
-        logger.critical(f"Internal MySQL error: {rerr}")
+        logger.error(f"Internal MySQL error: {rerr}")
         exit(os.EX_SOFTWARE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
