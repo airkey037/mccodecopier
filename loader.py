@@ -173,9 +173,10 @@ class AnarchiaGG(Minecraft):
         return {"total_codes":len(self.codes),"total_keys":len(self.codes)*3,"my_codes":self.my_wins,"my_keys":self.my_wins*3,"my_wins_percentage":my_wins_percentage}
 # Custom program exception
 class MCError(Exception):
-    def __init__(self,message:str,returncode:int=1):
+    def __init__(self,message:str,returncode:int=1,native_exception:Exception=Exception):
         super().__init__(message)
-        self.returncode = returncode
+        self.returncode=returncode
+        self.native_exception=native_exception
 # Class to send notifications
 class Notify:
     def __init__(self):
@@ -235,28 +236,37 @@ class CSV:
         # Create logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         # If file is set to None, we will not make any changes
-        self.file = file
         self.field_names=["Code","Nick","Time","Timestamp","Me"]
         if file:
-            self.logger.debug(f"Given file path: {file}")
-            try:
-                with open(file,encoding="utf-8") as f:
-                    self.logger.debug("Opened CSV file")
-                    reader=DictReader(f)
-                    if reader.fieldnames != self.field_names:
-                        self.logger.debug(f"Loaded field names: {", ".join(reader.fieldnames)}")
-                        self.logger.debug(f"Expected field names: {", ".join(self.field_names)}")
-                        raise ValueError("File that you specified have different header names")
-            except FileNotFoundError:
+            self.file = Path(file)
+            self.logger.debug(f"Given file path: {self.file.resolve()}")
+            self.logger.debug("Checking does path exists")
+            if self.file.exists():
+                self.logger.debug("Path exists, checking is it file")
+                if self.file.is_file():
+                    try:
+                        with open(file=self.file.resolve(),mode="r",encoding="utf-8") as f:
+                            self.logger.debug("Opened CSV file")
+                            reader=DictReader(f)
+                            self.logger.debug(f"Loaded field names: {", ".join(reader.fieldnames)}")
+                            self.logger.debug(f"Expected field names: {", ".join(self.field_names)}")
+                            if reader.fieldnames != self.field_names:
+                                self.logger.warning("File that you specified have different header names than expected!")
+                    except PermissionError:
+                        raise PermissionError(f"Can't open {self.file.resolve()}: Permission Denied")
+                else:
+                    raise IsADirectoryError(f"Can't open {self.file.resolve()} - this path points to a directory!")
+            else:
                 # Create new file
                 self.logger.debug("File doesn't exists, creating a blank one")
-                with open(file,mode="w",newline="",encoding="utf-8") as f:
-                    writer=DictWriter(f,fieldnames=self.field_names)
-                    writer.writeheader()
-            except PermissionError:
-                raise PermissionError(f"Can't open {file}: Permission denied")
-            except IsADirectoryError:
-                raise IsADirectoryError(f"Can't open {file} - this path points to a directory!")
+                try:
+                    with open(file=self.file.resolve(),mode="w",newline="",encoding="utf-8") as f:
+                        self.logger.debug("File opened")
+                        writer=DictWriter(f,fieldnames=self.field_names)
+                        writer.writeheader()
+                        self.logger.debug("File saved successfully")
+                except PermissionError:
+                    raise PermissionError(f"Can't create {self.file.resolve()}: Permission Denied")
         else:
             self.logger.debug(f"File path wasn't given, skipping")
     def append_code_info(self,codeobj):
@@ -635,16 +645,14 @@ def main():
     try:
         if savetocsv:
             logger.debug("Trying to initalize CSV class")
-            csvf = CSV(savetocsv,)
+            csvf = CSV(savetocsv)
             logger.debug("Initalized successfully!")
     except PermissionError as e:
-        logger.error(str(e))
+        logger.error(e)
         exit(os.EX_NOPERM)
     except IsADirectoryError as e:
         logger.error(e)
         exit(os.EX_OSFILE)
-    except ValueError as e:
-        logger.warning(str(e))
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
