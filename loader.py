@@ -470,23 +470,18 @@ class Config:
             raise SyntaxError(f"Invalid YAML syntax in config file!")
         except PermissionError:
             raise PermissionError(f"Can't open {configfile.resolve()}: Permission Denied")
-        except Exception as e:
-            self.logger.debug(f"Program error: {e}")
-            raise Exception
         try:
             self.log_file=Path(config.get("log_file"))
             self.logger.debug(f"Path to latest.log file: {self.log_file.resolve()}")
             if not self.log_file.exists():
                 self.logger.warning(f"Log file in {self.log_file.absolute()} doesn't exist!")
         except TypeError:
-            self.logger.error("Path to log file isn't specified!")
-            raise KeyError
+            raise KeyError("Path to log file isn't specified!")
         self.read_lines=config.get("read_lines")
         if self.read_lines:
             self.logger.debug(f"Read n lines backwards: {self.read_lines}")
         else:
-            self.logger.error("read_lines value isn't specified!")
-            raise KeyError
+            raise KeyError("read_lines value isn't specified!")
         self.send_notifications=bool(config.get("send_notifications"))
         self.logger.debug("Program will send notifications" if self.send_notifications else "Program won't send notifications")
         self.suggest_timeout=config.get("suggest_timeout")
@@ -507,8 +502,7 @@ class Config:
         if self.scan_frequency:
             self.logger.debug(f"Chat will be scanned every {self.scan_frequency}ms")
         else:
-            self.logger.error("scan_frequency isn't specified!")
-            raise KeyError
+            raise KeyError("scan_frequency isn't specified!")
         self.mysql=config.get("mysql")
         self.logger.debug("MySQL/MariaDB support is "+"enabled"if self.mysql else "disabled")
 # Match log level names with log levels
@@ -560,9 +554,11 @@ def main():
     except SyntaxError as e:
         logger.error(e)
         exit(os.EX_CONFIG)
-    except KeyError:
+    except KeyError as e:
+        logger.error(e)
         exit(os.EX_CONFIG)
-    except Exception:
+    except Exception as e:
+        logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Create an object to manage chat reading
@@ -576,15 +572,12 @@ def main():
             logger.warning("Nick list is empty")
         else:
             logger.debug(f"Nicks marked as mine: {", ".join(nicks)}")
-    except KeyError:
-        logger.error("Can't read log file path from config file!")
-        exit(os.EX_CONFIG)
     except FileNotFoundError as e:
         # AnarchiaGG class throws FileNotFoundError and PermissionError with already prepared message, so we can only catch it and exit with specific code
-        logger.error(str(e))
+        logger.error(e)
         exit(os.EX_NOINPUT)
     except PermissionError as e:
-        logger.error(str(e))
+        logger.error(e)
         exit(os.EX_NOPERM)
     except Exception as e:
         logger.debug(f"Program error: {e}")
