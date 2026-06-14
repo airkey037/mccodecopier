@@ -461,48 +461,79 @@ class Config:
                 config = safe_load(f)
                 self.logger.debug("Config file was loaded successfully. Configuration:")
         except FileNotFoundError:
-            raise FileNotFoundError(f"Config file doesn't exist!")
+            raise FileNotFoundError("Config file doesn't exist!")
         except IsADirectoryError:
-            raise FileNotFoundError(f"Path that you have specified points to a directory!")
+            raise FileNotFoundError("Path that you have specified points to a directory!")
         except YAMLError:
-            raise SyntaxError(f"Invalid YAML syntax in config file!")
+            raise SyntaxError("Invalid YAML syntax in config file!")
         except PermissionError:
             raise PermissionError(f"Can't open {configfile.resolve()}: Permission Denied")
-        try:
-            self.log_file=Path(config.get("log_file"))
-            self.logger.debug(f"Path to latest.log file: {self.log_file.resolve()}")
-            if not self.log_file.exists():
-                self.logger.warning(f"Log file in {self.log_file.absolute()} doesn't exist!")
-        except TypeError:
-            raise KeyError("Path to log file isn't specified!")
+        if config.get("log_file"):
+            if type(config.get("log_file"))is str:
+                self.log_file=Path(config.get("log_file"))
+                self.logger.debug(f"Path to latest.log file: {self.log_file.resolve()}")
+                if not self.log_file.exists():
+                    raise FileNotFoundError(f"Log file in {self.log_file.resolve()} doesn't exist!")
+            else:
+                raise TypeError(f"log_file can be only str, not {config.get("log_file").__class__.__name__}!")
+        else:
+            raise KeyError("Config file isn't specified in config file!")
         self.read_lines=config.get("read_lines")
         if self.read_lines:
-            self.logger.debug(f"Read n lines backwards: {self.read_lines}")
+            if type(self.read_lines)is int:
+                self.logger.debug(f"Read n lines backwards: {self.read_lines}")
+            else:
+                raise TypeError(f"read_lines can be only int, not {self.read_lines.__class__.__name__}!")
         else:
             raise KeyError("read_lines value isn't specified!")
         self.send_notifications=bool(config.get("send_notifications"))
         self.logger.debug("Program will send notifications" if self.send_notifications else "Program won't send notifications")
-        self.suggest_timeout=config.get("suggest_timeout")
-        if not self.suggest_timeout:
+        if config.get("suggest_timeout"):
+            if type(config.get("suggest_timeout"))is int:
+                self.suggest_timeout=config.get("suggest_timeout")
+                self.logger.debug(f"Suggest timeout: {self.suggest_timeout}")
+            else:
+                raise TypeError(f"suggest_timeout can be only int, not {config.get("suggest_timeout").__class__.__name__}!")
+        else:
             self.suggest_timeout=0
-        self.logger.debug(f"Suggest timeout: {self.suggest_timeout}")
+            self.logger.debug("Program won't suggest timeout")
         self.copy_to_clipboard=bool(config.get("copy_to_clipboard"))
         self.logger.debug("Program will copy code to clipboard" if self.copy_to_clipboard else "Program won't copy code to clipboard")
-        self.save_to_csv=config.get("save_to_csv")
-        self.logger.debug(f"Save history to CSV file: {Path(self.save_to_csv).resolve()}" if self.save_to_csv else "Program won't save history to CSV file")
-        self.nicknames=config.get("nicknames")
-        if self.nicknames:
-            self.logger.debug(f"Nicknames marked as mine: {", ".join(self.nicknames)}")
+        if config.get("save_to_csv"):
+            if type(config.get("save_to_csv"))is str:
+                self.save_to_csv=Path(config.get("save_to_csv"))
+                self.logger.debug(f"Save history to CSV file: {self.save_to_csv.resolve()}")
+            else:
+                raise TypeError(f"save_to_csv can be only str, not {config.get("save_to_csv").__class__.__name__}!")
+        else:
+            self.save_to_csv=None
+            self.logger.debug("Program won't save history to CSV file")
+        if config.get("nicknames"):
+            if type(config.get("nicknames"))is list:
+                self.nicknames=config.get("nicknames")
+                self.logger.debug(f"Nicknames marked as mine: {", ".join(self.nicknames)}")
+            else:
+                raise TypeError(f"nicknames can be only list, not {config.get("nicknames").__class__.__name__}!")
         else:
             self.nicknames=[]
             self.logger.warning("Nick list is empty")
-        self.scan_frequency=config.get("scan_frequency")
-        if self.scan_frequency:
-            self.logger.debug(f"Chat will be scanned every {self.scan_frequency}ms")
+        if config.get("scan_frequency"):
+            if type(config.get("scan_frequency"))is int:
+                self.scan_frequency=config.get("scan_frequency")
+                self.logger.debug(f"Chat will be scanned every {self.scan_frequency}ms")
+            else:
+                raise TypeError(f"scan_frequency can be only int, not {config.get("scan_frequency").__class__.__name__}!")
         else:
             raise KeyError("scan_frequency isn't specified!")
-        self.mysql=config.get("mysql")
-        self.logger.debug("MySQL/MariaDB support is "+"enabled"if self.mysql else "disabled")
+        if config.get("mysql"):
+            if type(config.get("mysql"))is dict:
+                self.mysql=config.get("mysql")
+                self.logger.debug("MySQL/MariaDB support is enabled")
+            else:
+                raise TypeError(f"mysql can be only dict, not {config.get("mysql").__class__.__name__}!")
+        else:
+            self.mysql=None
+            self.logger.debug("MySQL/MariaDB support is disabled")
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
@@ -553,8 +584,11 @@ def main():
         logger.error(e)
         exit(os.EX_CONFIG)
     except KeyError as e:
-        logger.error(e)
+        logger.error(e.args[0])
         exit(os.EX_CONFIG)
+    except TypeError as e:
+        logger.error(e)
+        exit(os.EX_DATAERR)
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
