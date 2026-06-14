@@ -54,6 +54,27 @@ def is_root():
         return ctypes.windll.shell32.IsUserAnAdmin() != 0
     except AttributeError:
         return False
+# Class to manage return codes
+class ReturnCodes:
+    def __init__(self):
+        self.EX_CANTCREAT=getattr(os,"EX_CANTCREAT",73)
+        self.EX_CONFIG=getattr(os,"EX_CONFIG",78)
+        self.EX_DATAERR=getattr(os,"EX_DATAERR",65)
+        self.EX_IOERR=getattr(os,"EX_IOERR",74)
+        self.EX_NOHOST=getattr(os,"EX_NOHOST",68)
+        self.EX_NOINPUT=getattr(os,"EX_NOINPUT",66)
+        self.EX_NOPERM=getattr(os,"EX_NOPERM",77)
+        self.EX_NOUSER=getattr(os,"EX_NOUSER",67)
+        self.EX_OK=getattr(os,"EX_OK",0)
+        self.EX_OSERR=getattr(os,"EX_OSERR",71)
+        self.EX_OSFILE=getattr(os,"EX_OSFILE",72)
+        self.EX_PROTOCOL=getattr(os,"EX_PROTOCOL",76)
+        self.EX_SOFTWARE=getattr(os,"EX_SOFTWARE",70)
+        self.EX_TEMPFAIL=getattr(os,"EX_TEMPFAIL",75)
+        self.EX_UNAVAILABLE=getattr(os,"EX_UNAVAILABLE",69)
+        self.EX_USAGE=getattr(os,"EX_USAGE",64)
+# Initalize ReturnCodes class
+rtn=ReturnCodes()
 # Make class to manage chat messages
 class Minecraft:
     def __init__(self,mc_log_file:str):
@@ -345,20 +366,20 @@ class Config:
         self.logger.debug(f"Trying to create new config file in {fullpath.resolve()}")
         if fullpath.exists():
             self.logger.error("Config file already exists!")
-            exit(os.EX_CANTCREAT)
+            exit(rtn.EX_CANTCREAT)
         DEFAULT_CONFIG_FILE=f'''# MC Code Copier default config file\n# Program maintainer: AirKeyooo <airkeyooo@gmail.com>\n# Generated: {datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")}\n\n# Add path to your latest.log file\nlog_file: /path/to/latest.log\n\n# How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage\nread_lines: 2\n\n# Should program send notifications about new codes?\n# WARNING: Works only on Linux and ends with error on any other OS!\nsend_notifications: false\n\n# Suggest when user should send code to don't look suspicious\n# Give value in seconds. If you don't want to use this function, comment it or set value to 0\nsuggest_timeout: 5\n\n# Should program automatically copy received code to the clipboard?\n# WARNING: Requires pyperclib module, which can be installed using: `pip install pyperclip`\ncopy_to_clipboard: false\n\n# Save results to .csv file\n# If you don't want to use this function, comment line below\nsave_to_csv: /path/to/file.csv\n\n# Set all nicknames that are yours\n# If you don't want to set your nicknames, comment/remove whole section below\nnicknames:\n  - Nickname1\n  - Nickname2\n\n# How frequently (in ms) chat should be scanned.\n# e.g. 200 -> messages will be scanned every 200ms\n# Smaller delay may improve efficiency, but will end up with higher CPU and disk usage\nscan_frequency: 300\n\n# MySQL DB Access config\n# If you want to use MySQL, uncomment all lines below and type your credentials\n# When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work\n# If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')\n# Minimal required user permissions: CREATE, INSERT\n# WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`\n#mysql:\n#  host: localhost\n#  port: 3306\n#  user: root\n#  password: \n#  database: my_database\n#  optional: false'''
         try:
             with open(file=fullpath.resolve(),mode="w",encoding="utf-8") as f:
                 f.write(DEFAULT_CONFIG_FILE)
             self.logger.info("Default config file was created successfully")
-            exit(os.EX_OK)
+            exit(rtn.EX_OK)
         except PermissionError:
             self.logger.error(f"Can't save file in {fullpath.resolve()}: Permission Denied")
-            exit(os.EX_NOPERM)
+            exit(rtn.EX_NOPERM)
         except Exception as e:
             self.logger.debug(f"Program error: {e}")
             self.logger.critical("Internal app error!")
-            exit(os.EX_SOFTWARE)
+            exit(rtn.EX_SOFTWARE)
     def __init__(self,args):
         # Create class-level logger
         self.logger=logging.getLogger(f"{__name__}.{self.__class__.__name__}")
@@ -576,23 +597,23 @@ def main():
         logger.debug("Config class initalized successfully")
     except FileNotFoundError as e:
         logger.error(e)
-        exit(os.EX_NOINPUT)
+        exit(rtn.EX_NOINPUT)
     except PermissionError as e:
         logger.error(e)
-        exit(os.EX_NOPERM)
+        exit(rtn.EX_NOPERM)
     except SyntaxError as e:
         logger.error(e)
-        exit(os.EX_CONFIG)
+        exit(rtn.EX_CONFIG)
     except KeyError as e:
         logger.error(e.args[0])
-        exit(os.EX_CONFIG)
+        exit(rtn.EX_CONFIG)
     except TypeError as e:
         logger.error(e)
-        exit(os.EX_DATAERR)
+        exit(rtn.EX_DATAERR)
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
-        exit(os.EX_SOFTWARE)
+        exit(rtn.EX_SOFTWARE)
     # Create an object to manage chat reading
     try:
         logger.debug("Trying to create AnarchiaGG object")
@@ -602,14 +623,14 @@ def main():
     except FileNotFoundError as e:
         # AnarchiaGG class throws FileNotFoundError and PermissionError with already prepared message, so we can only catch it and exit with specific code
         logger.error(e)
-        exit(os.EX_NOINPUT)
+        exit(rtn.EX_NOINPUT)
     except PermissionError as e:
         logger.error(e)
-        exit(os.EX_NOPERM)
+        exit(rtn.EX_NOPERM)
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
-        exit(os.EX_SOFTWARE)
+        exit(rtn.EX_SOFTWARE)
     # Define some variables
     running = True
     # Function will run when SIGINT or SIGTERM is received to safely stop program
@@ -632,11 +653,11 @@ def main():
             logger.debug("Initalized successfully!")
     except RuntimeError as e:
         logger.error(e)
-        exit(os.EX_UNAVAILABLE)
+        exit(rtn.EX_UNAVAILABLE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
-        exit(os.EX_SOFTWARE)
+        exit(rtn.EX_SOFTWARE)
     # Initalize CodeCopy class
     copysetting = config.copy_to_clipboard
     try:
@@ -646,11 +667,11 @@ def main():
             logger.debug("Initalized successfully!")
     except RuntimeError as e:
         logger.error(e)
-        exit(os.EX_UNAVAILABLE)
+        exit(rtn.EX_UNAVAILABLE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
-        exit(os.EX_SOFTWARE)
+        exit(rtn.EX_SOFTWARE)
     # Initalize CSV class
     savetocsv = config.save_to_csv
     try:
@@ -660,14 +681,14 @@ def main():
             logger.debug("Initalized successfully!")
     except PermissionError as e:
         logger.error(e)
-        exit(os.EX_NOPERM)
+        exit(rtn.EX_NOPERM)
     except IsADirectoryError as e:
         logger.error(e)
-        exit(os.EX_OSFILE)
+        exit(rtn.EX_OSFILE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
-        exit(os.EX_SOFTWARE)
+        exit(rtn.EX_SOFTWARE)
     # Initalize MySQL class
     savetomysql = config.mysql
     try:
@@ -677,29 +698,29 @@ def main():
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.error("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
-        exit(os.EX_UNAVAILABLE)
+        exit(rtn.EX_UNAVAILABLE)
     except PermissionError as perr:
         if savetomysql.get("optional"):
             logger.warning(str(perr))
         else:
             logger.error(str(perr))
-            exit(os.EX_NOPERM)
+            exit(rtn.EX_NOPERM)
     except ConnectionRefusedError as crerr:
         if savetomysql.get("optional"):
             logger.warning(str(crerr))
         else:
             logger.error(str(crerr))
-            exit(os.EX_NOHOST)
+            exit(rtn.EX_NOHOST)
     except KeyError:
         logger.error("Some values in config file are missing! Make sure you've set host, port (optional, by default 3306), user, password and database!")
-        exit(os.EX_CONFIG)
+        exit(rtn.EX_CONFIG)
     except RuntimeError as rerr:
         logger.error(f"Internal MySQL error: {rerr}")
-        exit(os.EX_SOFTWARE)
+        exit(rtn.EX_SOFTWARE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
-        exit(os.EX_SOFTWARE)
+        exit(rtn.EX_SOFTWARE)
     # Start main loop
     logger.info("Started listening")
     while running:
@@ -737,7 +758,7 @@ def main():
                 except Exception as e:
                     logger.debug(f"Program error: {e}")
                     logger.critical("Internal app error!")
-                    exit(os.EX_SOFTWARE)
+                    exit(rtn.EX_SOFTWARE)
         # Sleep loop
         timetosleep = (sleepms/1000)-(time()-stime)
         if timetosleep > 0:
