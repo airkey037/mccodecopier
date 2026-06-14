@@ -186,8 +186,7 @@ class Notify:
         self.logger.debug("Checking is your operating system supporting this function")
         SUPPORTED_OS=["Linux"]
         if system() not in SUPPORTED_OS:
-            self.logger.error(f"You can't use notifications function because you are running on {system()}! Currently, you can only use it on those OSes: {", ".join(SUPPORTED_OS)}")
-            raise RuntimeError
+            raise RuntimeError(f"You can't use notifications function because you are running on {system()}! Currently, you can only use it on those OSes: {", ".join(SUPPORTED_OS)}")
         if system() == "Linux":
             self.logger.debug(f"Running on Linux, checking is notify-send installed")
             try:
@@ -198,8 +197,7 @@ class Notify:
                     self.logger.debug(f"notify-send error: {nfsendver.stderr}")
                     self.logger.warning("notify-send is installed but finished with an error. Program belives that everything is working correctly, so continuing its work. For more details please check -loglevel debug")
             except FileNotFoundError:
-                self.logger.error("notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.")
-                raise RuntimeError
+                raise RuntimeError("notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.")
     def send_notification(self,title,msg):
         # Send notification
         self.logger.debug(f"Sending notification with app name 'MC Code Copier', title '{title}' and content '{msg}'")
@@ -567,11 +565,6 @@ def main():
         nicks = config.nicknames
         chat = AnarchiaGG(mc_log_file=config.log_file,nicknames=nicks)
         logger.debug("Object was created successfully")
-        logger.debug(f"Log file path: {Path(config.log_file).resolve()}")
-        if not nicks:
-            logger.warning("Nick list is empty")
-        else:
-            logger.debug(f"Nicks marked as mine: {", ".join(nicks)}")
     except FileNotFoundError as e:
         # AnarchiaGG class throws FileNotFoundError and PermissionError with already prepared message, so we can only catch it and exit with specific code
         logger.error(e)
@@ -594,18 +587,8 @@ def main():
     signal(SIGTERM,stop)
     # Read from config file how many lines should we read backwards
     linestoread = config.read_lines
-    if not linestoread:
-        logger.error("Amount of lines to check isn't specified in config file!")
-        exit(os.EX_CONFIG)
-    else:
-        logger.debug(f"Last lines to read: {linestoread}")
     # Read from config file how frequently should we scan the chat
     sleepms = config.scan_frequency
-    if not sleepms:
-        logger.error("Scan frequency isn't specified in config file!")
-        exit(os.EX_CONFIG)
-    else:
-        logger.debug(f"Sleep time: {sleepms}")
     # Initalize notification class
     sendnf = config.send_notifications
     try:
@@ -613,7 +596,8 @@ def main():
             logger.debug("Trying to initalize Notify class")
             notifications = Notify()
             logger.debug("Initalized successfully!")
-    except RuntimeError:
+    except RuntimeError as e:
+        logger.error(e)
         exit(os.EX_UNAVAILABLE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
