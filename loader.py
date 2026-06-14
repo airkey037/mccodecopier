@@ -171,6 +171,12 @@ class AnarchiaGG(Minecraft):
         except ZeroDivisionError:
             my_wins_percentage = 0
         return {"total_codes":len(self.codes),"total_keys":len(self.codes)*3,"my_codes":self.my_wins,"my_keys":self.my_wins*3,"my_wins_percentage":my_wins_percentage}
+# Custom program exception
+class MCError(Exception):
+    def __init__(self,message:str,returncode:int=1,native_exception:Exception=Exception):
+        super().__init__(message)
+        self.returncode=returncode
+        self.native_exception=native_exception
 # Class to send notifications
 class Notify:
     def __init__(self):
@@ -180,8 +186,7 @@ class Notify:
         self.logger.debug("Checking is your operating system supporting this function")
         SUPPORTED_OS=["Linux"]
         if system() not in SUPPORTED_OS:
-            self.logger.error(f"You can't use notifications function because you are running on {system()}! Currently, you can only use it on those OSes: {", ".join(SUPPORTED_OS)}")
-            raise RuntimeError
+            raise RuntimeError(f"You can't use notifications function because you are running on {system()}! Currently, you can only use it on those OSes: {", ".join(SUPPORTED_OS)}")
         if system() == "Linux":
             self.logger.debug(f"Running on Linux, checking is notify-send installed")
             try:
@@ -192,8 +197,7 @@ class Notify:
                     self.logger.debug(f"notify-send error: {nfsendver.stderr}")
                     self.logger.warning("notify-send is installed but finished with an error. Program belives that everything is working correctly, so continuing its work. For more details please check -loglevel debug")
             except FileNotFoundError:
-                self.logger.error("notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.")
-                raise RuntimeError
+                raise RuntimeError("notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.")
     def send_notification(self,title,msg):
         # Send notification
         self.logger.debug(f"Sending notification with app name 'MC Code Copier', title '{title}' and content '{msg}'")
@@ -204,8 +208,11 @@ class CodeCopy:
         # Define logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         # This part throws ImportError when library is not installed
-        from pyperclip import copy as pypercopy, paste as pyperpaste, PyperclipException
-        self.logger.debug("pyperclip lib was imported successfully")
+        try:
+            from pyperclip import copy as pypercopy, paste as pyperpaste, PyperclipException
+            self.logger.debug("pyperclip lib was imported successfully")
+        except ImportError:
+            raise RuntimeError("Can't copy to clipboard because pyperclip lib is not installed! If you want to use this function, run: pip install pyperclip")
         try:
             sample_text="Hello World from MC Code Copier! :)"
             self.logger.debug(f"Trying to copy sample text: {sample_text}")
@@ -215,7 +222,8 @@ class CodeCopy:
             if sample_text != pasted_text:
                 self.logger.warning("Something went wrong: Copied and pasted texts aren't the same values!")
         except PyperclipException as e:
-            raise RuntimeError(str(e)) from None
+            self.logger.debug(f"Original error message: {e}")
+            raise RuntimeError("Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info"+". You are on Linux, so you can check is your copying backend (like wl-copy) installed"if system()=="Linux"else"")
     def copy(self,code:str):
         from pyperclip import copy
         self.logger.debug(f"Copying {code}")
@@ -226,28 +234,37 @@ class CSV:
         # Create logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         # If file is set to None, we will not make any changes
-        self.file = file
         self.field_names=["Code","Nick","Time","Timestamp","Me"]
         if file:
-            self.logger.debug(f"Given file path: {file}")
-            try:
-                with open(file,encoding="utf-8") as f:
-                    self.logger.debug("Opened CSV file")
-                    reader=DictReader(f)
-                    if reader.fieldnames != self.field_names:
-                        self.logger.debug(f"Loaded field names: {", ".join(reader.fieldnames)}")
-                        self.logger.debug(f"Expected field names: {", ".join(self.field_names)}")
-                        raise ValueError("File that you specified have different header names")
-            except FileNotFoundError:
+            self.file = Path(file)
+            self.logger.debug(f"Given file path: {self.file.resolve()}")
+            self.logger.debug("Checking does path exists")
+            if self.file.exists():
+                self.logger.debug("Path exists, checking is it file")
+                if self.file.is_file():
+                    try:
+                        with open(file=self.file.resolve(),mode="r",encoding="utf-8") as f:
+                            self.logger.debug("Opened CSV file")
+                            reader=DictReader(f)
+                            self.logger.debug(f"Loaded field names: {", ".join(reader.fieldnames)}")
+                            self.logger.debug(f"Expected field names: {", ".join(self.field_names)}")
+                            if reader.fieldnames != self.field_names:
+                                self.logger.warning("File that you specified have different header names than expected!")
+                    except PermissionError:
+                        raise PermissionError(f"Can't open {self.file.resolve()}: Permission Denied")
+                else:
+                    raise IsADirectoryError(f"Can't open {self.file.resolve()} - this path points to a directory!")
+            else:
                 # Create new file
                 self.logger.debug("File doesn't exists, creating a blank one")
-                with open(file,mode="w",newline="",encoding="utf-8") as f:
-                    writer=DictWriter(f,fieldnames=self.field_names)
-                    writer.writeheader()
-            except PermissionError:
-                raise PermissionError(f"Can't open {file}: Permission denied")
-            except IsADirectoryError:
-                raise IsADirectoryError(f"Can't open {file} - this path points to a directory!")
+                try:
+                    with open(file=self.file.resolve(),mode="w",newline="",encoding="utf-8") as f:
+                        self.logger.debug("File opened")
+                        writer=DictWriter(f,fieldnames=self.field_names)
+                        writer.writeheader()
+                        self.logger.debug("File saved successfully")
+                except PermissionError:
+                    raise PermissionError(f"Can't create {self.file.resolve()}: Permission Denied")
         else:
             self.logger.debug(f"File path wasn't given, skipping")
     def append_code_info(self,codeobj):
@@ -444,54 +461,79 @@ class Config:
                 config = safe_load(f)
                 self.logger.debug("Config file was loaded successfully. Configuration:")
         except FileNotFoundError:
-            raise FileNotFoundError(f"Config file doesn't exist!")
+            raise FileNotFoundError("Config file doesn't exist!")
         except IsADirectoryError:
-            raise FileNotFoundError(f"Path that you have specified points to a directory!")
+            raise FileNotFoundError("Path that you have specified points to a directory!")
         except YAMLError:
-            raise SyntaxError(f"Invalid YAML syntax in config file!")
+            raise SyntaxError("Invalid YAML syntax in config file!")
         except PermissionError:
             raise PermissionError(f"Can't open {configfile.resolve()}: Permission Denied")
-        except Exception as e:
-            self.logger.debug(f"Program error: {e}")
-            raise Exception
-        try:
-            self.log_file=Path(config.get("log_file"))
-            self.logger.debug(f"Path to latest.log file: {self.log_file.resolve()}")
-            if not self.log_file.exists():
-                self.logger.warning(f"Log file in {self.log_file.absolute()} doesn't exist!")
-        except TypeError:
-            self.logger.error("Path to log file isn't specified!")
-            raise KeyError
+        if config.get("log_file"):
+            if type(config.get("log_file"))is str:
+                self.log_file=Path(config.get("log_file"))
+                self.logger.debug(f"Path to latest.log file: {self.log_file.resolve()}")
+                if not self.log_file.exists():
+                    raise FileNotFoundError(f"Log file in {self.log_file.resolve()} doesn't exist!")
+            else:
+                raise TypeError(f"log_file can be only str, not {config.get("log_file").__class__.__name__}!")
+        else:
+            raise KeyError("Config file isn't specified in config file!")
         self.read_lines=config.get("read_lines")
         if self.read_lines:
-            self.logger.debug(f"Read n lines backwards: {self.read_lines}")
+            if type(self.read_lines)is int:
+                self.logger.debug(f"Read n lines backwards: {self.read_lines}")
+            else:
+                raise TypeError(f"read_lines can be only int, not {self.read_lines.__class__.__name__}!")
         else:
-            self.logger.error("read_lines value isn't specified!")
-            raise KeyError
+            raise KeyError("read_lines value isn't specified!")
         self.send_notifications=bool(config.get("send_notifications"))
         self.logger.debug("Program will send notifications" if self.send_notifications else "Program won't send notifications")
-        self.suggest_timeout=config.get("suggest_timeout")
-        if not self.suggest_timeout:
+        if config.get("suggest_timeout"):
+            if type(config.get("suggest_timeout"))is int:
+                self.suggest_timeout=config.get("suggest_timeout")
+                self.logger.debug(f"Suggest timeout: {self.suggest_timeout}")
+            else:
+                raise TypeError(f"suggest_timeout can be only int, not {config.get("suggest_timeout").__class__.__name__}!")
+        else:
             self.suggest_timeout=0
-        self.logger.debug(f"Suggest timeout: {self.suggest_timeout}")
+            self.logger.debug("Program won't suggest timeout")
         self.copy_to_clipboard=bool(config.get("copy_to_clipboard"))
         self.logger.debug("Program will copy code to clipboard" if self.copy_to_clipboard else "Program won't copy code to clipboard")
-        self.save_to_csv=config.get("save_to_csv")
-        self.logger.debug(f"Save history to CSV file: {Path(self.save_to_csv).resolve()}" if self.save_to_csv else "Program won't save history to CSV file")
-        self.nicknames=config.get("nicknames")
-        if self.nicknames:
-            self.logger.debug(f"Nicknames marked as mine: {", ".join(self.nicknames)}")
+        if config.get("save_to_csv"):
+            if type(config.get("save_to_csv"))is str:
+                self.save_to_csv=Path(config.get("save_to_csv"))
+                self.logger.debug(f"Save history to CSV file: {self.save_to_csv.resolve()}")
+            else:
+                raise TypeError(f"save_to_csv can be only str, not {config.get("save_to_csv").__class__.__name__}!")
+        else:
+            self.save_to_csv=None
+            self.logger.debug("Program won't save history to CSV file")
+        if config.get("nicknames"):
+            if type(config.get("nicknames"))is list:
+                self.nicknames=config.get("nicknames")
+                self.logger.debug(f"Nicknames marked as mine: {", ".join(self.nicknames)}")
+            else:
+                raise TypeError(f"nicknames can be only list, not {config.get("nicknames").__class__.__name__}!")
         else:
             self.nicknames=[]
             self.logger.warning("Nick list is empty")
-        self.scan_frequency=config.get("scan_frequency")
-        if self.scan_frequency:
-            self.logger.debug(f"Chat will be scanned every {self.scan_frequency}ms")
+        if config.get("scan_frequency"):
+            if type(config.get("scan_frequency"))is int:
+                self.scan_frequency=config.get("scan_frequency")
+                self.logger.debug(f"Chat will be scanned every {self.scan_frequency}ms")
+            else:
+                raise TypeError(f"scan_frequency can be only int, not {config.get("scan_frequency").__class__.__name__}!")
         else:
-            self.logger.error("scan_frequency isn't specified!")
-            raise KeyError
-        self.mysql=config.get("mysql")
-        self.logger.debug("MySQL/MariaDB support is "+"enabled"if self.mysql else "disabled")
+            raise KeyError("scan_frequency isn't specified!")
+        if config.get("mysql"):
+            if type(config.get("mysql"))is dict:
+                self.mysql=config.get("mysql")
+                self.logger.debug("MySQL/MariaDB support is enabled")
+            else:
+                raise TypeError(f"mysql can be only dict, not {config.get("mysql").__class__.__name__}!")
+        else:
+            self.mysql=None
+            self.logger.debug("MySQL/MariaDB support is disabled")
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
@@ -502,7 +544,7 @@ def main():
     parser = ArgumentParser(description="MC Code Copier is listening for reward codes (In Anarchia.GG's OneBlock) in the chat, copies it to clipboard and stores it")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
     parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file. Settings passed as argumens will ALWAYS overwrite settings in config file")
-    parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path. If path points to file that already exists, program will skip it")
+    parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path")
     parser.add_argument("-runasroot",action="store_true",help="Make possible for program to run as root")
     args = parser.parse_args()
     if args.loglevel == "debug":
@@ -541,9 +583,14 @@ def main():
     except SyntaxError as e:
         logger.error(e)
         exit(os.EX_CONFIG)
-    except KeyError:
+    except KeyError as e:
+        logger.error(e.args[0])
         exit(os.EX_CONFIG)
-    except Exception:
+    except TypeError as e:
+        logger.error(e)
+        exit(os.EX_DATAERR)
+    except Exception as e:
+        logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
         exit(os.EX_SOFTWARE)
     # Create an object to manage chat reading
@@ -552,20 +599,12 @@ def main():
         nicks = config.nicknames
         chat = AnarchiaGG(mc_log_file=config.log_file,nicknames=nicks)
         logger.debug("Object was created successfully")
-        logger.debug(f"Log file path: {Path(config.log_file).resolve()}")
-        if not nicks:
-            logger.warning("Nick list is empty")
-        else:
-            logger.debug(f"Nicks marked as mine: {", ".join(nicks)}")
-    except KeyError:
-        logger.error("Can't read log file path from config file!")
-        exit(os.EX_CONFIG)
     except FileNotFoundError as e:
         # AnarchiaGG class throws FileNotFoundError and PermissionError with already prepared message, so we can only catch it and exit with specific code
-        logger.error(str(e))
+        logger.error(e)
         exit(os.EX_NOINPUT)
     except PermissionError as e:
-        logger.error(str(e))
+        logger.error(e)
         exit(os.EX_NOPERM)
     except Exception as e:
         logger.debug(f"Program error: {e}")
@@ -582,18 +621,8 @@ def main():
     signal(SIGTERM,stop)
     # Read from config file how many lines should we read backwards
     linestoread = config.read_lines
-    if not linestoread:
-        logger.error("Amount of lines to check isn't specified in config file!")
-        exit(os.EX_CONFIG)
-    else:
-        logger.debug(f"Last lines to read: {linestoread}")
     # Read from config file how frequently should we scan the chat
     sleepms = config.scan_frequency
-    if not sleepms:
-        logger.error("Scan frequency isn't specified in config file!")
-        exit(os.EX_CONFIG)
-    else:
-        logger.debug(f"Sleep time: {sleepms}")
     # Initalize notification class
     sendnf = config.send_notifications
     try:
@@ -601,7 +630,8 @@ def main():
             logger.debug("Trying to initalize Notify class")
             notifications = Notify()
             logger.debug("Initalized successfully!")
-    except RuntimeError:
+    except RuntimeError as e:
+        logger.error(e)
         exit(os.EX_UNAVAILABLE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
@@ -614,12 +644,8 @@ def main():
             logger.debug("Trying to initalize CodeCopy class")
             codecopy = CodeCopy()
             logger.debug("Initalized successfully!")
-    except ImportError:
-        logger.critical("Can't copy to clipboard because pyperclip lib is not installed! Disable copy_to_clipboard in config file or run: pip install pyperclip")
-        exit(os.EX_UNAVAILABLE)
     except RuntimeError as e:
-        logger.debug(f"Original error message: {e}")
-        logger.critical("Can't copy anything to clipboard because copying backend is not installed! See -loglevel debug for more details")
+        logger.error(e)
         exit(os.EX_UNAVAILABLE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
@@ -630,16 +656,14 @@ def main():
     try:
         if savetocsv:
             logger.debug("Trying to initalize CSV class")
-            csvf = CSV(savetocsv,)
+            csvf = CSV(savetocsv)
             logger.debug("Initalized successfully!")
     except PermissionError as e:
-        logger.error(str(e))
+        logger.error(e)
         exit(os.EX_NOPERM)
     except IsADirectoryError as e:
         logger.error(e)
         exit(os.EX_OSFILE)
-    except ValueError as e:
-        logger.warning(str(e))
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
@@ -652,7 +676,7 @@ def main():
             mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port")if savetomysql.get("port")else 3306,user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],)
             logger.debug("Initalized successfully!")
     except ImportError:
-        logger.critical("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
+        logger.error("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
         exit(os.EX_UNAVAILABLE)
     except PermissionError as perr:
         if savetomysql.get("optional"):
@@ -670,7 +694,7 @@ def main():
         logger.error("Some values in config file are missing! Make sure you've set host, port (optional, by default 3306), user, password and database!")
         exit(os.EX_CONFIG)
     except RuntimeError as rerr:
-        logger.critical(f"Internal MySQL error: {rerr}")
+        logger.error(f"Internal MySQL error: {rerr}")
         exit(os.EX_SOFTWARE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
