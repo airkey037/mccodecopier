@@ -185,6 +185,21 @@ class AnarchiaGG(Minecraft):
                         self.logger.debug("Sender is classified as me, incrementing my_wins counter")
                     return infoobj
         return None
+    def predict_next_code(self):
+        # Predict, when next code will appear
+        if len(self.wins) < 2:
+            self.logger.debug(f"Not enough codes in memory to predict next's appear time. Function needs at least 2, but {len(self.wins)} is available")
+            return None
+        self.logger.debug("Predicting next code appear time")
+        last_code=self.wins[-1].tsobj
+        self.logger.debug(f"Date from last code: {last_code}")
+        timediff=last_code-self.wins[-2].tsobj
+        self.logger.debug(f"Time difference between last and second last code: {timediff}")
+        time_since_last_code=datetime.now()-last_code
+        self.logger.debug(f"Time since last code: {time_since_last_code}")
+        predicted_time=timediff-time_since_last_code
+        self.logger.debug(f"Predicted time to next code: {predicted_time}")
+        return predicted_time.total_seconds()
     def get_stats(self)->dict:
         self.logger.debug("Calculating all statistics...")
         try:
