@@ -55,6 +55,22 @@ def is_root():
         return ctypes.windll.shell32.IsUserAnAdmin() != 0
     except AttributeError:
         return False
+# Function that can escape recursive dicts
+def flatten_dict(d:dict,parent_key:str="")->dict:
+    result={}
+    for key,value in d.items():
+        full_key=f"{parent_key}.{key}"if parent_key else key
+        if isinstance(value,dict):
+            nested_dicts={k:v for k,v in value.items()if isinstance(v,dict)}
+            flat_values={k:v for k,v in value.items()if not isinstance(v,dict)}
+            if flat_values:
+                result[full_key]=flat_values
+            if nested_dicts:
+                nested_result=flatten_dict(nested_dicts,full_key)
+                result.update(nested_result)
+        else:
+            result.setdefault(parent_key or key,{})[key]=value
+    return result
 # Class to manage return codes
 class ReturnCodes:
     def __init__(self):
@@ -602,6 +618,15 @@ class Printing:
         self.logger.debug("Parsing mode: flat")
     def parser_ini(self)->str:
         self.logger.debug("Parsing mode: ini")
+        from configparser import ConfigParser
+        from io import StringIO
+        config=ConfigParser()
+        escaped=flatten_dict(self.tree)
+        for key,value in escaped.items():
+            config[key]=value
+        buf=StringIO()
+        config.write(buf)
+        return buf.getvalue().strip()
     def parser_json(self)->str:
         self.logger.debug("Parsing mode: json")
         return dumps(self.tree)
