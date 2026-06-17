@@ -18,6 +18,7 @@ from platform import system
 import os
 from csv import DictReader, DictWriter, writer
 import ctypes
+from json import dumps
 # Function to read n last lines without loading whole log file
 def tail(path, n=1):
     if n <= 0:
@@ -603,8 +604,36 @@ class Printing:
         self.logger.debug("Parsing mode: ini")
     def parser_json(self)->str:
         self.logger.debug("Parsing mode: json")
+        return dumps(self.tree)
     def parser_xml(self)->str:
         self.logger.debug("Parsing mode: xml")
+        import xml.etree.ElementTree as ET
+        def dict_to_xml(data:dict,root_tag:str="root")->str:
+            def build_element(parent:ET.Element,key:str,value):
+                if isinstance(value,dict):
+                    child=ET.SubElement(parent,key)
+                    for k,v in value.items():
+                        build_element(child,k,v)
+                elif isinstance(value,(list,tuple)):
+                    container=ET.SubElement(parent,key)
+                    for item in value:
+                        if isinstance(item,dict):
+                            el=ET.SubElement(container,"item")
+                            for k,v in item.items():
+                                build_element(el,k,v)
+                        else:
+                            el=ET.SubElement(container,"item")
+                            el.text=str(item)
+                elif isinstance(value,(int,float,str,bool)):
+                    parent.set(key,str(value))
+                else:
+                    parent.set(key,repr(value))
+            root=ET.Element(root_tag)
+            for key,value in data.items():
+                build_element(root,key,value)
+            ET.indent(root,space="  ")
+            return ET.tostring(root,encoding="unicode",xml_declaration=True)
+        return dict_to_xml(data=self.tree,root_tag="codecopy")
     def __init__(self,print_format:str="default"):
         # Get class-level logger
         self.logger=logging.getLogger(f"{__name__}.{self.__class__.__name__}")
