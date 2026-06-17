@@ -589,6 +589,52 @@ class Config:
         else:
             self.mysql=None
             self.logger.debug("MySQL/MariaDB support is disabled")
+# Class to manage print format and additional printed info
+class Printing:
+    def parser_default(self)->str:
+        self.logger.debug("Parsing mode: default")
+    def parser_compact(self)->str:
+        self.logger.debug("Parsing mode: compact")
+    def parser_csv(self)->str:
+        self.logger.debug("Parsing mode: csv")
+    def parser_flat(self)->str:
+        self.logger.debug("Parsing mode: flat")
+    def parser_ini(self)->str:
+        self.logger.debug("Parsing mode: ini")
+    def parser_json(self)->str:
+        self.logger.debug("Parsing mode: json")
+    def parser_xml(self)->str:
+        self.logger.debug("Parsing mode: xml")
+    def __init__(self,print_format:str="default"):
+        # Get class-level logger
+        self.logger=logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        # Define all parsers
+        self.parsers={"default":self.parser_default,"compact":self.parser_compact,"csv":self.parser_csv,"flat":self.parser_flat,"ini":self.parser_ini,"json":self.parser_json,"xml":self.parser_xml}
+        self.logger.debug("Checking print_format type")
+        if type(print_format)is str:
+            self.logger.debug("print_format is str; checking, is it correct format name")
+            if print_format in self.parsers.keys():
+                self.logger.debug(f"{print_format} is correct parser name, using this format's parser")
+                self.using_parser=self.parsers[print_format]
+            else:
+                raise KeyError(f"{print_format} isn't correct print format! Allowed formats: {", ".join(self.parsers.keys())}")
+        else:
+            raise TypeError(f"print_format have to be str, not {print_format.__class__.__name__}!")
+        self.tree={}
+    def add_element(self,name:str,tree:dict):
+        self.logger.debug("Checking is name a string")
+        if type(name)is str:
+            self.logger.debug("name is string; checking, is this element already in main tree")
+            if name in self.tree.keys():
+                raise FileExistsError(f"{name} is already added to main tree!")
+            self.logger.debug(f"{name} doesn't exist in main tree! Checking, is given tree a dict")
+            if type(tree)is dict:
+                self.logger.debug(f"tree is dict, adding element to the main tree! Name: {name}; Tree: {tree}")
+                self.tree[name]=tree
+            else:
+                raise TypeError(f"tree have to be dict, not {tree.__class__.__name__}!")
+        else:
+            raise TypeError(f"name have to be str, not {name.__class__.__name__}!")
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
@@ -601,6 +647,8 @@ def main():
     parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file. Settings passed as argumens will ALWAYS overwrite settings in config file")
     parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path")
     parser.add_argument("-runasroot",action="store_true",help="Make possible for program to run as root")
+    parser.add_argument("-print_format","-output_format","-of",help="Choose output printing format",default="default",choices=("default","compact","csv","flat","ini","json","xml"),type=str)
+    parser.add_argument("-show_statistics",action="store_true",help="Print statistics using format specified in -print_format option")
     args = parser.parse_args()
     if args.loglevel == "debug":
         logger_format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
