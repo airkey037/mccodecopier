@@ -636,10 +636,6 @@ class Config:
 class Printing:
     def parser_default(self)->str:
         self.logger.debug("Parsing mode: default")
-    def parser_compact(self)->str:
-        self.logger.debug("Parsing mode: compact")
-    def parser_csv(self)->str:
-        self.logger.debug("Parsing mode: csv")
     def parser_flat(self)->str:
         self.logger.debug("Parsing mode: flat")
         el_list=[]
@@ -694,7 +690,7 @@ class Printing:
         # Get class-level logger
         self.logger=logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         # Define all parsers
-        self.parsers={"default":self.parser_default,"compact":self.parser_compact,"csv":self.parser_csv,"flat":self.parser_flat,"ini":self.parser_ini,"json":self.parser_json,"xml":self.parser_xml}
+        self.parsers={"default":self.parser_default,"flat":self.parser_flat,"ini":self.parser_ini,"json":self.parser_json,"xml":self.parser_xml}
         self.logger.debug("Checking print_format type")
         if type(print_format)is str:
             self.logger.debug("print_format is str; checking, is it correct format name")
@@ -732,7 +728,7 @@ def main():
     parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file. Settings passed as argumens will ALWAYS overwrite settings in config file")
     parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path")
     parser.add_argument("-runasroot",action="store_true",help="Make possible for program to run as root")
-    parser.add_argument("-print_format","-output_format","-of",help="Choose output printing format",default="default",choices=("default","compact","csv","flat","ini","json","xml"),type=str)
+    parser.add_argument("-print_format","-output_format","-of",help="Choose output printing format",default="default",choices=("default","flat","ini","json","xml"),type=str)
     parser.add_argument("-show_statistics",action="store_true",help="Print statistics using format specified in -print_format option")
     args = parser.parse_args()
     if args.loglevel == "debug":
