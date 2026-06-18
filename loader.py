@@ -57,20 +57,46 @@ def is_root():
         return False
 # Function that can escape recursive dicts
 def flatten_dict(d:dict,parent_key:str="")->dict:
-    result={}
-    for key,value in d.items():
-        full_key=f"{parent_key}.{key}"if parent_key else key
-        if isinstance(value,dict):
-            nested_dicts={k:v for k,v in value.items()if isinstance(v,dict)}
-            flat_values={k:v for k,v in value.items()if not isinstance(v,dict)}
-            if flat_values:
-                result[full_key]=flat_values
-            if nested_dicts:
-                nested_result=flatten_dict(nested_dicts,full_key)
-                result.update(nested_result)
-        else:
-            result.setdefault(parent_key or key,{})[key]=value
-    return result
+	result={}
+	for key,value in d.items():
+		full_key=f"{parent_key}.{key}"if parent_key else key
+		if isinstance(value,(list,tuple)):
+			readval=dict(enumerate(value))
+		else:
+			readval=value
+		if isinstance(readval,dict):
+			nested_dicts={}
+			for k,v in readval.items():
+				if isinstance(v,dict):
+					nested_dicts[k]=v
+			flat_values={}
+			for k,v in readval.items():
+				if not isinstance(v,dict):
+					if isinstance(v,(list,tuple)):
+						nested_dicts[k]=dict(enumerate(v))
+					else:
+						flat_values[k]=v
+			if flat_values:
+				result[full_key]=flat_values
+			if nested_dicts:
+				nested_result=flatten_dict(nested_dicts,full_key)
+				result.update(nested_result)
+		else:
+			result[key]=value
+	return result
+# Function to return flatten values
+def flatten_values(d:dict,parent_key:str="")->dict:
+	result={}
+	flattened=flatten_dict(d=d)
+	for key,value in flattened.items():
+		if isinstance(value,dict):
+			for k,v in value.items():
+				result[f"{key}.{k}"]=v
+		else:
+			result[key]=value
+	return result
+# Function to escape " and ' in strings
+def escape_flat(s:str)->str:return(str(s).replace("\\","\\\\").replace('"','\\"').replace("'","\\'"))
 # Class to manage return codes
 class ReturnCodes:
     def __init__(self):
@@ -616,6 +642,11 @@ class Printing:
         self.logger.debug("Parsing mode: csv")
     def parser_flat(self)->str:
         self.logger.debug("Parsing mode: flat")
+        el_list=[]
+        escaped=flatten_values(self.tree)
+        for k,v in escaped.items():
+            el_list.append(f"{escape_flat(k)}=\"{escape_flat(v)}\"")
+        return "\n".join(el_list)
     def parser_ini(self)->str:
         self.logger.debug("Parsing mode: ini")
         from configparser import ConfigParser
@@ -681,12 +712,12 @@ class Printing:
             self.logger.debug("name is string; checking, is this element already in main tree")
             if name in self.tree.keys():
                 raise FileExistsError(f"{name} is already added to main tree!")
-            self.logger.debug(f"{name} doesn't exist in main tree! Checking, is given tree a dict")
-            if type(tree)is dict:
-                self.logger.debug(f"tree is dict, adding element to the main tree! Name: {name}; Tree: {tree}")
+            self.logger.debug(f"{name} doesn't exist in main tree! Checking, is given tree a dict, list or tuple")
+            if isinstance(tree,(dict,list,tuple)):
+                self.logger.debug(f"tree is {tree.__class__.__name__}, adding element to the main tree! Name: {name}; Tree: {tree}")
                 self.tree[name]=tree
             else:
-                raise TypeError(f"tree have to be dict, not {tree.__class__.__name__}!")
+                raise TypeError(f"tree have to be dict, list or tuple, not {tree.__class__.__name__}!")
         else:
             raise TypeError(f"name have to be str, not {name.__class__.__name__}!")
 # Match log level names with log levels
