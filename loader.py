@@ -742,6 +742,10 @@ class Printing:
                 raise TypeError(f"tree have to be dict, list or tuple, not {tree.__class__.__name__}!")
         else:
             raise TypeError(f"name have to be str, not {name.__class__.__name__}!")
+    def parse(self):
+        self.logger.debug("Parsing all elements using specified parser")
+        self.logger.debug(f"Using parser: {self.using_parser.__name__}")
+        return self.using_parser()
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
@@ -799,6 +803,21 @@ def main():
     except TypeError as e:
         logger.error(e)
         exit(rtn.EX_DATAERR)
+    except Exception as e:
+        logger.debug(f"Program error: {e}")
+        logger.critical("Internal app error!")
+        exit(rtn.EX_SOFTWARE)
+    # Initalize Printing class
+    try:
+        logger.debug("Trying to initalize printing class")
+        printcl=Printing(args.print_format)
+        logger.debug("Initalized successfully")
+    except TypeError as e:
+        logger.error(e)
+        exit(rtn.EX_DATAERR)
+    except KeyError as e:
+        logger.error(e.args[0])
+        exit(rtn.EX_USAGE)
     except Exception as e:
         logger.debug(f"Program error: {e}")
         logger.critical("Internal app error!")
@@ -966,6 +985,24 @@ def main():
     logger.info(f"Codes re-writed by me: {stats.get("my_codes")}")
     logger.info(f"Keys received by me: {stats.get("my_keys")}")
     logger.info(f"My wins percentage: {stats.get("my_wins_percentage")}%")
+    stats["total_runtime"]=total_runtime.total_seconds()
+    print_additional_info=False
+    if args.show_statistics:
+        try:
+            logger.debug("User asked to show statistics, adding")
+            printcl.add_element("statistics",stats)
+            logger.debug("Added successfully")
+            print_additional_info=True
+        except FileExistsError as e:
+            logger.error(e)
+            exit(rtn.EX_CANTCREAT)
+        except TypeError as e:
+            logger.error(e)
+            exit(rtn.EX_USAGE)
+    if print_additional_info:
+        logger.debug("Printing")
+        output=printcl.parse()
+        print(output,file=stdout)
     logger.info("Program finished job")
 if __name__=="__main__":
     main()
