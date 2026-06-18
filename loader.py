@@ -56,10 +56,10 @@ def is_root():
     except AttributeError:
         return False
 # Function that can escape recursive dicts
-def flatten_dict(d:dict,parent_key:str="")->dict:
+def flatten_dict(d:dict,parent_key:str="",separator:str=".")->dict:
 	result={}
 	for key,value in d.items():
-		full_key=f"{parent_key}.{key}"if parent_key else key
+		full_key=f"{parent_key}{separator}{key}"if parent_key else key
 		if isinstance(value,(list,tuple)):
 			readval=dict(enumerate(value))
 		else:
@@ -79,7 +79,7 @@ def flatten_dict(d:dict,parent_key:str="")->dict:
 			if flat_values:
 				result[full_key]=flat_values
 			if nested_dicts:
-				nested_result=flatten_dict(nested_dicts,full_key)
+				nested_result=flatten_dict(nested_dicts,full_key,separator)
 				result.update(nested_result)
 		else:
 			result[key]=value
@@ -636,6 +636,32 @@ class Config:
 class Printing:
     def parser_default(self)->str:
         self.logger.debug("Parsing mode: default")
+        def parse_to_default_fmt(data: dict) -> str:
+            output_lines = []
+            for key,value in data.items():
+                tag = key.upper()
+                if isinstance(value,(list,tuple)):
+                    for item in value:
+                        output_lines.append(f"[{tag}]")
+                        output_lines.extend(_format_sub_dict(item))
+                        output_lines.append(f"[/{tag}]")
+                else:
+                    output_lines.append(f"[{tag}]")
+                    output_lines.extend(_format_sub_dict(value))
+                    output_lines.append(f"[/{tag}]")
+            return "\n".join(output_lines)
+        def _format_sub_dict(d: dict) -> list:
+            lines = []
+            if not isinstance(d, dict):
+                return [f"value={d}"]
+            for k,v in d.items():
+                if isinstance(v,(list,tuple)):
+                    for index,item in enumerate(v):
+                        lines.append(f"{k}:{index}={item}")
+                else:
+                    lines.append(f"{k}={v}")
+            return lines
+        return parse_to_default_fmt(self.tree)
     def parser_flat(self)->str:
         self.logger.debug("Parsing mode: flat")
         el_list=[]
