@@ -636,32 +636,24 @@ class Config:
 class Printing:
     def parser_default(self)->str:
         self.logger.debug("Parsing mode: default")
-        def parse_to_default_fmt(data: dict) -> str:
-            output_lines = []
-            for key,value in data.items():
-                tag = key.upper()
-                if isinstance(value,(list,tuple)):
-                    for item in value:
-                        output_lines.append(f"[{tag}]")
-                        output_lines.extend(_format_sub_dict(item))
-                        output_lines.append(f"[/{tag}]")
-                else:
-                    output_lines.append(f"[{tag}]")
-                    output_lines.extend(_format_sub_dict(value))
-                    output_lines.append(f"[/{tag}]")
-            return "\n".join(output_lines)
-        def _format_sub_dict(d: dict) -> list:
-            lines = []
-            if not isinstance(d, dict):
-                return [f"value={d}"]
-            for k,v in d.items():
-                if isinstance(v,(list,tuple)):
-                    for index,item in enumerate(v):
-                        lines.append(f"{k}:{index}={item}")
-                else:
-                    lines.append(f"{k}={v}")
-            return lines
-        return parse_to_default_fmt(self.tree)
+        def default_pf(tree,prefix:str="",use_brackets=True)->tuple:
+            pfx=f"{prefix}:"if prefix else""
+            output=[]
+            rv=tree
+            if isinstance(tree,(list,tuple)):
+                rv=dict(enumerate(tree))
+            if isinstance(rv,dict):
+                for key,value in rv.items():
+                    usebrk=use_brackets and isinstance(value,(list,dict,tuple))
+                    if usebrk:
+                        output.append(f"[{str(key).upper()}]")
+                    output.extend(default_pf(value,prefix=f"{pfx}{key}",use_brackets=False))
+                    if usebrk:
+                        output.append(f"[/{str(key).upper()}]")
+            else:
+                output.append(f"{prefix}={rv}")
+            return tuple(output)
+        return "\n".join(default_pf(self.tree))
     def parser_flat(self)->str:
         self.logger.debug("Parsing mode: flat")
         el_list=[]
