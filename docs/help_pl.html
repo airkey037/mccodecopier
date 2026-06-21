@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MC Code Copier Reloaded help | PL</title>
+        <meta name="description" content="Help for MC Code Copier Reloaded">
+        <meta name="keywords" content="minecraft,mc,anarchia.gg,code,copy,notification">
+        <meta name="author" content="AirKeyooo">
+        <style id="primary">
+            @media screen and (min-width: 700px) {
+                body {
+                    flex-direction: row;
+                    height: 100vh;
+                }
+                #navigation {
+                    width: 250px;
+                    overflow-y: auto;
+                }
+                main {
+                    flex: 1;
+                    min-width: 0;
+                    overflow-y: auto;
+                }
+            }
+            @media screen and (max-width: 699px) {
+                body {
+                    flex-direction: column;
+                }
+                #navigation {
+                    width: 100%;
+                }
+            }
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                margin: 0;
+                display: flex;
+            }
+            #navigation {
+                background-color: #1a809f;
+                color: white;
+                overflow-x: hidden;
+                padding: 6px 8px;
+            }
+            main {
+                overflow-x: hidden;
+                padding: 8px 12px;
+            }
+            #navigation>h1{
+                font-size:1.5em;
+                margin: 0;
+            }
+            #navigation>p{
+                margin:5px 0;
+            }
+            #navigation>p>a{
+                color: white;
+                margin: 5px 0;
+                text-decoration: underline;
+            }
+            #navigation>p>a:hover{
+                cursor: pointer;
+            }
+            #navigation ol {
+                padding: 0 0 0 20px;
+            }
+            #navigation ol a {
+                color: white;
+                text-decoration: none;
+            }
+            main article {
+                margin-left: 15px;
+            }
+            .codepreview {
+                padding: 8px 12px;
+                border-radius:10px;
+            }
+            .codefilename {
+                font-size:0.85em;
+                font-style: italic;
+                border-radius: 10px;
+                margin-bottom: 10px;
+                margin-top: 5px;
+            }
+        </style>
+        <style id="dark" disabled>
+            main {
+                background-color: #333;
+                color:white;
+            }
+            .codepreview {
+                background-color: #444;
+            }
+            </style>
+        <style id="light">
+            main {
+                background-color: white;
+                color:black;
+            }
+            .codepreview {
+                background-color: lightgray;
+            }
+        </style>
+        <script>
+            let darktheme=false;
+            if (localStorage.getItem("darktheme")) {
+                if (localStorage.getItem("darktheme")=="true") {
+                    darktheme=true;
+                }else{
+                    darktheme=false;
+                }
+            }
+            function darkthemeset(darkthemee) {
+                if (darkthemee) {
+                    console.log("Changing to dark theme");
+                    document.getElementById("dark").disabled=false;
+                    document.getElementById("light").disabled=true;
+                    document.getElementById("themechange").innerText="Zmień na tryb jasny";
+                    localStorage.setItem("darktheme","true");
+                    return true;
+                }else{
+                    console.log("Changing to light theme");
+                    document.getElementById("dark").disabled=true;
+                    document.getElementById("light").disabled=false;
+                    document.getElementById("themechange").innerText="Zmień na tryb ciemny";
+                    localStorage.setItem("darktheme","false");
+                    return false;
+                }
+            }
+            function changetheme() {
+                darktheme=darkthemeset(!darktheme);
+            }
+            document.addEventListener("DOMContentLoaded",()=>{
+                darkthemeset(darktheme);
+            });
+        </script>
+    </head>
+    <body>
+        <nav id="navigation">
+            <h1>MC Code Copier Reloaded</h1>
+            <p>Dokumentacja</p>
+            <p><a href="help_en.html">Change language to English</a></p>
+            <p><a onclick="changetheme();" id="themechange">Zmień na tryb ciemny</a></p>
+            <h3>Legenda:</h3>
+            <ol></ol>
+            <p>Stworzone przez AirKeyooo</p>
+        </nav>
+        <main>
+            <header>
+                <h1>MC Code Copier Reloaded</h1>
+            </header>
+        </main>
+    </body>
+</html>
