@@ -13,7 +13,7 @@ from pathlib import Path
 from signal import signal, SIGTERM, SIGINT, Signals
 from time import sleep, time
 from datetime import datetime, timedelta, timezone
-from subprocess import run as subrun
+from subprocess import run as subrun, check_output as subcheckout, CalledProcessError, DEVNULL as subdevnull
 from platform import system
 import os
 from csv import DictReader, DictWriter, writer
@@ -118,6 +118,19 @@ class ReturnCodes:
         self.EX_USAGE=getattr(os,"EX_USAGE",64)
 # Initalize ReturnCodes class
 rtn=ReturnCodes()
+# Function to get program version
+def get_version():
+    try:
+        version=subcheckout(["git","describe","--tags","--always"],stderr=subdevnull).decode("utf-8").strip()
+        return version
+    except (CalledProcessError,FileNotFoundError):
+        pass
+    try:
+        from version import __version__
+        return __version__
+    except ImportError:
+        pass
+    return "v0.0.0-unknown"
 # Make class to manage chat messages
 class Minecraft:
     def __init__(self,mc_log_file:str):
@@ -744,15 +757,21 @@ LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.
 def main():
     # Save start time
     start_time = datetime.now()
+    # Get version
+    __version__=get_version()
     # Initalize argument parser
     parser = ArgumentParser(description="MC Code Copier is listening for reward codes (In Anarchia.GG's OneBlock) in the chat, copies it to clipboard and stores it")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
+    parser.add_argument("-version",action="store_true",help="Version")
     parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file. Settings passed as argumens will ALWAYS overwrite settings in config file")
     parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path")
     parser.add_argument("-runasroot",action="store_true",help="Make possible for program to run as root")
     parser.add_argument("-print_format","-output_format","-of",help="Choose output printing format",default="default",choices=("default","flat","ini","json","xml"),type=str)
     parser.add_argument("-show_statistics",action="store_true",help="Print statistics using format specified in -print_format option")
     args = parser.parse_args()
+    if args.version:
+        print(__version__)
+        exit(rtn.EX_OK)
     if args.loglevel == "debug":
         logger_format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
         logger_global_lvl=logging.DEBUG
@@ -764,6 +783,7 @@ def main():
     logger = logging.getLogger(__name__)
     logger.setLevel(LOGLVLS[args.loglevel])
     logger.info("Anarchia.GG Code Copier started")
+    logger.info(f"Version: {__version__}")
     # Check program privileges
     logger.debug("Checking program privileges")
     amirooted=is_root()
