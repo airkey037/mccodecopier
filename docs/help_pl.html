@@ -149,13 +149,56 @@
             <p><a href="help_en.html">Change language to English</a></p>
             <p><a onclick="changetheme();" id="themechange">Zmień na tryb ciemny</a></p>
             <h3>Legenda:</h3>
-            <ol></ol>
+            <ol>
+                <li>
+                    <a href="#mvt-entry">Wstęp</a>
+                    <ol>
+                        <li><a href="#mvt-entry-whatis">Czym jest mój program?</a></li>
+                        <li><a href="#mvt-entry-howitworks">Jak on działa?</a></li>
+                        <li><a href="#mvt-entry-history">Historia</a></li>
+                        <li><a href="#mvt-entry-license">Licencja</a></li>
+                    </ol>
+                </li>
+            </ol>
             <p>Stworzone przez AirKeyooo</p>
         </nav>
         <main>
             <header>
                 <h1>MC Code Copier Reloaded</h1>
             </header>
+            <section id="mvt-entry">
+                <h2>1. Wstęp</h2>
+                <article id="mvt-entry-whatis">
+                    <h3>1.1. Czym jest mój program?</h3>
+                    <p>MC Code Copier Reloaded jest programem napisanym w Pythonie, którego zadaniem jest kopiowanie kodów z nagrodami na serwerze Minecraft Anarchia.GG (tryb OneBlock), pozwalając użytkownikowi wygrywanie tego konkursu za każdym razem. Co 30 minut, serwer wysyła 10-znakowe kody (np. LrQ9ihPNlq). Rolą tego programu jest wyszykiwanie takich kodów oraz odpowiednie ich przetwarzanie.</p>
+                </article>
+                <article id="mvt-entry-howitworks">
+                    <h3>1.2. Jak on działa?</h3>
+                    <p>Program do działania musi skanować czat gry w poszukiwaniu informacji o nowych kodach. Na szczęście, Minecraft zapisuje wszystkie wiadomości z czatu do pliku latest.log. Program ciągle skanuje ten plik w poszukiwaniu nowych kodów. Kiedy wykryje wiadomość w tym stylu:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Tekst</div>
+                        Przepisz kod &lt;kod&gt; aby otrzymać nagrodę!
+                    </div>
+                    <p>od razu wie, że przyszedł nowy kod. W tym momencie, program może zrobić wiele rzeczy (wszystko można skonfigurować w pliku konfiguracyjnym): Może skopiować go do schowka, wyświetlić powiadomienie, i wiele więcej.</p>
+                    <p>Kiedy będzie wiedział, że przyszedł kod, wówczas zaczyna skanować w poszukiwaniu informacji o zwycięzcy. Gdy wykryje wiadomość w tym stylu:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Tekst</div>
+                        Gracz &lt;nick gracza&gt; jako pierwszy przepisał kod w czasie &lt;czas przepisania&gt; i otrzymał(a) 3 Klucze AFK!
+                    </div>
+                    <p>loguje tą informację oraz może zapisać ją w wielu formatach.</p>
+                </article>
+                <article id="mvt-entry-history">
+                    <h3>1.3. Historia</h3>
+                    <p>Nie ma jednego powodu, dlaczego napisałem ten program: pierwszy prototyp został napisany 9 grudnia 2025 roku (oczywiście w Pythonie). I... działał, ale nie za dobrze: zdarzały się bowiem sytuacje, gdy program kopiował losowe wiadomości z czatu lub losowe informacje o graczach. Potem napisałem kolejny program, ale on też nie był perfekcyjny: był bardzo niezoptymalizowany oraz używał dwóch osobnych programów komunikujących się przez D-Bus (więc działał tylko na Linuxie).</p>
+                    <p>Potem zrobiłem sobie przerwę od OneBlocka na kilka miesięcy. Ale pewnego dnia postanowiłem znowu sobie tam pograć. Znalazłem mój stary program, ale on był okropny (o czym już wspominałem). Troche mi się też nudziło, ponieważ nie miałem żadnych innych rzeczy do roboty. Więc 16 maja 2026 roku zacząłem pisać nowy, totalnie odnowiony program (stąd nazwa: MC Code Copier <b>Reloaded</b>).
+                    </p>
+                    <p>Pierwsza w pełni działająca wersja (v1.0) została ukończona już dzień później, ale potrafiła ona jedynie czytać kody. 3 godziny później, tego samego dnia, ukończyłem wersję v1.1, która miała tylko podstawowe, ale niezwykle ważne funkcje, jak kopiowanie kodów do schowka czy wyświetlanie powiadomnień. Jeżeli byłaby to moja praca, nazwałbym to "Ukończonym". Ale kocham programować, więc skończyłem ze wsparciem dla MySQLa i CSV, możliwością przewidywania czasu pojawienia się następnego kodu i wiele więcej, ale więcej o funkcjach powiem później.</p>
+                </article>
+                <article id="mvt-entry-license">
+                    <h3>1.4. Licencja</h3>
+                    <p>Ten program jest udostępniony na licencji GNU General Public License (GPL) 3.0. Całą licencję można znaleźć <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">tutaj</a> lub w pliku LICENSE w głównym folderze projektu.</p>
+                </article>
+            </section>
         </main>
     </body>
 </html>

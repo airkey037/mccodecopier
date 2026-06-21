@@ -149,13 +149,57 @@
             <p><a href="help_pl.html">Zmień na język polski</a></p>
             <p><a onclick="changetheme();" id="themechange">Change to dark theme</a></p>
             <h3>Legend:</h3>
-            <ol></ol>
+            <ol>
+                <li>
+                    <a href="#mvt-entry">Entry</a>
+                    <ol>
+                        <li><a href="#mvt-entry-whatis">What is my program?</a></li>
+                        <li><a href="#mvt-entry-howitworks">How does it work?</a></li>
+                        <li><a href="#mvt-entry-history">History</a></li>
+                        <li><a href="#mvt-entry-license">License</a></li>
+                    </ol>
+                </li>
+            </ol>
             <p>Made by AirKeyooo</p>
         </nav>
         <main>
             <header>
                 <h1>MC Code Copier Reloaded</h1>
+                <p><b>NOTE:</b> I apologise if my english isn't perfect. I hope you will understand this documentation :)</p>
             </header>
+            <section id="mvt-entry">
+                <h2>1. Entry</h2>
+                <article id="mvt-entry-whatis">
+                    <h3>1.1. What is my program?</h3>
+                    <p>MC Code Copier Reloaded is a Python program that can copy reward codes in Anarchia.GG Minecraft Server (OneBlock) and let you receive your reward every time. Every 30 minutes, server is sending message with 10-characters long code (e.g. LrQ9ihPNlq). My program's role is to capture and parse it.</p>
+                </article>
+                <article id="mvt-entry-howitworks">
+                    <h3>1.2. How does it work?</h3>
+                    <p>This program have to scan in-game chat to look for new codes. Hopefully, Minecraft is logging all chat messages to latest.log. Program is instantly scanning it and looking for new codes. When it detects this scheme:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Plain text</div>
+                        Przepisz kod &lt;code&gt; aby otrzymać nagrodę!
+                    </div>
+                    <p>it instantly knows that new code appeared. Now, it can do many things specified in config file: Copy it to clipboard, send notification, and more.</p>
+                    <p>When it detects this message, it starts scanning and looking for reward info scheme. When it detects this scheme:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Plain text</div>
+                        Gracz &lt;player name&gt; jako pierwszy przepisał kod w czasie &lt;re-write time&gt; i otrzymał(a) 3 Klucze AFK!
+                    </div>
+                    <p>It is logging reward info and it can save it to many formats.</p>
+                </article>
+                <article id="mvt-entry-history">
+                    <h3>1.3. History</h3>
+                    <p>There is no single reason why I made this program: first prototype was written 9th December 2025 (of course in Python). And... It worked, but not very well - they were some situations, when program have copied random message from chat or random player info. Then, I've written second program, but it also wasn't perfect: It was totally unoptimized and it used two separate programs communicating by D-Bus (so Linux only).</p>
+                    <p>Then I had a break from Oneblock for a few months. But one day, I've decided to play again there. I've found my old program, but it was terrible (like I've said before). I was bored too, because I did't had any projects to write. So, 16th May 2026 I've started writing new, reloaded version (this is why program is called MC Code Copier <b>Reloaded</b>).
+                    </p>
+                    <p>First fully working program version (v1.0) was finished one day later, but it could only read codes. 3 hours later, on the same day, I've finished v1.1 version with basic, but required functions, such as copying code to clipboard and displaying notifications. If it was my job, I would call it "Finished". But I love programming, so I've ended with full MySQL and CSV support, next code appear time prediction and many more, but I will say about more functions later.</p>
+                </article>
+                <article id="mvt-entry-license">
+                    <h3>1.4. License</h3>
+                    <p>This program is shared under terms of GNU General Public License (GPL) 3.0 license. You can find full license <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">here</a> or in LICENSE file in main project directory.</p>
+                </article>
+            </section>
         </main>
     </body>
 </html>
