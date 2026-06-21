@@ -159,6 +159,17 @@
                         <li><a href="#mvt-entry-license">Licencja</a></li>
                     </ol>
                 </li>
+                <li>
+                    <a href="#mvt-installation">Instalacja</a>
+                    <ol>
+                        <li><a href="#mvt-installation-python">Python</a>
+                            <ol>
+                                <li><a href="#mvt-installation-python-windows">Windows</a></li>
+                                <li><a href="#mvt-installation-python-linux">Linux</a></li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
             </ol>
             <p>Stworzone przez AirKeyooo</p>
         </nav>
@@ -197,6 +208,53 @@
                 <article id="mvt-entry-license">
                     <h3>1.4. Licencja</h3>
                     <p>Ten program jest udostępniony na licencji GNU General Public License (GPL) 3.0. Całą licencję można znaleźć <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">tutaj</a> lub w pliku LICENSE w głównym folderze projektu.</p>
+                </article>
+            </section>
+            <section id="mvt-installation">
+                <h2>Instalacja</h2>
+                <article id="mvt-installation-python">
+                    <h3>2.1. Python</h3>
+                    <p>Program jest napisany w Pythonie, więc potrzebuje Pythona do działania. Na niektóych systemach, Python jest instalowany domyślnie, ale na innych musisz go doinstalować ręcznie.</p>
+                    <p><b>INFORMACJA:</b> Ta dokumentacja pokazuje kroki instalacji jedynie dla Linuxa i Windowsa. Niestety (albo stety - nienawidzę Apple) nie mam dostępu do żadnego komputera od Apple'a, aby zweryfikować pisane przeze mnie kroki.</p>
+                    <p>Po pierwsze, musisz sprawdzić, czy Python jest już zainstalowany na twoim systemie. Aby to zrobić otwórz terminal (na Windowsie - wyszukaj PowerShell w menu start; na Linuxie - wyszukaj Terminal) i wpisz tą komendę:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 --version
+                    </div>
+                    <p>Jeżeli komenda zwróciła coś takiego:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Tekst</div>
+                        Python 3.14.5
+                    </div>
+                    <p>wówczas możesz przejść <a href="#mvt-installation-pip">tutaj</a> i kontynuować instalację. Jeżeli zwróciła tekst na czerwono (na Windowsie) lub Command not Found (na Linuxie), wówczas nie mamy Pythona i musimy go zainstalować.</p>
+                    <article id="mvt-installation-python-windows">
+                        <h3>2.1.1. Windows</h3>
+                        <p>Aby zainstalować Pythona na Windowsie, wpisz w terminalu poniższą komendę:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell</div>
+                            winget update<br>winget install Python.Python.3
+                        </div>
+                        <p>Oraz dokończ instalację. Gdy komenda zakończy działanie, sprawdź:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell</div>
+                            python3 --version
+                        </div>
+                        <p>Teraz powinna wyświetlić się wersja Pythona na twoim systemie.</p>
+                    </article>
+                    <article id="mvt-installation-python-linux">
+                        <h3>2.1.2. Linux</h3>
+                        <p>Aby zainstalować Pythona na Linuxie, musisz użyć komendy odpowiedniej dla twojego menadżera pakietów:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            # Ubuntu/Debian:<br>sudo apt install python3<br># Arch Linux:<br>sudo pacman -S python3<br># Fedora/Red Hat Enterprise Linux:<br>sudo dnf install python3
+                        </div>
+                        <p>Po instalacji sprawdź:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            python3 --version
+                        </div>
+                        <p>aby potwiedzić, że Python został zainstalowany.</p>
+                    </article>
                 </article>
             </section>
         </main>
