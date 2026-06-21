@@ -41,6 +41,7 @@
                 color: white;
                 overflow-x: hidden;
                 padding: 6px 8px;
+                box-sizing: border-box;
             }
             main {
                 overflow-x: hidden;
@@ -84,21 +85,27 @@
             }
         </style>
         <style id="dark" disabled>
-            main {
+            main,body {
                 background-color: #333;
                 color:white;
             }
             .codepreview {
                 background-color: #444;
             }
+            main a {
+                color:white;
+            }
             </style>
         <style id="light">
-            main {
+            main,body {
                 background-color: white;
                 color:black;
             }
             .codepreview {
                 background-color: lightgray;
+            }
+            main a {
+                color:black;
             }
         </style>
         <script>

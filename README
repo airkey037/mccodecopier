@@ -7,3 +7,5 @@ Every 30 minutes (while writing this) server is sending some random 10-character
 
 How my program helps:
 Program is instantly scanning Minecraft's latest.log file and looking for chat messages. If it recognizes the message template ("Przepisz kod <code here> aby otrzymać nagrodę!"), it will react to it. Then, program is waiting for reward info to appear ("Gracz <player nick here> jako pierwszy przepisał kod w czasie <re-write time> i otrzymał(a) 3 Klucze AFK!"). If it appears, it can save this info. Then it is continuing scanning
+
+If you want to learn more, please see docs folder. Inside, you can find HTML documentations in Polish and English (currently). Open it with your browser
