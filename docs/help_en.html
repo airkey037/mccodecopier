@@ -168,6 +168,12 @@
                                 <li><a href="#mvt-installation-python-linux">Linux</a></li>
                             </ol>
                         </li>
+                        <li><a href="#mvt-installation-pip">Pip</a>
+                            <ol>
+                                <li><a href="#mvt-installation-pip-windows">Windows</a></li>
+                                <li><a href="#mvt-installation-pip-linux">Linux</a></li>
+                            </ol>
+                        </li>
                     </ol>
                 </li>
             </ol>
@@ -256,6 +262,51 @@
                         </div>
                         <p>To confirm installation success.</p>
                     </article>
+                </article>
+                <article id="mvt-installation-pip">
+                    <h2>2.2. Pip</h2>
+                    <p>Pip is an external Python repository with some additional modules, that aren't included in standard package. Program is using some of them, so we need to install them right now if we want to use it.</p>
+                    <p>The way we will choose dependends on your OS</p>
+                    <article id="mvt-installation-pip-windows">
+                        <h3>2.2.1. Windows</h3>
+                        <p>To install packages from pip, open PowerShell and type:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell</div>
+                            python3 -m pip install &lt;package name&gt;
+                        </div>
+                        <p>And after the command finishes its work, package is on your system.</p>
+                    </article>
+                    <article id="mvt-installation-pip-linux">
+                        <h3>2.2.2. Linux</h3>
+                        <p>To install packages from pip, open your terminal and type command for your distro</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            # Ubuntu/Debian:<br>sudo apt update<br>sudo apt install python3-pip<br># Arch Linux:<br>sudo pacman -Sy<br>sudo pacman -S python-pip<br># Fedora/Red Hat Enterprise Linux:<br>sudo dnf update<br>sudo dnf install python3-pip
+                        </div>
+                        <p>Then, type:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            pip install &lt;package name&gt;
+                        </div>
+                        <p><b>NOTE:</b> on Linux, you may get something like this:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            error: externally-managed-environment<br><br>× This environment is externally managed<br>╰─> To install Python packages system-wide, try 'pacman -S<br>    python-xyz', where xyz is the package you are trying to<br>    install.<br>    <br>    If you wish to install a non-Arch-packaged Python package,<br>    create a virtual environment using 'python -m venv path/to/venv'.<br>    Then use path/to/venv/bin/python and path/to/venv/bin/pip.<br>    <br>    If you wish to install a non-Arch packaged Python application,<br>    it may be easiest to use 'pipx install xyz', which will manage a<br>    virtual environment for you. Make sure you have python-pipx<br>    installed via pacman.<br><br>note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.<br>hint: See PEP 668 for the detailed specification.
+                        </div>
+                        <p>Don't worry - this error message appeared, because you are not running this inside Virtual Environment. We don't need this, so just modify your command:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            pip install &lt;package name&gt; --break-system-packages
+                        </div>
+                    </article>
+                    <p>Now you have pip installed, so we need to actually install programs. To do it, replace &lt;package name&gt; in your command with package names listed below. Next to them, they are short descriptions what are they needed for:</p>
+                    <p><b>NOTE:</b> there is * symbol next to required packages</p>
+                    <ul>
+                        <li><b>*pyyaml</b> - required to load config file</li>
+                        <li><b>pyperclip</b> - required do copy codes from chat to clipboard</li>
+                        <li><b>mysql-connector-python</b> - required to save statistics to MySQL</li>
+                    </ul>
+                    <p>Now, everything is installed properly. We finally can go to our final step - installing main program</p>
                 </article>
             </section>
         </main>
