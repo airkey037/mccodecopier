@@ -174,6 +174,8 @@
                                 <li><a href="#mvt-installation-pip-linux">Linux</a></li>
                             </ol>
                         </li>
+                        <li><a href="#mvt-installation-main">Main program</a></li>
+                        <li><a href="#mvt-installation-error">Troubleshooting</a></li>
                     </ol>
                 </li>
             </ol>
@@ -264,7 +266,7 @@
                     </article>
                 </article>
                 <article id="mvt-installation-pip">
-                    <h2>2.2. Pip</h2>
+                    <h3>2.2. Pip</h3>
                     <p>Pip is an external Python repository with some additional modules, that aren't included in standard package. Program is using some of them, so we need to install them right now if we want to use it.</p>
                     <p>The way we will choose dependends on your OS</p>
                     <article id="mvt-installation-pip-windows">
@@ -290,7 +292,7 @@
                         </div>
                         <p><b>NOTE:</b> on Linux, you may get something like this:</p>
                         <div class="codepreview">
-                            <div class="codefilename">Bash</div>
+                            <div class="codefilename">Log</div>
                             error: externally-managed-environment<br><br>× This environment is externally managed<br>╰─> To install Python packages system-wide, try 'pacman -S<br>    python-xyz', where xyz is the package you are trying to<br>    install.<br>    <br>    If you wish to install a non-Arch-packaged Python package,<br>    create a virtual environment using 'python -m venv path/to/venv'.<br>    Then use path/to/venv/bin/python and path/to/venv/bin/pip.<br>    <br>    If you wish to install a non-Arch packaged Python application,<br>    it may be easiest to use 'pipx install xyz', which will manage a<br>    virtual environment for you. Make sure you have python-pipx<br>    installed via pacman.<br><br>note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.<br>hint: See PEP 668 for the detailed specification.
                         </div>
                         <p>Don't worry - this error message appeared, because you are not running this inside Virtual Environment. We don't need this, so just modify your command:</p>
@@ -307,6 +309,38 @@
                         <li><b>mysql-connector-python</b> - required to save statistics to MySQL</li>
                     </ul>
                     <p>Now, everything is installed properly. We finally can go to our final step - installing main program</p>
+                </article>
+                <article id="mvt-installation-main">
+                    <h3>2.3. Main program</h3>
+                    <p><b>NOTE:</b> Since this moment all errors are coming from mine program, so if you have some errors, you'll find info about it here. If you can't find info about your error next to specific sections, you can go <a href="#mvt-errors">here</a> and see global errors</p>
+                    <p>Now we can install and setup main program. First, we need to create a new, default config file. To do it, run the command below and replace &lt;config file path&gt; with the actual path where you want to save your config file</p>
+                    <p><b>NOTE:</b> When you won't give -config, the default config file will be automatically generated in current directory with name <i>config.yml</i></p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 loader.py -default_config -config &lt;config file path&gt;
+                    </div>
+                    <p>After running this command, new and blank configuration file with all comments will be generated. In your console you should now get something like this:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-26 19:21:10,197] [INFO] Anarchia.GG Code Copier started<br>[2026-06-26 19:21:10,197] [INFO] Default config file was created successfully<br><i># Return code: 0</i>
+                    </div>
+                    <p>This communicate means that everything was done correctly. Now, you can continue <a href="#mvt-config">here</a>. If you received some errors, read section below to fix it</p>
+                </article>
+                <article id="mvt-installation-error">
+                    <h3>2.4. Troubleshooting</h3>
+                    <p>In this section I'll write about all errors that may appear in this step.</p>
+                    <h4>1. Config file already exists</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-26 19:20:57,654] [ERROR] Config file already exists!<br><i># Return code: 73</i>
+                    </div>
+                    <p>When you receive this message, this means, that some file exists in location specified in -config flag. To fix it, simply change/set this parameter to point to a path that doesn't exist</p>
+                    <h4>2. Permission error</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-26 19:38:46,557] [ERROR] Can't save file in &lt;path&gt;: Permission Denied<br><i># Return code: 77</i>
+                    </div>
+                    <p>When you receive this communicate, this means, that you are trying to save configuration file in path, where you don't have permission to save to. To fix this, simply change path in -config parameter to path where you are able to save files</p>
                 </article>
             </section>
         </main>

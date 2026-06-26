@@ -174,6 +174,8 @@
                                 <li><a href="#mvt-installation-pip-linux">Linux</a></li>
                             </ol>
                         </li>
+                        <li><a href="#mvt-installation-main">Główny program</a></li>
+                        <li><a href="#mvt-installation-error">Rozwiązywanie problemów</a></li>
                     </ol>
                 </li>
             </ol>
@@ -263,7 +265,7 @@
                     </article>
                 </article>
                 <article id="mvt-installation-pip">
-                    <h2>2.2. Pip</h2>
+                    <h3>2.2. Pip</h3>
                     <p>Pip jest zewnętrznym repozytorium Pythona. Zawiera ono dodatkowe moduły, które nie są dodawane do standardowych plików Pythona. Mój program ich używa, więc musimy niektóre doinstalować</p>
                     <p>Droga, w jaki sposób zainstalujemy pip oraz te programy, będzie się różnić w zależności od twojego systemu operacyjnego.</p>
                     <article id="mvt-installation-pip-windows">
@@ -289,7 +291,7 @@
                         </div>
                         <p><b>INFORMACJA:</b> na Linuxie możesz dostać taki błąd:</p>
                         <div class="codepreview">
-                            <div class="codefilename">Bash</div>
+                            <div class="codefilename">Log</div>
                             error: externally-managed-environment<br><br>× This environment is externally managed<br>╰─> To install Python packages system-wide, try 'pacman -S<br>    python-xyz', where xyz is the package you are trying to<br>    install.<br>    <br>    If you wish to install a non-Arch-packaged Python package,<br>    create a virtual environment using 'python -m venv path/to/venv'.<br>    Then use path/to/venv/bin/python and path/to/venv/bin/pip.<br>    <br>    If you wish to install a non-Arch packaged Python application,<br>    it may be easiest to use 'pipx install xyz', which will manage a<br>    virtual environment for you. Make sure you have python-pipx<br>    installed via pacman.<br><br>note: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.<br>hint: See PEP 668 for the detailed specification.
                         </div>
                         <p>Oznacza on, że nie uruchamiasz programu w wirtualnym środowisku. Nie potrzebujemy tego, więc zmodyfikuj swoją komendę:</p>
@@ -306,6 +308,38 @@
                         <li><b>mysql-connector-python</b> - wymagane, aby zapisywać dane do bazy danych MySQL</li>
                     </ul>
                     <p>Teraz, gdy wszystko mamy zrobione pomyślnie, możemy przejść do finalnego kroku - instalację programu samą w sobie</p>
+                </article>
+                <article id="mvt-installation-main">
+                    <h3>2.3. Główny program</h3>
+                    <p><b>NOTE:</b> Od tego momentu wszystkie błędy pochodzą z mojego programu, więc jeśli jakieś błędy się pojawią, znajdziesz informacje o nich tutaj. Jeżeli nie możesz znaleźć informacji o błędzie koło specyficznych sekcji, możesz przejść <a href="#mvt-errors">tutaj</a> i zobaczyć globalne błędy</p>
+                    <p>Teraz możemy zainstalowć i skonfigurować ŋłówny program. Po pierwsze, musimy stworzyć domyślny plik konfiguracyjny. Aby to zrobić, wpisz komendę poniżej, gdzie zamienisz &lt;ścieżka do pliku konfiguracyjnego&gt; na prawdziwą ścieżkę, gdzie chcesz zapisać plik</p>
+                    <p><b>INFORMACJA:</b> Gdy nie podasz parametru -config, domyślny plik konfiguracyjny zostanie wygenerowany w obecnym folderze w pliku <i>config.yml</i></p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 loader.py -default_config -config &lt;ścieżka do pliku konfiguracyjnego&gt;
+                    </div>
+                    <p>Po uruchomieniu tej komendy, nowy i czysty plik konfiguracyjny ze wszystkimi komentarzami powinien zostać wygenerowany. W terminalu powinieneś zobaczyć coś takiego:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-26 19:21:10,197] [INFO] Anarchia.GG Code Copier started<br>[2026-06-26 19:21:10,197] [INFO] Default config file was created successfully<br><i># Kod wyjścia: 0</i>
+                    </div>
+                    <p>Ten komunikat oznacza, że wszystko zostało zrobione pomyślnie. Teraz możesz prześć <a href="#mvt-config">tutaj</a>. Ale jeśli napotkałeś jakieś błędy, przejdź do sekcji poniżej, aby je naprawić</p>
+                </article>
+                <article id="mvt-installation-error">
+                    <h3>2.4. Rozwiązywanie problemów</h3>
+                    <p>W tej sekcji napiszę o wszystkich błędach, które moga pojawić się w tym kroku</p>
+                    <h4>1. Plik konfiguracyjny już istnieje</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-26 19:20:57,654] [ERROR] Config file already exists!<br><i># Kod wyjścia: 73</i>
+                    </div>
+                    <p>Gdy otrzymasz tą wiadomość, to oznacza, że jakiś plik istnieje już pod ścieżką podaną we fladze -config. Aby to rozwiązać, po prostu ustaw/zmień ten parametr, aby wskazywał na jeszcze nieistniejącą ścieżkę.</p>
+                    <h4>2. Brak uprawnień</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-26 19:38:46,557] [ERROR] Can't save file in &lt;ścieżka&gt;: Permission Denied<br><i># Kod wyjścia: 77</i>
+                    </div>
+                    <p>Gdy otrzymasz ten komunikat, to oznacza, że próbujesz zapisać plik konfiguracyjny tam, gdzie nie masz uprawnień do zapisania go. Aby rozwiązać ten problem, po prostu zmień ścieżkę we fladze -config na ścieżkę, gdzie możesz zapisywać pliki.</p>
                 </article>
             </section>
         </main>
