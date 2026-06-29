@@ -193,6 +193,22 @@
                         <li><a href="#mvt-config-mysql">MySQL/MariaDB</a></li>
                     </ol>
                 </li>
+                <li>
+                    <a href="#mvt-running">Uruchamianie programu</a>
+                    <ol>
+                        <li><a href="#mvt-running-basic">Podstawowe uruchamianie</a></li>
+                        <li><a href="#mvt-running-flags">Flagi</a>
+                            <ol>
+                                <li><a href="#mvt-running-flags-loglevel">-loglevel</a></li>
+                                <li><a href="#mvt-running-flags-config">-config</a></li>
+                                <li><a href="#mvt-running-flags-defconf">-default_config</a></li>
+                                <li><a href="#mvt-running-flags-root">-runasroot</a></li>
+                                <li><a href="#mvt-running-flags-printf">-print_format</a></li>
+                                <li><a href="#mvt-running-flags-shst">-show_statistics</a></li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
             </ol>
             <p>Stworzone przez AirKeyooo</p>
         </nav>
@@ -234,7 +250,7 @@
                 </article>
             </section>
             <section id="mvt-installation">
-                <h2>Instalacja</h2>
+                <h2>2. Instalacja</h2>
                 <article id="mvt-installation-python">
                     <h3>2.1. Python</h3>
                     <p>Program jest napisany w Pythonie, więc potrzebuje Pythona do działania. Na niektóych systemach, Python jest instalowany domyślnie, ale na innych musisz go doinstalować ręcznie.</p>
@@ -496,6 +512,118 @@
                     <p>MySQL integruje się prawie ze wszystkim. Program zapisuje do niej wszystkie informacje o wygranych, więc możesz np. robić na jej podstawie statystyki i wykresy, do których dane odczyta właśnie z bazy danych.</p>
                     <h4>Jak to skonfigurować?</h4>
                     <p>Jeśli chcesz użyć MySQLa, odkomentuj wszystkie linie z nim związane. Musisz utworzyć dla tego programu bazę danych i wpisać ją tutaj. Musisz również wpisać tu adres i port swojego serwera oraz login i hasło użytkownika. Pamiętaj, że program potrzebuje co najmniej uprawnień do wykonywania zapytań CREATE i INSERT wewnątrz całej tej bazy danych.</p>
+                </article>
+            </section>
+            <section id="mvt-running">
+                <h2>4. Uruchamianie programu</h2>
+                <p>W tej sekcji powiem o wszystkim, co musisz wiedzieć, aby uruchomić mój program</p>
+                <article id="mvt-running-basic">
+                    <h3>4.1. Podstawowe uruchamianie</h3>
+                    <p>Aby uruchomić program z podstawowymi opcjami, nie potrzebujesz żadnych zaawansowanych flag. Wpisz komendę poniżej:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 loader.py -config &lt;ścieżka pliku konfiguracyjnego&gt;
+                    </div>
+                    <p>Po uruchomieniu tej komendy powinieneś w konsoli zobaczyć coś takiego:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-29 17:40:56,905] [INFO] Anarchia.GG Code Copier started<br>[2026-06-29 17:40:57,066] [INFO] Started listening
+                    </div>
+                    <p>To oznacza, że program uruchomił się poprawnie i wszystko jest OK. I, w sumie, to wszystko! Program już działa i nasłuchuje w poszukiwaniu nowych kodów. Aby go zatrzymać, wciśnij Ctrl+C (SIGINT - sygnał 2), lub - jeżeli jesteś na Linuxie - możesz wysłać SIGTERM (sygnał 15) - program obsłuży go poprawnie. Po zatrzymaniu, w konsoli pojawi się coś takiego:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-29 17:40:58,628] [INFO] Received SIGINT, QUITTING!<br>[2026-06-29 17:40:58,868] [INFO] ### STATISTICS ###<br>[2026-06-29 17:40:58,868] [INFO] Total runtime: 0:00:01.969867<br>[2026-06-29 17:40:58,868] [INFO] Total codes captured: 0<br>[2026-06-29 17:40:58,868] [INFO] Codes re-writed by me: 0<br>[2026-06-29 17:40:58,868] [INFO] Keys received by me: 0<br>[2026-06-29 17:40:58,868] [INFO] My wins percentage: 0%<br>[2026-06-29 17:40:58,868] [INFO] Program finished job
+                    </div>
+                    <p>Program na końcu zawsze wyświetla statystyki. W nich możesz znaleść m.in.:</p>
+                    <ul>
+                        <li>Totalny czas działania</li>
+                        <li>Ilosć kodów, które program złapał</li>
+                        <li>Ilość kodów, które ja wygrałem</li>
+                        <li>Ilość kluczy odebranych przeze mnie</li>
+                        <li>Procent moich wygranych</li>
+                    </ul>
+                    <p>Jeżeli miałeś jakieś błędy podczas uruchamiania, przejdź <a href="#mvt-errors">tutaj</a>, aby go naprawić.</p>
+                </article>
+                <article id="mvt-running-flags">
+                    <h3>4.2. Flagi</h3>
+                    <p>Program ma różne flagi, które mogą zmieniać jego zachowanie. Aby je zobaczyć, uruchom program z flagą -help:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 loader.py -help
+                    </div>
+                    <p>Poniżej możesz znaleźć listę i opis wszystkich możliwych flag, jakie program wspiera:</p>
+                    <article id="mvt-running-flags-loglevel">
+                        <h3>4.2.1. -loglevel, -v</h3>
+                        <p>Możliwe wartości: <i>quiet, critical, error, warning, info, verbose, debug</i></p>
+                        <p>To ustawienie kontroluje, ile informacji program wyświetla na wyjściu. info to domyślny poziom. Na przykład, jeśli chcesz widzieć tylko błędy, uruchom:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -loglevel error
+                        </div>
+                        <p>Jeżeli chcesz widzieć wszystkie komunikaty (włącznie z komunikatami diagnostycznymi), użyj poziomu debug. Jeśli nie chcesz widzieć niczego, użyj poziomu quiet.</p>
+                    </article>
+                    <article id="mvt-running-flags-config">
+                        <h3>4.2.2. -config</h3>
+                        <p>Używając tej opcji, możesz wskazać programowi ścieżkę do pliku konfiguracyjnego. Jeśli pozostawisz tą opcję pustą, program przeszuka inne ścieżki. Poniżej możesz zobaczyć wszystkie ścieżki, od tych z najniższym priorytetem, do tych z najwyższym.</p>
+                        <h4>Ścieżki zależne od systemu</h4>
+                        <p>Program spróbuje wczytać plik konfiguracyjny z tych ścieżek (username to twoja nazwa użytkownika):</p>
+                        <p><b>Windows:</b></p>
+                        <ul>
+                            <li>C:\Users\username\AppData\Roaming\codecopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\codecopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\CodeCopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\CodeCopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\CodeCopier\CodeCopier.yml</li>
+                            <li>C:\ProgramData\codecopier\config.yml</li>
+                            <li>C:\ProgramData\codecopier\codecopier.yml</li>
+                            <li>C:\ProgramData\CodeCopier\config.yml</li>
+                            <li>C:\ProgramData\CodeCopier\codecopier.yml</li>
+                            <li>C:\ProgramData\CodeCopier\CodeCopier.yml</li>
+                            <li>C:\Users\username\AppData\Local\codecopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Local\codecopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Local\CodeCopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Local\CodeCopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Local\CodeCopier\CodeCopier.yml</li>
+                        </ul>
+                        <p><b>Linux:</b></p>
+                        <ul>
+                            <li>/etc/codecopier/codecopier.yml</li>
+                            <li>/etc/codecopier/config.yml</li>
+                            <li>/etc/codecopier.yml</li>
+                            <li>/home/username/.config/codecopier/codecopier.yml</li>
+                            <li>/home/username/.config/codecopier/config.yml</li>
+                            <li>/home/username/.config/codecopier.yml</li>
+                        </ul>
+                        <h4>Ścieżka ze zmiennej środowiskowej</h4>
+                        <p>Program spróbuje wczytać ścieżkę do pliku konfiguracyjnego ze zmiennej środowiskowej <b>CODECOPIER_CONFIG</b></p>
+                        <p>Jeżeli chcesz ustawić zmienną środowiskową, tutaj znajdziesz instrukcję, jak to zrobić, w zależności od swojego systemu operacyjnego:</p>
+                        <p><b>Na Windowsie:</b></p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell</div>
+                            setx CODECOPIER_CONFIG "C:\Users\username\niestandardowa_sciezka.yml"
+                        </div>
+                        <p>Po wywołaniu tej komendy musisz zrestartować konsolę, aby ustawienia się przyjęły.</p>
+                        <p><b>Na Linuxie:</b></p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            # Jeśli używasz Bash<br>echo "export CODECOPIER_CONFIG=\"/sciezka/do/pliku.yml\"" >> ~/.bashrc<br># Jeśli używasz Zsh<br>echo "export CODECOPIER_CONFIG=\"/sciezka/do/pliku.yml\"" >> ~/.zshrc
+                        </div>
+                        <p><b>INFORMACJA:</b> Na niektórych dystrybucjach Linuxa do zmodyfikowania pliku .bashrc lub .zshrc potrzeba uprawnień roota. Jeśli dostaniesz błąd o niewystarczających uprawnieniach, uruchom tą komendę, używając <i>sudo</i></p>
+                        <h4>Parametr -config</h4>
+                        <p>Parametr -config jest najważniejszym ustawieniem. Nawet, jeżeli w ścieżkach systemowych lub w zmiennej środowiskowej jakiś plik będzie istniał, i tak to parametr -config zdecyduje o tym, skąd program weźmie konfiugrację.</p>
+                    </article>
+                    <article id="mvt-running-flags-defconf">
+                        <h3>4.2.3. -default_config</h3>
+                    </article>
+                    <article id="mvt-running-flags-root">
+                        <h3>4.2.4. -runasroot</h3>
+                    </article>
+                    <article id="mvt-running-flags-printf">
+                        <h3>4.2.3. -print_format, -output_format, -of</h3>
+                    </article>
+                    <article id="mvt-running-flags-shst">
+                        <h3>4.2.3. -show_statistics</h3>
+                    </article>
                 </article>
             </section>
         </main>

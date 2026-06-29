@@ -193,6 +193,22 @@
                         <li><a href="#mvt-config-mysql">MySQL/MariaDB</a></li>
                     </ol>
                 </li>
+                <li>
+                    <a href="#mvt-running">Running program</a>
+                    <ol>
+                        <li><a href="#mvt-running-basic">Basic running</a></li>
+                        <li><a href="#mvt-running-flags">Flags</a>
+                            <ol>
+                                <li><a href="#mvt-running-flags-loglevel">-loglevel</a></li>
+                                <li><a href="#mvt-running-flags-config">-config</a></li>
+                                <li><a href="#mvt-running-flags-defconf">-default_config</a></li>
+                                <li><a href="#mvt-running-flags-root">-runasroot</a></li>
+                                <li><a href="#mvt-running-flags-printf">-print_format</a></li>
+                                <li><a href="#mvt-running-flags-shst">-show_statistics</a></li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
             </ol>
             <p>Made by AirKeyooo</p>
         </nav>
@@ -235,7 +251,7 @@
                 </article>
             </section>
             <section id="mvt-installation">
-                <h2>Installation</h2>
+                <h2>2. Installation</h2>
                 <article id="mvt-installation-python">
                     <h3>2.1. Python</h3>
                     <p>Program is written in Python, so it needs Python to run. In some systems, Python is installed by default, but in others, you need to install it manually.</p>
@@ -359,7 +375,7 @@
                 </article>
             </section>
             <section id="mvt-config">
-                <h3>3. Configuration</h3>
+                <h2>3. Configuration</h2>
                 <p>In this section I'll mention everything that you need to know when configuring this program. I'll explain all sections and settings in configuration file.</p>
                 <p>Config file is basically the most important thing: in this file you are configuring program's behavior. One wrong setting - and boom: program can't detect anything. So read whole section below with attention.</p>
                 <article id="mvt-config-logfile">
@@ -497,6 +513,118 @@
                     <p>MySQL integrates with almost everything. Program is saving all wins info, so you can e.g. make a statistics with graphs and read info from database</p>
                     <h4>How to configure it?</h4>
                     <p>If you want to use MySQL, uncomment all config lines. You need to create database for it and type its name here. Also, enter here your DB credentials. Remember, that program needs at least CREATE and INSERT permissions on a whole database.</p>
+                </article>
+            </section>
+            <section id="mvt-running">
+                <h2>4. Running program</h2>
+                <p>In this section I'll show you everything you need to know when running my program</p>
+                <article id="mvt-running-basic">
+                    <h3>4.1. Basic running</h3>
+                    <p>To run program with basic options, you don't need any advanced flags. Just type command below</p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 loader.py -config &lt;path to config file&gt;
+                    </div>
+                    <p>After running this command, you should see something like this:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-29 17:40:56,905] [INFO] Anarchia.GG Code Copier started<br>[2026-06-29 17:40:57,066] [INFO] Started listening
+                    </div>
+                    <p>This means that program is running correctly and everything is OK. And, basically, that's all! Program is running and listening for new codes. To stop it, you can press Ctrl+C (SIGINT - signal 2) or, if you are on Linux, you can also send SIGTERM (signal 15) - program will react correctly also to this signal. After stopping, this will show up in console:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-29 17:40:58,628] [INFO] Received SIGINT, QUITTING!<br>[2026-06-29 17:40:58,868] [INFO] ### STATISTICS ###<br>[2026-06-29 17:40:58,868] [INFO] Total runtime: 0:00:01.969867<br>[2026-06-29 17:40:58,868] [INFO] Total codes captured: 0<br>[2026-06-29 17:40:58,868] [INFO] Codes re-writed by me: 0<br>[2026-06-29 17:40:58,868] [INFO] Keys received by me: 0<br>[2026-06-29 17:40:58,868] [INFO] My wins percentage: 0%<br>[2026-06-29 17:40:58,868] [INFO] Program finished job
+                    </div>
+                    <p>Program is printing statistics at the end. Here, you can see:</p>
+                    <ul>
+                        <li>Total runtime</li>
+                        <li>Total codes captured</li>
+                        <li>Codes re-writed by me</li>
+                        <li>Keys received by me</li>
+                        <li>My wins percentage</li>
+                    </ul>
+                    <p>If you have some errors during runtime, please go <a href="#mvt-errors">here</a> to troubleshoot it.</p>
+                </article>
+                <article id="mvt-running-flags">
+                    <h3>4.2. Flags</h3>
+                    <p>Program have some flags, that may change its behavior. To see them all, you can run program with -help flag:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 loader.py -help
+                    </div>
+                    <p>Below, I'll list all possible flags:</p>
+                    <article id="mvt-running-flags-loglevel">
+                        <h3>4.2.1. -loglevel, -v</h3>
+                        <p>Possible settings: <i>quiet, critical, error, warning, info, verbose, debug</i></p>
+                        <p>This setting can control, how many informations program is giving to the output. info is the default level. For example, if you want to see only errors:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -loglevel error
+                        </div>
+                        <p>If you want to see all communicates, including debug ones, use level debug. If you don't want to see anything, use level quiet.</p>
+                    </article>
+                    <article id="mvt-running-flags-config">
+                        <h3>4.2.2. -config</h3>
+                        <p>In this option, you can specify path to the configuration file. If you keep this option blank, program will search for it in another paths. Here you can see all paths, from the least priority to the most</p>
+                        <h4>System-specific paths</h4>
+                        <p>Program can try to load config files from those paths (username is your user's name):</p>
+                        <p><b>Windows:</b></p>
+                        <ul>
+                            <li>C:\Users\username\AppData\Roaming\codecopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\codecopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\CodeCopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\CodeCopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\CodeCopier\CodeCopier.yml</li>
+                            <li>C:\ProgramData\codecopier\config.yml</li>
+                            <li>C:\ProgramData\codecopier\codecopier.yml</li>
+                            <li>C:\ProgramData\CodeCopier\config.yml</li>
+                            <li>C:\ProgramData\CodeCopier\codecopier.yml</li>
+                            <li>C:\ProgramData\CodeCopier\CodeCopier.yml</li>
+                            <li>C:\Users\username\AppData\Local\codecopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Local\codecopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Local\CodeCopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Local\CodeCopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Local\CodeCopier\CodeCopier.yml</li>
+                        </ul>
+                        <p><b>Linux:</b></p>
+                        <ul>
+                            <li>/etc/codecopier/codecopier.yml</li>
+                            <li>/etc/codecopier/config.yml</li>
+                            <li>/etc/codecopier.yml</li>
+                            <li>/home/username/.config/codecopier/codecopier.yml</li>
+                            <li>/home/username/.config/codecopier/config.yml</li>
+                            <li>/home/username/.config/codecopier.yml</li>
+                        </ul>
+                        <h4>Path from environment variable</h4>
+                        <p>Program also tries to load config file from Environment Variable <b>CODECOPIER_CONFIG</b></p>
+                        <p>If you want to set environment variable, here is the detailed instruction, based on your OS.</p>
+                        <p><b>On Windows:</b></p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell</div>
+                            setx CODECOPIER_CONFIG "C:\Users\username\not_a_standard_file_name.yml"
+                        </div>
+                        <p>Then, restart your PowerShell</p>
+                        <p><b>On Linux:</b></p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            # On Bash<br>echo "export CODECOPIER_CONFIG=\"/path/to/config_file.yml\"" >> ~/.bashrc<br># On Zsh<br>echo "export CODECOPIER_CONFIG=\"/path/to/config_file.yml\"" >> ~/.zshrc
+                        </div>
+                        <p><b>NOTE:</b> On some Linux instances modifying .bashrc or .zshrc needs root privileges. If you get <b>Permission Error</b>, run the same command with <i>sudo</i></p>
+                        <h4>-config parameter</h4>
+                        <p>-config parameter is the most important. Even, when some file exists in system paths or env variable, -config parameter will always win.</p>
+                    </article>
+                    <article id="mvt-running-flags-defconf">
+                        <h3>4.2.3. -default_config</h3>
+                    </article>
+                    <article id="mvt-running-flags-root">
+                        <h3>4.2.4. -runasroot</h3>
+                    </article>
+                    <article id="mvt-running-flags-printf">
+                        <h3>4.2.3. -print_format, -output_format, -of</h3>
+                    </article>
+                    <article id="mvt-running-flags-shst">
+                        <h3>4.2.3. -show_statistics</h3>
+                    </article>
                 </article>
             </section>
         </main>
