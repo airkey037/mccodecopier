@@ -2,10 +2,18 @@ README file
 
 MC Code Copier Reloaded is a Python program that can capture codes in Anarchia.GG Minecraft Server (OneBlock).
 
+Program is NOT RELATED with Microsoft or Mojang in ANY WAY
+
 How this works:
 Every 30 minutes (while writing this) server is sending some random 10-characters long code (like LrQ9ihPNlq). First player who was the fastest in re-writing this code is receiving 3 AFK keys.
 
 How my program helps:
 Program is instantly scanning Minecraft's latest.log file and looking for chat messages. If it recognizes the message template ("Przepisz kod <code here> aby otrzymać nagrodę!"), it will react to it. Then, program is waiting for reward info to appear ("Gracz <player nick here> jako pierwszy przepisał kod w czasie <re-write time> i otrzymał(a) 3 Klucze AFK!"). If it appears, it can save this info. Then it is continuing scanning
 
-If you want to learn more, please see docs folder. Inside, you can find HTML documentations in Polish and English (currently). Open it with your browser
+I share this program on GNU GPL (General Public License) v3 license. You can find whole license in the LICENSE file or here:
+https://www.gnu.org/licenses/gpl-3.0.html
+
+You can find program help by running it with -help flag:
+python3 loader.py -help
+
+For full help and documentation, see docs folder. There, you can find help pages in HTML with whole and detailed documentation. Currently supported languages: English, Polish
