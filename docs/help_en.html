@@ -178,6 +178,21 @@
                         <li><a href="#mvt-installation-error">Troubleshooting</a></li>
                     </ol>
                 </li>
+                <li>
+                    <a href="#mvt-config">Configuration</a>
+                    <ol>
+                        <li><a href="#mvt-config-logfile">Log file</a></li>
+                        <li><a href="#mvt-config-readlines">Read n lines</a></li>
+                        <li><a href="#mvt-config-notify">Send notifications</a></li>
+                        <li><a href="#mvt-config-timeout">Suggest timeout</a></li>
+                        <li><a href="#mvt-config-predict">Predict next code</a></li>
+                        <li><a href="#mvt-config-copy">Copy to clipboard</a></li>
+                        <li><a href="#mvt-config-csv">Save to CSV</a></li>
+                        <li><a href="#mvt-config-nicknames">My nicknames</a></li>
+                        <li><a href="#mvt-config-freq">Scan frequency</a></li>
+                        <li><a href="#mvt-config-mysql">MySQL/MariaDB</a></li>
+                    </ol>
+                </li>
             </ol>
             <p>Made by AirKeyooo</p>
         </nav>
@@ -341,6 +356,147 @@
                         [2026-06-26 19:38:46,557] [ERROR] Can't save file in &lt;path&gt;: Permission Denied<br><i># Return code: 77</i>
                     </div>
                     <p>When you receive this communicate, this means, that you are trying to save configuration file in path, where you don't have permission to save to. To fix this, simply change path in -config parameter to path where you are able to save files</p>
+                </article>
+            </section>
+            <section id="mvt-config">
+                <h3>3. Configuration</h3>
+                <p>In this section I'll mention everything that you need to know when configuring this program. I'll explain all sections and settings in configuration file.</p>
+                <p>Config file is basically the most important thing: in this file you are configuring program's behavior. One wrong setting - and boom: program can't detect anything. So read whole section below with attention.</p>
+                <article id="mvt-config-logfile">
+                    <h3>3.1. Log file</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Add path to your latest.log file<br>log_file: /path/to/latest.log
+                    </div>
+                    <p>This is <b>THE MOST IMPORTANT</b> setting in whole config file! Like said in Entry, program is reading chat messages from Minecraft's latest.log file. Here, we need to specify full path to this file.</p>
+                    <h4>Where can I find it?</h4>
+                    <p>Here is the universal (and in-game) method to do it:</p>
+                    <ol>
+                        <li>Start the exact Minecraft instance which you are using to play on OneBlock.</li>
+                        <li>In main menu, go to Options -> Resource Packs -> Open pack folder</li>
+                        <li>Now, file explorer should appear</li>
+                        <li>Go exactly <b>one folder</b> backwards</li>
+                        <li>Enter <i>logs</i> folder</li>
+                        <li>Here, find <i>latest.log file</i></li>
+                        <li>Right click on it and go to Properties</li>
+                        <li>Here, find your absolute path. On Windows it will typically start with C:\Users\...,  on Linux - /home/...</li>
+                        <li><b>NOTE:</b> Make sure that the path you found is an absolute path to <b>file</b>, not parent folder. Copied path should ALWAYS end with <i>latest.log</i></li>
+                    </ol>
+                    <p>When you know your latest.log location, replace <i>/path/to/latest.log</i> with your exact path. Some examples:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Windows<br>log_file: C:\Users\airkeyooo\AppData\Roaming\.minecraft\logs\latest.log<br># Linux<br>log_file: /home/airkeyooo/.minecraft/logs/latest.log
+                    </div>
+                    <p><b>NOTE:</b> Those are only <b>EXAMPLES</b>. Remember, that exact path depends on your launcher and installation method, e.g. Flatpak vs System repo (on Linux)</p>
+                </article>
+                <article id="mvt-config-readlines">
+                    <h3>3.2. Read n lines</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage<br>read_lines: 2
+                    </div>
+                    <p>To save your CPU and RAM, program is reading lines from the end of the latest.log file (backwards). In this setting, you need to specify, how many lines backwards program should scan.</p>
+                    <h4>Why not just scanning 1?</h4>
+                    <p>Sometimes, scanning only 1 line is enough. But there are some situations, when server post this messages in the exact moment when player does it. If it was 1, program would not see that new code have just appeared.</p>
+                    <p>I did a lot of testing and I found out, that 2 is enough for 99% of situations. If you don't know what you are doing, just <b>keep default setting here</b>. But if program sometimes ignores code, consider changing it to 3 or even 4.</p>
+                </article>
+                <article id="mvt-config-notify">
+                    <h3>3.3. Send notifications</h3>
+                    <p><b>NOTE:</b> Currently, this option works only on Linux, and ends with error on any other OS</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Should program send notifications about new codes?<br># WARNING: Works only on Linux and ends with error on any other OS!<br>send_notifications: false
+                    </div>
+                    <p>This option is setting should program send system notifications about new code. To do it, it is using <i>notify-send</i> tool. If you are on Linux and want to use this function, change <i>false</i> to <i>true</i>.</p>
+                </article>
+                <article id="mvt-config-timeout">
+                    <h3>3.4. Suggest timeout</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Suggest when user should send code to don't look suspicious<br># Give value in seconds. If you don't want to use this function, comment it or set value to 0<br>suggest_timeout: 5
+                    </div>
+                    <p>When this setting is enabled (you can enable it by simply setting any value in this option and disable it by setting it to 0), program is adding this info:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Plain text</div>
+                        ... Send it at: HH:MM:SS
+                    </div>
+                    <p>both to console logs and notifications (if they are enabled). This HH:MM:SS is hour, minute and second when program suggeests you sending the code. Unfortunately, currently program doesn't support countdown, so you need clock with seconds to use this function.</p>
+                </article>
+                <article id="mvt-config-predict">
+                    <h3>3.5. Predict next code</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Change shuold program predict when next code will appear.<br># Program currently needs at least 2 codes in memory to predict next one<br>predict_next_code: false
+                    </div>
+                    <p><b>NOTE:</b> Belive me, there is a reason why by default this is set to false. In its current form, this is terrible. <b>I do not recommend</b> using this function now, but I hope it will change in future versions.</p>
+                    <p>When this option is enabled, after winning information in console program is sending this message:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        Next code appear time prediction: HH:MM:SS
+                    </div>
+                    <p>where HH:MM:SS is hour, minute and second when next code should appear.</p>
+                </article>
+                <article id="mvt-config-copy">
+                    <h3>3.6. Copy to clipboard</h3>
+                    <p><b>NOTE:</b> This option requires <i>pyperclip</i> module. If you don't know how to install it, go <a href="#mvt-installation-pip">here</a>.</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Should program automatically copy received code to the clipboard?<br># WARNING: Requires pyperclib module, which can be installed using: `pip install pyperclip`<br>copy_to_clipboard: false
+                    </div>
+                    <p>I think I don't need to explain this option, but maybe I'll do it: when this is set to <i>true</i>, detected code is copied to the clipboard</p>
+                </article>
+                <article id="mvt-config-csv">
+                    <h3>3.7. Save to CSV</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Save results to .csv file<br># If you don't want to use this function, comment line below<br>save_to_csv: /path/to/file.csv
+                    </div>
+                    <p><b>NOTE:</b> If you don't want to use this function, remove/comment this whole line</p>
+                    <p>When this setting is enabled, program is saving all reward information to CSV file. Its location should be specified in this parameter.</p>
+                    <h4>What is CSV file?</h4>
+                    <p>CSV (stands for <i>comma-separated values</i>) is a file format, where columns are separated with <i>,</i> or <i>;</i> character. It is basically a <b>table</b>.</p>
+                    <h4>How can I read it?</h4>
+                    <p>You can read it with Microsoft Excel, LibreOffice/OpenOffice Calc, Google Sheets and much more.</p>
+                    <h4>Saved format</h4>
+                    <p>This program is saving data to 5 columns:</p>
+                    <ul>
+                        <li><b>Code</b> - this column is storing the exact 10-characters long code that you had to re-write</li>
+                        <li><b>Nick</b> - winner's nick</li>
+                        <li><b>Time</b> - exact re-write time in seconds</li>
+                        <li><b>Timestamp</b> - Date and time when code appeared (in ISO 8601 format, with timezone info)</li>
+                        <li><b>Me</b> - True/False value that helps recognize, was it me</li>
+                    </ul>
+                </article>
+                <article id="mvt-config-nicknames">
+                    <h3>3.8. My nicknames</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Set all nicknames that are yours<br># If you don't want to set your nicknames, comment/remove whole section below<br>nicknames:<br>  - Nickname1<br>  - Nickname2
+                    </div>
+                    <p>Here, you can list all nicknames that are yours. Each time someone wins, program will check is winner's nickname on this list. Then, it can save this info to CSV/Database, or just display info in the console.</p>
+                </article>
+                <article id="mvt-config-freq">
+                    <h3>3.9. Scan frequency</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # How frequently (in ms) chat should be scanned.<br># e.g. 200 -> messages will be scanned every 200ms<br># Smaller delay may improve efficiency, but will end up with higher CPU and disk usage<br>scan_frequency: 300
+                    </div>
+                    <p>This option controls, how often program is scanning latest.log file to find new codes. If you don't know what you should type here - keep the default value. If program isn't detecting codes/rewards info, try to decrease this value. If CPU/Disk usage is too high, try to increase this value.</p>
+                </article>
+                <article id="mvt-config-mysql">
+                    <h3>3.10. MySQL/MariaDB</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # MySQL DB Access config<br># If you want to use MySQL, uncomment all lines below and type your credentials<br># When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work<br># If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')<br># Minimal required user permissions: CREATE, INSERT<br># WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`<br>#mysql:<br>#  host: localhost<br>#  port: 3306<br>#  user: root<br>#  password: <br>#  database: my_database<br>#  optional: false
+                    </div>
+                    <h4>What is MySQL?</h4>
+                    <p>MySQL is a database server. Database is used to store data in tables (like in Excel). You can insert and grab data from it using Structural Query Language (SQL)</p>
+                    <h4>Do I need it?</h4>
+                    <p>If you don't even know what is MySQL, you definitely don't.</p>
+                    <h4>Why someone may want to use it?</h4>
+                    <p>MySQL integrates with almost everything. Program is saving all wins info, so you can e.g. make a statistics with graphs and read info from database</p>
+                    <h4>How to configure it?</h4>
+                    <p>If you want to use MySQL, uncomment all config lines. You need to create database for it and type its name here. Also, enter here your DB credentials. Remember, that program needs at least CREATE and INSERT permissions on a whole database.</p>
                 </article>
             </section>
         </main>
