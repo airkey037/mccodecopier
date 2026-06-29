@@ -178,6 +178,21 @@
                         <li><a href="#mvt-installation-error">Rozwiązywanie problemów</a></li>
                     </ol>
                 </li>
+                <li>
+                    <a href="#mvt-config">Konfiguracja</a>
+                    <ol>
+                        <li><a href="#mvt-config-logfile">Plik logów</a></li>
+                        <li><a href="#mvt-config-readlines">Czytaj n linii wstecz</a></li>
+                        <li><a href="#mvt-config-notify">Wysyłaj powiadomienia</a></li>
+                        <li><a href="#mvt-config-timeout">Zasugeruj opóźnienie</a></li>
+                        <li><a href="#mvt-config-predict">Przewiduj następny kod</a></li>
+                        <li><a href="#mvt-config-copy">Kopiuj do schowka</a></li>
+                        <li><a href="#mvt-config-csv">Zapisuj do CSV</a></li>
+                        <li><a href="#mvt-config-nicknames">Moje nicki</a></li>
+                        <li><a href="#mvt-config-freq">Częstotliwość skanowania</a></li>
+                        <li><a href="#mvt-config-mysql">MySQL/MariaDB</a></li>
+                    </ol>
+                </li>
             </ol>
             <p>Stworzone przez AirKeyooo</p>
         </nav>
@@ -340,6 +355,147 @@
                         [2026-06-26 19:38:46,557] [ERROR] Can't save file in &lt;ścieżka&gt;: Permission Denied<br><i># Kod wyjścia: 77</i>
                     </div>
                     <p>Gdy otrzymasz ten komunikat, to oznacza, że próbujesz zapisać plik konfiguracyjny tam, gdzie nie masz uprawnień do zapisania go. Aby rozwiązać ten problem, po prostu zmień ścieżkę we fladze -config na ścieżkę, gdzie możesz zapisywać pliki.</p>
+                </article>
+            </section>
+            <section id="mvt-config">
+                <h3>3. Konfiguracja</h3>
+                <p>W tej sekcji wspomnę wszystko co musisz wiedzieć podczas konfiguracji programu oraz wyjaśnię wszystkie sekcje i ustawienia w tym pliku</p>
+                <p>Plik konfiguracyjny jest w sumie jedną z najważniejszych rzeczy w całym programie - w tym pliku ustawiasz zachowanie całego programu. Jedno złe ustawienie może sprawić, że program przestanie wykrywać kody! Więc proszę, abyś przeczytał z uwagą sekcję poniżej</p>
+                <article id="mvt-config-logfile">
+                    <h3>3.1. Plik logów</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Add path to your latest.log file<br>log_file: /path/to/latest.log
+                    </div>
+                    <p>To jest <b>NAJWAŻNIEJSZE</b> ustawienie w całym pliku konfiguracyjnym! Jak powiedziałem na wstępie, program odczytuje wiadomości z czatu z Minecraftowego pliku latest.log. Musimy więc wprowadzić tutaj pełną ścieżkę do tego pliku.</p>
+                    <h4>Gdzie mogę go znaleźć?</h4>
+                    <p>Oto uniwersalna metoda na znalezienie tego pliku:</p>
+                    <ol>
+                        <li>Uruchom dokładnie tą instancję Minecrafta, której używasz do grania na OneBlocku</li>
+                        <li>W menu głównym wejdż w Opcje (Options) -> Paczki zasobów (Resource Packs) -> Open pack folder (Otwórz folder z paczkami)</li>
+                        <li>Po kliknięciu powinien otworzyć się eksplorator plików</li>
+                        <li>Przejdź dokładnie <b>jeden folder</b> w górę</li>
+                        <li>Wejdź do folderu <i>logs</i></li>
+                        <li>Tutaj, znajdź plik <i>latest.log</i></li>
+                        <li>Kliknij prawym przyciskiem na niego i kliknij na Właściwości (Properties)</li>
+                        <li>Tutaj, postaraj znaleźć ścieżkę bezwzględną do pliku. Na Windowsie będzie się ona zaczynać od C:\Users\..., na Linuxie - /home/...</li>
+                        <li><b>INFORMACJA:</b> Upewnij się, że ścieżka, którą skopiowałeś, prowadzi do <b>pliku</b>, a nie folderu rodzica. Ścieżka skopiowana przez ciebie powinna ZAWSZE mieć na końcu <i>latest.log</i></li>
+                    </ol>
+                    <p>Kiedy już znasz ścieżkę do tego pliku, zastąp <i>/path/to/latest.log</i> dokładną ścieżką do tego pliku. Przykłady:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Windows<br>log_file: C:\Users\airkeyooo\AppData\Roaming\.minecraft\logs\latest.log<br># Linux<br>log_file: /home/airkeyooo/.minecraft/logs/latest.log
+                    </div>
+                    <p><b>INFORMACJA:</b> To są jedynie <b>PRZYKŁADY</b>. Pamiętaj, że ta ścieżka zależy od twojego launchera i metody jego instalacji, np. Flatpak vs Systemowe repo (na Linuxie)</p>
+                </article>
+                <article id="mvt-config-readlines">
+                    <h3>3.2. Czytaj n linii wstecz</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage<br>read_lines: 2
+                    </div>
+                    <p>Aby oszczędzać twój procesor i pamięć RAM, program czyta linijki od końca pliku latest.log. Ta opcja pozwoli ci ustawić, ile linii program przeczyta wstecz.</p>
+                    <h4>Dlaczego nie skanować tylko jednej?</h4>
+                    <p>Czasami 1 linia jest wystarczająca. Ale są sytuacje, gdzie serwer wyśle wiadomość o nowym kodzie dokładnie wtedy, kiedy gracz wyśle jakąś wiadomość. Jeśli czytałby tylko 1 linię, program nie zobaczy, że właśnie przyszedł nowy kod.</p>
+                    <p>Przeprowadziłem dużo testów. Wyszło na to, że 2 linie są wystarczające w 99% sytuacji. Jeśli nie wiesz, co robisz, <b>pozostaw tu domyślną opcję</b>. Ale jeżeli zdarza się często, że program zignoruje kod, rozważ powiększenie tej liczby do 3 lub nawet 4.</p>
+                </article>
+                <article id="mvt-config-notify">
+                    <h3>3.3. Wysyłaj powiadomienia</h3>
+                    <p><b>INFORMACJA:</b> Obecnie ta opcja zadziała tylko na Linuxie i wyrzuci błąd na każdym innym systemie operacyjnym.</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Should program send notifications about new codes?<br># WARNING: Works only on Linux and ends with error on any other OS!<br>send_notifications: false
+                    </div>
+                    <p>Ta opcja ustawia to, czy program ma wysłać powiadomienie o nowym kodzie. Używa on do tego celu narzędzia <i>notify-send</i>. Jeżeli jesteś na Linuxie i chcesz używać tej funkcji, zmień <i>false</i> na <i>true</i>.</p>
+                </article>
+                <article id="mvt-config-timeout">
+                    <h3>3.4. Zasugeruj opóźnienie</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Suggest when user should send code to don't look suspicious<br># Give value in seconds. If you don't want to use this function, comment it or set value to 0<br>suggest_timeout: 5
+                    </div>
+                    <p>Gdy to ustawienie jest włączone (możesz je włączyć ustawiając tu jakąkolwiek liczbę i wyłączyć ustawiając tą opcję na 0), program dodaje tą informację:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Tekst</div>
+                        ... Send it at: HH:MM:SS
+                    </div>
+                    <p>zarówno do konsoli, jak i powiadomnień (jeśli włączone). HH:MM:SS to godzina, minuta i sekunda, o której program sugeruje wysłanie wysłać kod. Niestety obecnie progam jeszcze nie odlicza, więc potrzebujesz widzieć zegar z sekundami, aby jakkolwiek sensownie używać tej funkcji.</p>
+                </article>
+                <article id="mvt-config-predict">
+                    <h3>3.5. Przewiduj następny kod</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Change shuold program predict when next code will appear.<br># Program currently needs at least 2 codes in memory to predict next one<br>predict_next_code: false
+                    </div>
+                    <p><b>NOTE:</b> Uwierz mi: jest powód, dla którego domyślnie ta opcja jest wyłączona. W swojej obecnej formie, ta opcja jest bezużyteczna. <b>Nie polecam</b> używać tej funkcji w jej obecnym stanie, ale mam nadzieję, że uda mi się to zmienić w przyszłych wersjach.</p>
+                    <p>Kiedy ta opcja jest włączona, po informacji o wygranej program wyśle tą wiadomość:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        Next code appear time prediction: HH:MM:SS
+                    </div>
+                    <p>HH:MM:SS to godzina, minuta i sekunda, o której kolejny kod ma przyjść (według programu).</p>
+                </article>
+                <article id="mvt-config-copy">
+                    <h3>3.6. Kopiuj do schowka</h3>
+                    <p><b>INFORMACJA:</b> Ta opcja wymaga modułu <i>pyperclip</i>. Jeśli nie wiesz, jak ją zainstalować, przejdź <a href="#mvt-installation-pip">tutaj</a>.</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Should program automatically copy received code to the clipboard?<br># WARNING: Requires pyperclib module, which can be installed using: `pip install pyperclip`<br>copy_to_clipboard: false
+                    </div>
+                    <p>Myślę, że nie muszę tłumaczyć, do czego służy ta opcja, ale może to zrobię: gdy ustawisz tą opcję na <i>true</i>, program skopiuje wykryty kod do schowka.</p>
+                </article>
+                <article id="mvt-config-csv">
+                    <h3>3.7. Save to CSV</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Save results to .csv file<br># If you don't want to use this function, comment line below<br>save_to_csv: /path/to/file.csv
+                    </div>
+                    <p><b>INFORMACJA:</b> Jeśli nie chcesz używać tej opcji, usuń/zakomentuj całą tą opcję</p>
+                    <p>Gdy ta opcja jest włączona, program zapisuje wszystkie informacje o wygranych do pliku CSV. Jego lokalizację należy ustawić w tym parametrze</p>
+                    <h4>Czym jest plik CSV?</h4>
+                    <p>CSV (skrót od <i>comma-separated values</i> - wartości oddzielone przecinkami) jest formatem pliku, gdzie poszczególne kolumny są oddzielone od siebie znakiem <i>,</i> (przecinkiem) lub <i>;</i> (średnikiem). Tak właściwie to jest to <b>format tabeli</b>.</p>
+                    <h4>Jak mogę to odczytać?</h4>
+                    <p>Możesz odczytywać to wygodnie przez Microsoft Excel, LibreOffice/OpenOffice Calc, Google Sheets i wiele więcej.</p>
+                    <h4>Format zapisu</h4>
+                    <p>Program zapisuje dane w 5 kolumnach:</p>
+                    <ul>
+                        <li><b>Code</b> - ta kolumna przechowuje dokładny 10-znakowy kod, który musiałeś przepisać</li>
+                        <li><b>Nick</b> - nick zwycięzcy</li>
+                        <li><b>Time</b> - dokładny czas przepisania kodu w sekundach</li>
+                        <li><b>Timestamp</b> - Data i godzina pojawienia się kodu (w formacie ISO 8601 z informacją o strefie czasowej)</li>
+                        <li><b>Me</b> - Wartość True/False, która pomaga rozpoznać, czy to ja zdobyłem ten kod</li>
+                    </ul>
+                </article>
+                <article id="mvt-config-nicknames">
+                    <h3>3.8. Moje nicki</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Set all nicknames that are yours<br># If you don't want to set your nicknames, comment/remove whole section below<br>nicknames:<br>  - Nickname1<br>  - Nickname2
+                    </div>
+                    <p>Tutaj możesz wypisać wszystkie nicki które należą do ciebie. Za każdym razem, gdy ktoś wygra, program sprawdza, czy jego nick jest na tej liście. Potem może zapisać tą informację do pliku CSV/Bazy danych, lub po prostu wyświetlić tą informację w konsoli.</p>
+                </article>
+                <article id="mvt-config-freq">
+                    <h3>3.9. Częstotliwość skanowania</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # How frequently (in ms) chat should be scanned.<br># e.g. 200 -> messages will be scanned every 200ms<br># Smaller delay may improve efficiency, but will end up with higher CPU and disk usage<br>scan_frequency: 300
+                    </div>
+                    <p>Ta opcja kontroluje, jak często program ma skanować plik latest.log w poszukiwaniu nowych kodów. Jeśli nie wiesz, co tutaj ustawić - zachowaj domyślną wartość. Jeśli program nie wykrywa kodów/informacji o wygranych, spróbuj obniżyć tą wartość. Jeśli użycie procesora/dysku jest za duże, spróbuj zwiększyć tą wartość.</p>
+                </article>
+                <article id="mvt-config-mysql">
+                    <h3>3.10. MySQL/MariaDB</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # MySQL DB Access config<br># If you want to use MySQL, uncomment all lines below and type your credentials<br># When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work<br># If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')<br># Minimal required user permissions: CREATE, INSERT<br># WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`<br>#mysql:<br>#  host: localhost<br>#  port: 3306<br>#  user: root<br>#  password: <br>#  database: my_database<br>#  optional: false
+                    </div>
+                    <h4>Czym jest MySQL?</h4>
+                    <p>MySQL jest serwerem bazodanowym. Baza danych przechowuje dane w tabelach (niczym tabela w Excelu). Możesz tu wstawiać dane i je odczytywać, używając Strukturalnego Języka Zapytań (Structural Query Language - SQL)</p>
+                    <h4>Czy go potrzebuję?</h4>
+                    <p>Jeżeli nie wiesz nawet, czym jest MySQL, zdecydowanie nie potrzebujesz.</p>
+                    <h4>Dlaczego ktoś chciałby go użyć?</h4>
+                    <p>MySQL integruje się prawie ze wszystkim. Program zapisuje do niej wszystkie informacje o wygranych, więc możesz np. robić na jej podstawie statystyki i wykresy, do których dane odczyta właśnie z bazy danych.</p>
+                    <h4>Jak to skonfigurować?</h4>
+                    <p>Jeśli chcesz użyć MySQLa, odkomentuj wszystkie linie z nim związane. Musisz utworzyć dla tego programu bazę danych i wpisać ją tutaj. Musisz również wpisać tu adres i port swojego serwera oraz login i hasło użytkownika. Pamiętaj, że program potrzebuje co najmniej uprawnień do wykonywania zapytań CREATE i INSERT wewnątrz całej tej bazy danych.</p>
                 </article>
             </section>
         </main>
