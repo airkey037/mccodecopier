@@ -325,7 +325,7 @@ class CodeCopy:
                 self.logger.warning("Something went wrong: Copied and pasted texts aren't the same values!")
         except PyperclipException as e:
             self.logger.debug(f"Original error message: {e}")
-            raise RuntimeError("Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info"+". You are on Linux, so you can check is your copying backend (like wl-copy) installed"if system()=="Linux"else"")
+            raise RuntimeError("Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info"+". You are on Linux, so you can check is your copying backend (like wl-copy, xclip, xselect) installed"if system()=="Linux"else"")
     def copy(self,code:str):
         from pyperclip import copy
         self.logger.debug(f"Copying {code}")
@@ -381,13 +381,13 @@ class CSV:
                 self.logger.debug("Successfully writed all needed data")
 # Class to save codes data to MySQL/MariaDB
 class MySQL:
-    def __init__(self,hostname:str,user:str,password:str,database:str,port=3306):
+    def __init__(self,user:str,password:str,database:str,hostname:str="localhost",port:int=3306):
         CREATE_TABLE_QUERY='''CREATE TABLE IF NOT EXISTS`wins_log`(`id`int(11)NOT NULL AUTO_INCREMENT COMMENT'Primary key',`code`varchar(10)DEFAULT NULL COMMENT'String that contains key, that player had to re-write',`appear_time`timestamp NOT NULL DEFAULT current_timestamp()COMMENT'Shows exact time when code appeared',`rewrite_time`float NOT NULL COMMENT'Time (in seconds) in what time player have re-writed the code',`nick`varchar(16)NOT NULL COMMENT'Who sent the code',`is_it_me`tinyint(1)NOT NULL COMMENT'True if I won the code',PRIMARY KEY(`id`))ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;'''
-        self.hostname = hostname
+        self.hostname = hostname if hostname else "localhost"
         self.user = user
         self.password = password
         self.database = database
-        self.port = port
+        self.port = port if port else 3306
         # Define logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         import mysql.connector
@@ -397,7 +397,7 @@ class MySQL:
             self.logger.debug(f"Authenticating by user: {self.user} (Using password: {"Yes"if self.password else"No"})")
             self.logger.debug(f"Using database: {self.database}")
             self.logger.debug("Trying to connect...")
-            conn = mysql.connector.connect(host=hostname,user=user,password=password,database=database,port=port)
+            conn = mysql.connector.connect(host=hostname,user=user,password=password,database=database,port=port,connection_timeout=10)
             if conn:
                 self.logger.debug("Connection established")
                 stmt = conn.cursor()
@@ -409,11 +409,11 @@ class MySQL:
                 self.logger.debug("Connection and cursor closed")
         except mysql.connector.Error as err:
             if err.errno == 1045:
-                raise PermissionError(f"User {user} can't connect to the database {database}: Permission Denied") from None
+                raise PermissionError(f"User {user} can't connect to the MySQL/MariaDB server: Permission Denied") from None
             elif err.errno == 2003:
-                raise ConnectionRefusedError(f"Can't connect to the MySQL server because server address {hostname}:{port} isn't known") from None
+                raise ConnectionRefusedError(f"Can't connect to the MySQL server {hostname}:{port} - Connection timeout or the server refused the connection") from None
             elif err.errno == 1044:
-                raise PermissionError(f"User {user} can't access to the {database} DB: Permission Denied or this database isn't existing") from None
+                raise PermissionError(f"User {user} can't access to the {database} DB: Permission Denied or this database doesn't exist") from None
             elif err.errno == 1142:
                 raise PermissionError(f"User {user} can't execute required commands: Permission Denied. Please make sure user {user} can run at least CREATE and INSERT in {database} DB") from None
             else:
@@ -448,7 +448,7 @@ class Config:
         if fullpath.exists():
             self.logger.error("Config file already exists!")
             exit(rtn.EX_CANTCREAT)
-        DEFAULT_CONFIG_FILE=f'''# MC Code Copier default config file\n# Program maintainer: AirKeyooo <airkeyooo@gmail.com>\n# Generated: {datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")}\n\n# Add path to your latest.log file\nlog_file: /path/to/latest.log\n\n# How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage\nread_lines: 2\n\n# Should program send notifications about new codes?\n# WARNING: Works only on Linux and ends with error on any other OS!\nsend_notifications: false\n\n# Suggest when user should send code to don't look suspicious\n# Give value in seconds. If you don't want to use this function, comment it or set value to 0\nsuggest_timeout: 5\n\n# Change shuold program predict when next code will appear.\n# Program currently needs at least 2 codes in memory to predict next one\npredict_next_code: false\n\n# Should program automatically copy received code to the clipboard?\n# WARNING: Requires pyperclib module, which can be installed using: `pip install pyperclip`\ncopy_to_clipboard: false\n\n# Save results to .csv file\n# If you don't want to use this function, comment line below\nsave_to_csv: /path/to/file.csv\n\n# Set all nicknames that are yours\n# If you don't want to set your nicknames, comment/remove whole section below\nnicknames:\n  - Nickname1\n  - Nickname2\n\n# How frequently (in ms) chat should be scanned.\n# e.g. 200 -> messages will be scanned every 200ms\n# Smaller delay may improve efficiency, but will end up with higher CPU and disk usage\nscan_frequency: 300\n\n# MySQL DB Access config\n# If you want to use MySQL, uncomment all lines below and type your credentials\n# When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work\n# If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')\n# Minimal required user permissions: CREATE, INSERT\n# WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`\n#mysql:\n#  host: localhost\n#  port: 3306\n#  user: root\n#  password: \n#  database: my_database\n#  optional: false'''
+        DEFAULT_CONFIG_FILE=f'''# MC Code Copier default config file\n# Program maintainer: AirKeyooo <airkeyooo@gmail.com>\n# Generated: {datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")}\n\n# Add path to your latest.log file\nlog_file: /path/to/latest.log\n\n# How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage\nread_lines: 2\n\n# Should program send notifications about new codes?\n# WARNING: Works only on Linux and ends with error on any other OS!\nsend_notifications: false\n\n# Suggest when user should send code to don't look suspicious\n# Give value in seconds. If you don't want to use this function, comment it or set value to 0\nsuggest_timeout: 5\n\n# Change shuold program predict when next code will appear.\n# Program currently needs at least 2 codes in memory to predict next one\npredict_next_code: false\n\n# Should program automatically copy received code to the clipboard?\n# WARNING: Requires pyperclip module, which can be installed using: `pip install pyperclip`\ncopy_to_clipboard: false\n\n# Save results to .csv file\n# If you don't want to use this function, comment line below\nsave_to_csv: /path/to/file.csv\n\n# Set all nicknames that are yours\n# If you don't want to set your nicknames, comment/remove whole section below\nnicknames:\n  - Nickname1\n  - Nickname2\n\n# How frequently (in ms) chat should be scanned.\n# e.g. 200 -> messages will be scanned every 200ms\n# Smaller delay may improve efficiency, but will end up with higher CPU and disk usage\nscan_frequency: 300\n\n# MySQL DB Access config\n# If you want to use MySQL, uncomment all lines below and type your credentials\n# When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work\n# If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')\n# Minimal required user permissions: CREATE, INSERT\n# WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`\n#mysql:\n#  host: localhost\n#  port: 3306\n#  user: root\n#  password: \n#  database: my_database\n#  optional: false'''
         try:
             with open(file=fullpath.resolve(),mode="w",encoding="utf-8") as f:
                 f.write(DEFAULT_CONFIG_FILE)
@@ -763,7 +763,7 @@ def main():
     parser = ArgumentParser(description="MC Code Copier is listening for reward codes (In Anarchia.GG's OneBlock) in the chat, copies it to clipboard and stores it")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
     parser.add_argument("-version",action="store_true",help="Version")
-    parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file. Settings passed as argumens will ALWAYS overwrite settings in config file")
+    parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file")
     parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path")
     parser.add_argument("-runasroot",action="store_true",help="Make possible for program to run as root")
     parser.add_argument("-print_format","-output_format","-of",help="Choose output printing format",default="default",choices=("default","flat","ini","json","xml"),type=str)
@@ -860,6 +860,11 @@ def main():
         running = False
     signal(SIGINT,stop)
     signal(SIGTERM,stop)
+    try:
+        from signal import SIGHUP
+        signal(SIGHUP,stop)
+    except ImportError:
+        pass
     # Read from config file how many lines should we read backwards
     linestoread = config.read_lines
     # Read from config file how frequently should we scan the chat
@@ -914,7 +919,7 @@ def main():
     try:
         if savetomysql:
             logger.debug("Trying to initalize MySQL class")
-            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port")if savetomysql.get("port")else 3306,user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],)
+            mysqlf = MySQL(hostname=savetomysql.get("host","localhost"),port=savetomysql.get("port",3306),user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],)
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.error("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
@@ -932,7 +937,7 @@ def main():
             logger.error(str(crerr))
             exit(rtn.EX_NOHOST)
     except KeyError:
-        logger.error("Some values in config file are missing! Make sure you've set host, port (optional, by default 3306), user, password and database!")
+        logger.error("Some values in config file are missing! Make sure you've set host (by default localhost), port (optional, by default 3306), user, password and database!")
         exit(rtn.EX_CONFIG)
     except RuntimeError as rerr:
         logger.error(f"Internal MySQL error: {rerr}")

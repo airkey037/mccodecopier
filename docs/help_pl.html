@@ -1,0 +1,886 @@
+<!DOCTYPE HTML>
+<html lang="pl">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MC Code Copier Reloaded help | PL</title>
+        <meta name="description" content="Help for MC Code Copier Reloaded">
+        <meta name="keywords" content="minecraft,mc,anarchia.gg,code,copy,notification">
+        <meta name="author" content="AirKeyooo">
+        <style id="primary">
+            @media screen and (min-width: 700px) {
+                body {
+                    flex-direction: row;
+                    height: 100vh;
+                }
+                #navigation {
+                    width: 250px;
+                    overflow-y: auto;
+                }
+                main {
+                    flex: 1;
+                    min-width: 0;
+                    overflow-y: auto;
+                }
+            }
+            @media screen and (max-width: 699px) {
+                body {
+                    flex-direction: column;
+                }
+                #navigation {
+                    width: 100%;
+                }
+            }
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                margin: 0;
+                display: flex;
+            }
+            #navigation {
+                background-color: #1a809f;
+                color: white;
+                overflow-x: hidden;
+                padding: 6px 8px;
+                box-sizing: border-box;
+            }
+            main {
+                overflow-x: hidden;
+                padding: 8px 12px;
+            }
+            #navigation>h1{
+                font-size:1.5em;
+                margin: 0;
+            }
+            #navigation>p{
+                margin:5px 0;
+            }
+            #navigation>p>a{
+                color: white;
+                margin: 5px 0;
+                text-decoration: underline;
+            }
+            #navigation>p>a:hover{
+                cursor: pointer;
+            }
+            #navigation ol {
+                padding: 0 0 0 20px;
+            }
+            #navigation a {
+                color: white;
+                text-decoration: none;
+            }
+            main article {
+                margin-left: 15px;
+            }
+            .codepreview {
+                padding: 8px 12px;
+                border-radius:10px;
+            }
+            .codefilename {
+                font-size:0.85em;
+                font-style: italic;
+                border-radius: 10px;
+                margin-bottom: 10px;
+                margin-top: 5px;
+            }
+        </style>
+        <style id="dark" disabled>
+            main,body {
+                background-color: #333;
+                color:white;
+            }
+            .codepreview {
+                background-color: #444;
+            }
+            main a {
+                color:white;
+            }
+            </style>
+        <style id="light">
+            main,body {
+                background-color: white;
+                color:black;
+            }
+            .codepreview {
+                background-color: lightgray;
+            }
+            main a {
+                color:black;
+            }
+        </style>
+        <script>
+            let darktheme=false;
+            if (localStorage.getItem("darktheme")) {
+                if (localStorage.getItem("darktheme")=="true") {
+                    darktheme=true;
+                }else{
+                    darktheme=false;
+                }
+            }
+            function darkthemeset(darkthemee) {
+                if (darkthemee) {
+                    console.log("Changing to dark theme");
+                    document.getElementById("dark").disabled=false;
+                    document.getElementById("light").disabled=true;
+                    document.getElementById("themechange").innerText="Zmień na tryb jasny";
+                    localStorage.setItem("darktheme","true");
+                    return true;
+                }else{
+                    console.log("Changing to light theme");
+                    document.getElementById("dark").disabled=true;
+                    document.getElementById("light").disabled=false;
+                    document.getElementById("themechange").innerText="Zmień na tryb ciemny";
+                    localStorage.setItem("darktheme","false");
+                    return false;
+                }
+            }
+            function changetheme() {
+                darktheme=darkthemeset(!darktheme);
+            }
+            document.addEventListener("DOMContentLoaded",()=>{
+                darkthemeset(darktheme);
+            });
+        </script>
+    </head>
+    <body>
+        <nav id="navigation">
+            <h1><a href="#mvt-top">MC Code Copier Reloaded</a></h1>
+            <p>Dokumentacja</p>
+            <p><a href="help_en.html">Change language to English</a></p>
+            <p><a onclick="changetheme();" id="themechange">Zmień na tryb ciemny</a></p>
+            <h3>Legenda:</h3>
+            <ol>
+                <li>
+                    <a href="#mvt-entry">Wstęp</a>
+                    <ol>
+                        <li><a href="#mvt-entry-whatis">Czym jest mój program?</a></li>
+                        <li><a href="#mvt-entry-howitworks">Jak on działa?</a></li>
+                        <li><a href="#mvt-entry-history">Historia</a></li>
+                        <li><a href="#mvt-entry-license">Licencja</a></li>
+                        <li><a href="#mvt-entry-credits">Autorzy</a></li>
+                    </ol>
+                </li>
+                <li>
+                    <a href="#mvt-installation">Instalacja</a>
+                    <ol>
+                        <li><a href="#mvt-installation-python">Python</a>
+                            <ol>
+                                <li><a href="#mvt-installation-python-windows">Windows</a></li>
+                                <li><a href="#mvt-installation-python-linux">Linux</a></li>
+                            </ol>
+                        </li>
+                        <li><a href="#mvt-installation-pip">Pip</a>
+                            <ol>
+                                <li><a href="#mvt-installation-pip-windows">Windows</a></li>
+                                <li><a href="#mvt-installation-pip-linux">Linux</a></li>
+                            </ol>
+                        </li>
+                        <li><a href="#mvt-installation-main">Główny program</a></li>
+                        <li><a href="#mvt-installation-error">Rozwiązywanie problemów</a></li>
+                    </ol>
+                </li>
+                <li>
+                    <a href="#mvt-config">Konfiguracja</a>
+                    <ol>
+                        <li><a href="#mvt-config-logfile">Plik logów</a></li>
+                        <li><a href="#mvt-config-readlines">Czytaj n linii wstecz</a></li>
+                        <li><a href="#mvt-config-notify">Wysyłaj powiadomienia</a></li>
+                        <li><a href="#mvt-config-timeout">Zasugeruj opóźnienie</a></li>
+                        <li><a href="#mvt-config-predict">Przewiduj następny kod</a></li>
+                        <li><a href="#mvt-config-copy">Kopiuj do schowka</a></li>
+                        <li><a href="#mvt-config-csv">Zapisuj do CSV</a></li>
+                        <li><a href="#mvt-config-nicknames">Moje nicki</a></li>
+                        <li><a href="#mvt-config-freq">Częstotliwość skanowania</a></li>
+                        <li><a href="#mvt-config-mysql">MySQL/MariaDB</a></li>
+                    </ol>
+                </li>
+                <li>
+                    <a href="#mvt-running">Uruchamianie programu</a>
+                    <ol>
+                        <li><a href="#mvt-running-basic">Podstawowe uruchamianie</a></li>
+                        <li><a href="#mvt-running-flags">Flagi</a>
+                            <ol>
+                                <li><a href="#mvt-running-flags-loglevel">-loglevel</a></li>
+                                <li><a href="#mvt-running-flags-config">-config</a></li>
+                                <li><a href="#mvt-running-flags-defconf">-default_config</a></li>
+                                <li><a href="#mvt-running-flags-root">-runasroot</a></li>
+                                <li><a href="#mvt-running-flags-printf">-print_format</a></li>
+                                <li><a href="#mvt-running-flags-shst">-show_statistics</a></li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
+                <li>
+                    <a href="#mvt-errors">Błędy</a>
+                    <ol>
+                        <li><a href="#mvt-errors-running">Błędy przy uruchamianiu</a></li>
+                        <li><a href="#mvt-errors-config">Błędy pliku konfiguracyjnego</a></li>
+                        <li><a href="#mvt-errors-logfile">Błędy pliku logów</a></li>
+                        <li><a href="#mvt-errors-global">Globalne błędy</a></li>
+                        <li><a href="#mvt-errors-notify">Błędy powiadomień</a></li>
+                        <li><a href="#mvt-errors-copy">Błędy kopiowania</a></li>
+                        <li><a href="#mvt-errors-mysql">Błędy MySQLa</a></li>
+                    </ol>
+                </li>
+            </ol>
+            <p>Stworzone przez AirKeyooo</p>
+        </nav>
+        <main>
+            <header id="mvt-top">
+                <h1>MC Code Copier Reloaded</h1>
+            </header>
+            <section id="mvt-entry">
+                <h2>1. Wstęp</h2>
+                <article id="mvt-entry-whatis">
+                    <h3>1.1. Czym jest mój program?</h3>
+                    <p>MC Code Copier Reloaded jest programem napisanym w Pythonie, którego zadaniem jest kopiowanie kodów z nagrodami na serwerze Minecraft Anarchia.GG (tryb OneBlock), pozwalając użytkownikowi wygrywanie tego konkursu za każdym razem. Co 30 minut, serwer wysyła 10-znakowe kody (np. LrQ9ihPNlq). Rolą tego programu jest wyszykiwanie takich kodów oraz odpowiednie ich przetwarzanie.</p>
+                </article>
+                <article id="mvt-entry-howitworks">
+                    <h3>1.2. Jak on działa?</h3>
+                    <p>Program do działania musi skanować czat gry w poszukiwaniu informacji o nowych kodach. Na szczęście, Minecraft zapisuje wszystkie wiadomości z czatu do pliku latest.log. Program ciągle skanuje ten plik w poszukiwaniu nowych kodów. Kiedy wykryje wiadomość w tym stylu:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Tekst</div>
+                        Przepisz kod &lt;kod&gt; aby otrzymać nagrodę!
+                    </div>
+                    <p>od razu wie, że przyszedł nowy kod. W tym momencie, program może zrobić wiele rzeczy (wszystko można skonfigurować w pliku konfiguracyjnym): Może skopiować go do schowka, wyświetlić powiadomienie, i wiele więcej.</p>
+                    <p>Kiedy będzie wiedział, że przyszedł kod, wówczas zaczyna skanować w poszukiwaniu informacji o zwycięzcy. Gdy wykryje wiadomość w tym stylu:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Tekst</div>
+                        Gracz &lt;nick gracza&gt; jako pierwszy przepisał kod w czasie &lt;czas przepisania&gt; i otrzymał(a) 3 Klucze AFK!
+                    </div>
+                    <p>loguje tą informację oraz może zapisać ją w wielu formatach.</p>
+                </article>
+                <article id="mvt-entry-history">
+                    <h3>1.3. Historia</h3>
+                    <p>Nie ma jednego powodu, dlaczego napisałem ten program: pierwszy prototyp został napisany 9 grudnia 2025 roku (oczywiście w Pythonie). I... działał, ale nie za dobrze: zdarzały się bowiem sytuacje, gdy program kopiował losowe wiadomości z czatu lub losowe informacje o graczach. Potem napisałem kolejny program, ale on też nie był perfekcyjny: był bardzo niezoptymalizowany oraz używał dwóch osobnych programów komunikujących się przez D-Bus (więc działał tylko na Linuxie).</p>
+                    <p>Potem zrobiłem sobie przerwę od OneBlocka na kilka miesięcy. Ale pewnego dnia postanowiłem znowu sobie tam pograć. Znalazłem mój stary program, ale on był okropny (o czym już wspominałem). Troche mi się też nudziło, ponieważ nie miałem żadnych innych rzeczy do roboty. Więc 16 maja 2026 roku zacząłem pisać nowy, totalnie odnowiony program (stąd nazwa: MC Code Copier <b>Reloaded</b>).
+                    </p>
+                    <p>Pierwsza w pełni działająca wersja (v1.0) została ukończona już dzień później, ale potrafiła ona jedynie czytać kody. 3 godziny później, tego samego dnia, ukończyłem wersję v1.1, która miała tylko podstawowe, ale niezwykle ważne funkcje, jak kopiowanie kodów do schowka czy wyświetlanie powiadomnień. Jeżeli byłaby to moja praca, nazwałbym to "Ukończonym". Ale kocham programować, więc skończyłem ze wsparciem dla MySQLa i CSV, możliwością przewidywania czasu pojawienia się następnego kodu i wiele więcej, ale więcej o funkcjach powiem później.</p>
+                </article>
+                <article id="mvt-entry-license">
+                    <h3>1.4. Licencja</h3>
+                    <p>Ten program jest udostępniony na licencji GNU General Public License (GPL) 3.0. Całą licencję można znaleźć <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">tutaj</a> lub w pliku LICENSE w głównym folderze projektu.</p>
+                </article>
+                <article id="mvt-entry-credits">
+                    <h3>1.5. Autorzy</h3>
+                    <p>Jeżeli chcesz zobaczyć bardziej szczegółowe informacje, zobacz plik CREDITS</p>
+                    <p>Niektóre funkcje programu zostały zainspirowane od programu FFmpeg (w tym chociażby styl argumentów i formaty drukowania), ale wszystkie zostały zaimplementowane w pełni przeze mnie bez kopiowania ŻADNEGO kodu. Copyright (c) 2000-2026 the FFmpeg developers: <a href="https://ffmpeg.org/" target="_blank">https://ffmpeg.org/</a></p>
+                </article>
+            </section>
+            <section id="mvt-installation">
+                <h2>2. Instalacja</h2>
+                <article id="mvt-installation-python">
+                    <h3>2.1. Python</h3>
+                    <p>Program jest napisany w Pythonie, więc potrzebuje Pythona do działania. Na niektóych systemach, Python jest instalowany domyślnie, ale na innych musisz go doinstalować ręcznie.</p>
+                    <p><b>INFORMACJA:</b> Ta dokumentacja pokazuje kroki instalacji jedynie dla Linuxa i Windowsa. Niestety (albo stety - nienawidzę Apple) nie mam dostępu do żadnego komputera od Apple'a, aby zweryfikować pisane przeze mnie kroki.</p>
+                    <p>Po pierwsze, musisz sprawdzić, czy Python jest już zainstalowany na twoim systemie. Aby to zrobić otwórz terminal (na Windowsie - wyszukaj PowerShell w menu start; na Linuxie - wyszukaj Terminal) i wpisz tą komendę:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 --version
+                    </div>
+                    <p>Jeżeli komenda zwróciła coś takiego:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Tekst</div>
+                        Python 3.14.5
+                    </div>
+                    <p>wówczas możesz przejść <a href="#mvt-installation-pip">tutaj</a> i kontynuować instalację. Jeżeli zwróciła tekst na czerwono (na Windowsie) lub Command not Found (na Linuxie), wówczas nie mamy Pythona i musimy go zainstalować.</p>
+                    <article id="mvt-installation-python-windows">
+                        <h3>2.1.1. Windows</h3>
+                        <p>Aby zainstalować Pythona na Windowsie, wpisz w terminalu poniższą komendę:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell</div>
+                            winget update<br>winget install python3
+                        </div>
+                        <p>Oraz dokończ instalację. Gdy komenda zakończy działanie, sprawdź:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell</div>
+                            python3 --version
+                        </div>
+                        <p>Teraz powinna wyświetlić się wersja Pythona na twoim systemie.</p>
+                    </article>
+                    <article id="mvt-installation-python-linux">
+                        <h3>2.1.2. Linux</h3>
+                        <p>Aby zainstalować Pythona na Linuxie, musisz użyć komendy odpowiedniej dla twojego menadżera pakietów:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            # Ubuntu/Debian:<br>sudo apt update<br>sudo apt install python3<br># Arch Linux:<br>sudo pacman -Sy<br>sudo pacman -S python3<br># Fedora/Red Hat Enterprise Linux:<br>sudo dnf update<br>sudo dnf install python3
+                        </div>
+                        <p>Po instalacji sprawdź:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            python3 --version
+                        </div>
+                        <p>aby potwiedzić, że Python został zainstalowany.</p>
+                    </article>
+                </article>
+                <article id="mvt-installation-pip">
+                    <h3>2.2. Pip</h3>
+                    <p>Pip jest zewnętrznym repozytorium Pythona. Zawiera ono dodatkowe moduły, które nie są dodawane do standardowych plików Pythona. Mój program ich używa, więc musimy niektóre doinstalować</p>
+                    <p>Droga, w jaki sposób zainstalujemy pip oraz te programy, będzie się różnić w zależności od twojego systemu operacyjnego.</p>
+                    <article id="mvt-installation-pip-windows">
+                        <h3>2.2.1. Windows</h3>
+                        <p>Aby zainstalować pakiety z pip na Windowsie, otwórz PowerShell i wpisz to polecenie</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell</div>
+                            python3 -m pip install &lt;nazwa pakietu&gt;
+                        </div>
+                        <p>Gdy komenda skończy działać, pakiet jest na twoim systemie.</p>
+                    </article>
+                    <article id="mvt-installation-pip-linux">
+                        <h3>2.2.2. Linux</h3>
+                        <p>Aby zainstalować pakiety z pip na Linuxie, otwórz terminal i wpisz polecenie odpowiednie dla twojej dystrybucji</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            # Ubuntu/Debian:<br>sudo apt update<br>sudo apt install python3-pip<br># Arch Linux:<br>sudo pacman -Sy<br>sudo pacman -S python-pip<br># Fedora/Red Hat Enterprise Linux:<br>sudo dnf update<br>sudo dnf install python3-pip
+                        </div>
+                        <p>Aby zainstalować pakiet, wpisz:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            pip install &lt;nazwa pakietu&gt;
+                        </div>
+                        <p><b>INFORMACJA:</b> na Linuxie możesz dostać taki błąd:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Log</div>
+                            error: externally-managed-environment<br><br>× This environment is externally managed<br>╰─> To install Python packages system-wide, try 'pacman -S<br>    python-xyz', where xyz is the package you are trying to<br>    install.<br>    <br>    If you wish to install a non-Arch-packaged Python package,<br>    create a virtual environment using 'python -m venv path/to/venv'.<br>    Then use path/to/venv/bin/python and path/to/venv/bin/pip.<br>    <br>    If you wish to install a non-Arch packaged Python application,<br>    it may be easiest to use 'pipx install xyz', which will manage a<br>    virtual environment for you. Make sure you have python-pipx<br>    installed via pacman.<br><br>INFORMACJA: If you believe this is a mistake, please contact your Python installation or OS distribution provider. You can override this, at the risk of breaking your Python installation or OS, by passing --break-system-packages.<br>hint: See PEP 668 for the detailed specification.
+                        </div>
+                        <p>Oznacza on, że nie uruchamiasz programu w wirtualnym środowisku. Nie potrzebujemy tego, więc zmodyfikuj swoją komendę:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            pip install &lt;nazwa pakietu&gt; --break-system-packages
+                        </div>
+                    </article>
+                    <p>Teraz, gdy pip jest już na twoim systemie, możemy instalować faktyczne programy. Aby to zrobić, zastąp &lt;nazwa pakietu&gt; w powyższych komendach na nazwy pakietów poniżej. Obok nich, znajdują się też krótkie opisy, po co właściwie są potrzebne.</p>
+                    <p><b>INFORMACJA:</b> symbol * oznacza, że pakiet jest wymagany do działania programu i bez niego się nie uruchomi.</p>
+                    <ul>
+                        <li><b>*pyyaml</b> - wymagane do załadowania pliku konfiguracyjnego</li>
+                        <li><b>pyperclip</b> - wymagane do kopiowania kodów do schowka</li>
+                        <li><b>mysql-connector-python</b> - wymagane, aby zapisywać dane do bazy danych MySQL</li>
+                    </ul>
+                    <p>Teraz, gdy wszystko mamy zrobione pomyślnie, możemy przejść do finalnego kroku - instalację programu samą w sobie</p>
+                </article>
+                <article id="mvt-installation-main">
+                    <h3>2.3. Główny program</h3>
+                    <p><b>INFORMACJA:</b> Od tego momentu wszystkie błędy pochodzą z mojego programu, więc jeśli jakieś błędy się pojawią, znajdziesz informacje o nich tutaj. Jeżeli nie możesz znaleźć informacji o błędzie koło specyficznych sekcji, możesz przejść <a href="#mvt-errors">tutaj</a> i zobaczyć globalne błędy</p>
+                    <p>Teraz możemy zainstalowć i skonfigurować ŋłówny program. Po pierwsze, musimy stworzyć domyślny plik konfiguracyjny. Aby to zrobić, wpisz komendę poniżej, gdzie zamienisz &lt;ścieżka do pliku konfiguracyjnego&gt; na prawdziwą ścieżkę, gdzie chcesz zapisać plik</p>
+                    <p><b>INFORMACJA:</b> Gdy nie podasz parametru -config, domyślny plik konfiguracyjny zostanie wygenerowany w obecnym folderze w pliku <i>config.yml</i></p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 loader.py -default_config -config &lt;ścieżka do pliku konfiguracyjnego&gt;
+                    </div>
+                    <p>Po uruchomieniu tej komendy, nowy i czysty plik konfiguracyjny ze wszystkimi komentarzami powinien zostać wygenerowany. W terminalu powinieneś zobaczyć coś takiego:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-26 19:21:10,197] [INFO] Anarchia.GG Code Copier started<br>[2026-06-26 19:21:10,197] [INFO] Default config file was created successfully<br><i># Kod wyjścia: 0</i>
+                    </div>
+                    <p>Ten komunikat oznacza, że wszystko zostało zrobione pomyślnie. Teraz możesz prześć <a href="#mvt-config">tutaj</a>. Ale jeśli napotkałeś jakieś błędy, przejdź do sekcji poniżej, aby je naprawić</p>
+                </article>
+                <article id="mvt-installation-error">
+                    <h3>2.4. Rozwiązywanie problemów</h3>
+                    <p>W tej sekcji napiszę o wszystkich błędach, które moga pojawić się w tym kroku</p>
+                    <h4>1. Plik konfiguracyjny już istnieje</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-26 19:20:57,654] [ERROR] Config file already exists!<br><i># Kod wyjścia: 73</i>
+                    </div>
+                    <p>Gdy otrzymasz tą wiadomość, to oznacza, że jakiś plik istnieje już pod ścieżką podaną we fladze -config. Aby to rozwiązać, po prostu ustaw/zmień ten parametr, aby wskazywał na jeszcze nieistniejącą ścieżkę.</p>
+                    <h4>2. Brak uprawnień</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-26 19:38:46,557] [ERROR] Can't save file in &lt;ścieżka&gt;: Permission Denied<br><i># Kod wyjścia: 77</i>
+                    </div>
+                    <p>Gdy otrzymasz ten komunikat, to oznacza, że próbujesz zapisać plik konfiguracyjny tam, gdzie nie masz uprawnień do zapisania go. Aby rozwiązać ten problem, po prostu zmień ścieżkę we fladze -config na ścieżkę, gdzie możesz zapisywać pliki.</p>
+                </article>
+            </section>
+            <section id="mvt-config">
+                <h3>3. Konfiguracja</h3>
+                <p>W tej sekcji wspomnę wszystko co musisz wiedzieć podczas konfiguracji programu oraz wyjaśnię wszystkie sekcje i ustawienia w tym pliku</p>
+                <p>Plik konfiguracyjny jest w sumie jedną z najważniejszych rzeczy w całym programie - w tym pliku ustawiasz zachowanie całego programu. Jedno złe ustawienie może sprawić, że program przestanie wykrywać kody! Więc proszę, abyś przeczytał z uwagą sekcję poniżej</p>
+                <article id="mvt-config-logfile">
+                    <h3>3.1. Plik logów</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Add path to your latest.log file<br>log_file: /path/to/latest.log
+                    </div>
+                    <p>To jest <b>NAJWAŻNIEJSZE</b> ustawienie w całym pliku konfiguracyjnym! Jak powiedziałem na wstępie, program odczytuje wiadomości z czatu z Minecraftowego pliku latest.log. Musimy więc wprowadzić tutaj pełną ścieżkę do tego pliku.</p>
+                    <h4>Gdzie mogę go znaleźć?</h4>
+                    <p>Oto uniwersalna metoda na znalezienie tego pliku:</p>
+                    <ol>
+                        <li>Uruchom dokładnie tą instancję Minecrafta, której używasz do grania na OneBlocku</li>
+                        <li>W menu głównym wejdż w Opcje (Options) -> Paczki zasobów (Resource Packs) -> Open pack folder (Otwórz folder z paczkami)</li>
+                        <li>Po kliknięciu powinien otworzyć się eksplorator plików</li>
+                        <li>Przejdź dokładnie <b>jeden folder</b> w górę</li>
+                        <li>Wejdź do folderu <i>logs</i></li>
+                        <li>Tutaj, znajdź plik <i>latest.log</i></li>
+                        <li>Kliknij prawym przyciskiem na niego i kliknij na Właściwości (Properties)</li>
+                        <li>Tutaj, postaraj znaleźć ścieżkę bezwzględną do pliku. Na Windowsie będzie się ona zaczynać od C:\Users\..., na Linuxie - /home/...</li>
+                        <li><b>INFORMACJA:</b> Upewnij się, że ścieżka, którą skopiowałeś, prowadzi do <b>pliku</b>, a nie folderu rodzica. Ścieżka skopiowana przez ciebie powinna ZAWSZE mieć na końcu <i>latest.log</i></li>
+                    </ol>
+                    <p>Kiedy już znasz ścieżkę do tego pliku, zastąp <i>/path/to/latest.log</i> dokładną ścieżką do tego pliku. Przykłady:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Windows<br>log_file: C:\Users\airkeyooo\AppData\Roaming\.minecraft\logs\latest.log<br># Linux<br>log_file: /home/airkeyooo/.minecraft/logs/latest.log
+                    </div>
+                    <p><b>INFORMACJA:</b> To są jedynie <b>PRZYKŁADY</b>. Pamiętaj, że ta ścieżka zależy od twojego launchera i metody jego instalacji, np. Flatpak vs Systemowe repo (na Linuxie)</p>
+                </article>
+                <article id="mvt-config-readlines">
+                    <h3>3.2. Czytaj n linii wstecz</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage<br>read_lines: 2
+                    </div>
+                    <p>Aby oszczędzać twój procesor i pamięć RAM, program czyta linijki od końca pliku latest.log. Ta opcja pozwoli ci ustawić, ile linii program przeczyta wstecz.</p>
+                    <h4>Dlaczego nie skanować tylko jednej?</h4>
+                    <p>Czasami 1 linia jest wystarczająca. Ale są sytuacje, gdzie serwer wyśle wiadomość o nowym kodzie dokładnie wtedy, kiedy gracz wyśle jakąś wiadomość. Jeśli czytałby tylko 1 linię, program nie zobaczy, że właśnie przyszedł nowy kod.</p>
+                    <p>Przeprowadziłem dużo testów. Wyszło na to, że 2 linie są wystarczające w 99% sytuacji. Jeśli nie wiesz, co robisz, <b>pozostaw tu domyślną opcję</b>. Ale jeżeli zdarza się często, że program zignoruje kod, rozważ powiększenie tej liczby do 3 lub nawet 4.</p>
+                </article>
+                <article id="mvt-config-notify">
+                    <h3>3.3. Wysyłaj powiadomienia</h3>
+                    <p><b>INFORMACJA:</b> Obecnie ta opcja zadziała tylko na Linuxie i wyrzuci błąd na każdym innym systemie operacyjnym.</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Should program send notifications about new codes?<br># WARNING: Works only on Linux and ends with error on any other OS!<br>send_notifications: false
+                    </div>
+                    <p>Ta opcja ustawia to, czy program ma wysłać powiadomienie o nowym kodzie. Używa on do tego celu narzędzia <i>notify-send</i>. Jeżeli jesteś na Linuxie i chcesz używać tej funkcji, zmień <i>false</i> na <i>true</i>.</p>
+                </article>
+                <article id="mvt-config-timeout">
+                    <h3>3.4. Zasugeruj opóźnienie</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Suggest when user should send code to don't look suspicious<br># Give value in seconds. If you don't want to use this function, comment it or set value to 0<br>suggest_timeout: 5
+                    </div>
+                    <p>Gdy to ustawienie jest włączone (możesz je włączyć ustawiając tu jakąkolwiek liczbę i wyłączyć ustawiając tą opcję na 0), program dodaje tą informację:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Tekst</div>
+                        ... Send it at: HH:MM:SS
+                    </div>
+                    <p>zarówno do konsoli, jak i powiadomnień (jeśli włączone). HH:MM:SS to godzina, minuta i sekunda, o której program sugeruje wysłanie wysłać kod. Niestety obecnie progam jeszcze nie odlicza, więc potrzebujesz widzieć zegar z sekundami, aby jakkolwiek sensownie używać tej funkcji.</p>
+                </article>
+                <article id="mvt-config-predict">
+                    <h3>3.5. Przewiduj następny kod</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Change shuold program predict when next code will appear.<br># Program currently needs at least 2 codes in memory to predict next one<br>predict_next_code: false
+                    </div>
+                    <p><b>INFORMACJA:</b> Uwierz mi: jest powód, dla którego domyślnie ta opcja jest wyłączona. W swojej obecnej formie, ta opcja jest bezużyteczna. <b>Nie polecam</b> używać tej funkcji w jej obecnym stanie, ale mam nadzieję, że uda mi się to zmienić w przyszłych wersjach.</p>
+                    <p>Kiedy ta opcja jest włączona, po informacji o wygranej program wyśle tą wiadomość:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        Next code appear time prediction: HH:MM:SS
+                    </div>
+                    <p>HH:MM:SS to godzina, minuta i sekunda, o której kolejny kod ma przyjść (według programu).</p>
+                </article>
+                <article id="mvt-config-copy">
+                    <h3>3.6. Kopiuj do schowka</h3>
+                    <p><b>INFORMACJA:</b> Ta opcja wymaga modułu <i>pyperclip</i>. Jeśli nie wiesz, jak ją zainstalować, przejdź <a href="#mvt-installation-pip">tutaj</a>.</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Should program automatically copy received code to the clipboard?<br># WARNING: Requires pyperclip module, which can be installed using: `pip install pyperclip`<br>copy_to_clipboard: false
+                    </div>
+                    <p>Myślę, że nie muszę tłumaczyć, do czego służy ta opcja, ale może to zrobię: gdy ustawisz tą opcję na <i>true</i>, program skopiuje wykryty kod do schowka.</p>
+                </article>
+                <article id="mvt-config-csv">
+                    <h3>3.7. Save to CSV</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Save results to .csv file<br># If you don't want to use this function, comment line below<br>save_to_csv: /path/to/file.csv
+                    </div>
+                    <p><b>INFORMACJA:</b> Jeśli nie chcesz używać tej opcji, usuń/zakomentuj całą tą opcję</p>
+                    <p>Gdy ta opcja jest włączona, program zapisuje wszystkie informacje o wygranych do pliku CSV. Jego lokalizację należy ustawić w tym parametrze</p>
+                    <h4>Czym jest plik CSV?</h4>
+                    <p>CSV (skrót od <i>comma-separated values</i> - wartości oddzielone przecinkami) jest formatem pliku, gdzie poszczególne kolumny są oddzielone od siebie znakiem <i>,</i> (przecinkiem) lub <i>;</i> (średnikiem). Tak właściwie to jest to <b>format tabeli</b>.</p>
+                    <h4>Jak mogę to odczytać?</h4>
+                    <p>Możesz odczytywać to wygodnie przez Microsoft Excel, LibreOffice/OpenOffice Calc, Google Sheets i wiele więcej.</p>
+                    <h4>Format zapisu</h4>
+                    <p>Program zapisuje dane w 5 kolumnach:</p>
+                    <ul>
+                        <li><b>Code</b> - ta kolumna przechowuje dokładny 10-znakowy kod, który musiałeś przepisać</li>
+                        <li><b>Nick</b> - nick zwycięzcy</li>
+                        <li><b>Time</b> - dokładny czas przepisania kodu w sekundach</li>
+                        <li><b>Timestamp</b> - Data i godzina pojawienia się kodu (w formacie ISO 8601 z informacją o strefie czasowej)</li>
+                        <li><b>Me</b> - Wartość True/False, która pomaga rozpoznać, czy to ja zdobyłem ten kod</li>
+                    </ul>
+                </article>
+                <article id="mvt-config-nicknames">
+                    <h3>3.8. Moje nicki</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # Set all nicknames that are yours<br># If you don't want to set your nicknames, comment/remove whole section below<br>nicknames:<br>  - Nickname1<br>  - Nickname2
+                    </div>
+                    <p>Tutaj możesz wypisać wszystkie nicki które należą do ciebie. Za każdym razem, gdy ktoś wygra, program sprawdza, czy jego nick jest na tej liście. Potem może zapisać tą informację do pliku CSV/Bazy danych, lub po prostu wyświetlić tą informację w konsoli.</p>
+                </article>
+                <article id="mvt-config-freq">
+                    <h3>3.9. Częstotliwość skanowania</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # How frequently (in ms) chat should be scanned.<br># e.g. 200 -> messages will be scanned every 200ms<br># Smaller delay may improve efficiency, but will end up with higher CPU and disk usage<br>scan_frequency: 300
+                    </div>
+                    <p>Ta opcja kontroluje, jak często program ma skanować plik latest.log w poszukiwaniu nowych kodów. Jeśli nie wiesz, co tutaj ustawić - zachowaj domyślną wartość. Jeśli program nie wykrywa kodów/informacji o wygranych, spróbuj obniżyć tą wartość. Jeśli użycie procesora/dysku jest za duże, spróbuj zwiększyć tą wartość.</p>
+                </article>
+                <article id="mvt-config-mysql">
+                    <h3>3.10. MySQL/MariaDB</h3>
+                    <div class="codepreview">
+                        <div class="codefilename">Yaml</div>
+                        # MySQL DB Access config<br># If you want to use MySQL, uncomment all lines below and type your credentials<br># When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work<br># If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')<br># Minimal required user permissions: CREATE, INSERT<br># WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`<br>#mysql:<br>#  host: localhost<br>#  port: 3306<br>#  user: root<br>#  password: <br>#  database: my_database<br>#  optional: false
+                    </div>
+                    <h4>Czym jest MySQL?</h4>
+                    <p>MySQL jest serwerem bazodanowym. Baza danych przechowuje dane w tabelach (niczym tabela w Excelu). Możesz tu wstawiać dane i je odczytywać, używając Strukturalnego Języka Zapytań (Structural Query Language - SQL)</p>
+                    <h4>Czy go potrzebuję?</h4>
+                    <p>Jeżeli nie wiesz nawet, czym jest MySQL, zdecydowanie nie potrzebujesz.</p>
+                    <h4>Dlaczego ktoś chciałby go użyć?</h4>
+                    <p>MySQL integruje się prawie ze wszystkim. Program zapisuje do niej wszystkie informacje o wygranych, więc możesz np. robić na jej podstawie statystyki i wykresy, do których dane odczyta właśnie z bazy danych.</p>
+                    <h4>Jak to skonfigurować?</h4>
+                    <p>Jeśli chcesz użyć MySQLa, odkomentuj wszystkie linie z nim związane. Musisz utworzyć dla tego programu bazę danych i wpisać ją tutaj. Musisz również wpisać tu adres i port swojego serwera oraz login i hasło użytkownika. Pamiętaj, że program potrzebuje co najmniej uprawnień do wykonywania zapytań CREATE i INSERT wewnątrz całej tej bazy danych.</p>
+                </article>
+            </section>
+            <section id="mvt-running">
+                <h2>4. Uruchamianie programu</h2>
+                <p>W tej sekcji powiem o wszystkim, co musisz wiedzieć, aby uruchomić mój program</p>
+                <article id="mvt-running-basic">
+                    <h3>4.1. Podstawowe uruchamianie</h3>
+                    <p>Aby uruchomić program z podstawowymi opcjami, nie potrzebujesz żadnych zaawansowanych flag. Wpisz komendę poniżej:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 loader.py -config &lt;ścieżka pliku konfiguracyjnego&gt;
+                    </div>
+                    <p>Po uruchomieniu tej komendy powinieneś w konsoli zobaczyć coś takiego:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-29 17:40:56,905] [INFO] Anarchia.GG Code Copier started<br>[2026-06-29 17:40:57,066] [INFO] Started listening
+                    </div>
+                    <p>To oznacza, że program uruchomił się poprawnie i wszystko jest OK. I, w sumie, to wszystko! Program już działa i nasłuchuje w poszukiwaniu nowych kodów. Aby go zatrzymać, wciśnij Ctrl+C (SIGINT - sygnał 2), lub - jeżeli jesteś na Linuxie - możesz wysłać SIGTERM (sygnał 15) lub SIGHUP (sygnał 1) - program obsłuży je poprawnie. Po zatrzymaniu, w konsoli pojawi się coś takiego:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-29 17:40:58,628] [INFO] Received SIGINT, QUITTING!<br>[2026-06-29 17:40:58,868] [INFO] ### STATISTICS ###<br>[2026-06-29 17:40:58,868] [INFO] Total runtime: 0:00:01.969867<br>[2026-06-29 17:40:58,868] [INFO] Total codes captured: 0<br>[2026-06-29 17:40:58,868] [INFO] Codes re-writed by me: 0<br>[2026-06-29 17:40:58,868] [INFO] Keys received by me: 0<br>[2026-06-29 17:40:58,868] [INFO] My wins percentage: 0%<br>[2026-06-29 17:40:58,868] [INFO] Program finished job
+                    </div>
+                    <p>Program na końcu zawsze wyświetla statystyki. W nich możesz znaleść m.in.:</p>
+                    <ul>
+                        <li>Totalny czas działania</li>
+                        <li>Ilosć kodów, które program złapał</li>
+                        <li>Ilość kodów, które ja wygrałem</li>
+                        <li>Ilość kluczy odebranych przeze mnie</li>
+                        <li>Procent moich wygranych</li>
+                    </ul>
+                    <p>Jeżeli miałeś jakieś błędy podczas uruchamiania, przejdź <a href="#mvt-errors">tutaj</a>, aby go naprawić.</p>
+                </article>
+                <article id="mvt-running-flags">
+                    <h3>4.2. Flagi</h3>
+                    <p>Program ma różne flagi, które mogą zmieniać jego zachowanie. Aby je zobaczyć, uruchom program z flagą -help:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">PowerShell / Bash</div>
+                        python3 loader.py -help
+                    </div>
+                    <p>Poniżej możesz znaleźć listę i opis wszystkich możliwych flag, jakie program wspiera:</p>
+                    <article id="mvt-running-flags-loglevel">
+                        <h3>4.2.1. -loglevel, -v</h3>
+                        <p>Możliwe wartości: <i>quiet, critical, error, warning, info, verbose, debug</i></p>
+                        <p>To ustawienie kontroluje, ile informacji program wyświetla na wyjściu. info to domyślny poziom. Na przykład, jeśli chcesz widzieć tylko błędy, uruchom:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -loglevel error
+                        </div>
+                        <p>Jeżeli chcesz widzieć wszystkie komunikaty (włącznie z komunikatami diagnostycznymi), użyj poziomu debug. Jeśli nie chcesz widzieć niczego, użyj poziomu quiet.</p>
+                    </article>
+                    <article id="mvt-running-flags-config">
+                        <h3>4.2.2. -config</h3>
+                        <p>Używając tej opcji, możesz wskazać programowi ścieżkę do pliku konfiguracyjnego. Jeśli pozostawisz tą opcję pustą, program przeszuka inne ścieżki. Poniżej możesz zobaczyć wszystkie ścieżki, od tych z najniższym priorytetem, do tych z najwyższym.</p>
+                        <h4>Ścieżki zależne od systemu</h4>
+                        <p>Program spróbuje wczytać plik konfiguracyjny z tych ścieżek (username to twoja nazwa użytkownika):</p>
+                        <p><b>Windows:</b></p>
+                        <ul>
+                            <li>C:\Users\username\AppData\Roaming\codecopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\codecopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\CodeCopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\CodeCopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Roaming\CodeCopier\CodeCopier.yml</li>
+                            <li>C:\ProgramData\codecopier\config.yml</li>
+                            <li>C:\ProgramData\codecopier\codecopier.yml</li>
+                            <li>C:\ProgramData\CodeCopier\config.yml</li>
+                            <li>C:\ProgramData\CodeCopier\codecopier.yml</li>
+                            <li>C:\ProgramData\CodeCopier\CodeCopier.yml</li>
+                            <li>C:\Users\username\AppData\Local\codecopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Local\codecopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Local\CodeCopier\config.yml</li>
+                            <li>C:\Users\username\AppData\Local\CodeCopier\codecopier.yml</li>
+                            <li>C:\Users\username\AppData\Local\CodeCopier\CodeCopier.yml</li>
+                        </ul>
+                        <p><b>Linux:</b></p>
+                        <ul>
+                            <li>/etc/codecopier/codecopier.yml</li>
+                            <li>/etc/codecopier/config.yml</li>
+                            <li>/etc/codecopier.yml</li>
+                            <li>/home/username/.config/codecopier/codecopier.yml</li>
+                            <li>/home/username/.config/codecopier/config.yml</li>
+                            <li>/home/username/.config/codecopier.yml</li>
+                        </ul>
+                        <h4>Ścieżka ze zmiennej środowiskowej</h4>
+                        <p>Program spróbuje wczytać ścieżkę do pliku konfiguracyjnego ze zmiennej środowiskowej <b>CODECOPIER_CONFIG</b></p>
+                        <p>Jeżeli chcesz ustawić zmienną środowiskową, tutaj znajdziesz instrukcję, jak to zrobić, w zależności od swojego systemu operacyjnego:</p>
+                        <p><b>Na Windowsie:</b></p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell</div>
+                            setx CODECOPIER_CONFIG "C:\Users\username\niestandardowa_sciezka.yml"
+                        </div>
+                        <p>Po wywołaniu tej komendy musisz zrestartować konsolę, aby ustawienia się przyjęły.</p>
+                        <p><b>Na Linuxie:</b></p>
+                        <div class="codepreview">
+                            <div class="codefilename">Bash</div>
+                            # Jeśli używasz Bash<br>echo "export CODECOPIER_CONFIG=\"/sciezka/do/pliku.yml\"" >> ~/.bashrc<br># Jeśli używasz Zsh<br>echo "export CODECOPIER_CONFIG=\"/sciezka/do/pliku.yml\"" >> ~/.zshrc
+                        </div>
+                        <p><b>INFORMACJA:</b> Na niektórych dystrybucjach Linuxa do zmodyfikowania pliku .bashrc lub .zshrc potrzeba uprawnień roota. Jeśli dostaniesz błąd o niewystarczających uprawnieniach, uruchom tą komendę, używając <i>sudo</i></p>
+                        <h4>Parametr -config</h4>
+                        <p>Parametr -config jest najważniejszym ustawieniem. Nawet, jeżeli w ścieżkach systemowych lub w zmiennej środowiskowej jakiś plik będzie istniał, i tak to parametr -config zdecyduje o tym, skąd program weźmie konfiugrację.</p>
+                    </article>
+                    <article id="mvt-running-flags-defconf">
+                        <h3>4.2.3. -default_config</h3>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -default_config -config &lt;ścieżka&gt;
+                        </div>
+                        <p>Znasz tą opcję, ponieważ już o niej wspomniałem <a href="#mvt-installation-main">tutaj</a>, ale może wspomnę o tym jeszcze raz: ta opcja służy do wygenerowania domyślnego pliku konfiguracyjnego w lokalizacji sprecyzowanej w parametrze -config. Jeżeli podczas tego kroku wystąpiłyby jakieś błędy, przejdź <a href="#mvt-installation-error">tutaj</a>.</p>
+                    </article>
+                    <article id="mvt-running-flags-root">
+                        <h3>4.2.4. -runasroot</h3>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -runasroot
+                        </div>
+                        <p><b>UWAGA!!!</b> Należy unikać używania tej opcji przez uruchamianie programu jako zwykły użytkownik! Pamiętaj, że używasz tej opcji na swoją własną odpowiedzialność!</p>
+                        <p>Normalnie, program nie pozwala na uruchomienie go z uprawnieniami roota/administratora. Dodaj tą flagę, aby uruchomić program pomimo tych uprawnień.</p>
+                    </article>
+                    <article id="mvt-running-flags-printf">
+                        <h3>4.2.5. -print_format, -output_format, -of</h3>
+                        <p>Możliwe ustawienia: <i>default, flat, ini, json, xml</i></p>
+                        <p>To ustawienie kontroluje wyświetlany format. default jest domyślną opcją. To ustawienie mocno integruje się z opcjami -show_* - zmienia bowiem ono, jak informacje tam ustawione, będą wyświetlane.</p>
+                        <p><b>INFORMACJA:</b> Jeżeli chcesz, aby ten program integrował się z innymi programami, pamiętaj o ustawieniu -loglevel quiet - opcje -show_* będą nadal wyświetlane, ale program ukryje wszystkie logi, pozostawiając jedynie opcje -show_* widoczne.</p>
+                        <p>Jeżeli chcesz użyć formatu JSON:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -loglevel quiet -print_format json
+                        </div>
+                        <p>Sama ta opcja jest bezużyteczna. Aby jej poprawnie użyć, zobacz dokumentację dla opcji zaczynających się od -show_*, które znajdziesz poniżej.</p>
+                    </article>
+                    <article id="mvt-running-flags-shst">
+                        <h3>4.2.6. -show_statistics</h3>
+                        <p>Użyj tej opcji, aby wyświetlić statystyki na końcu działania programu w formacie ustawionym we fladze -print_format. Na przykład, jeżeli chcesz wyświetlić na końcu statystyki w formacie flat, użyj:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -loglevel quiet -print_format flat -show_statistics
+                        </div>
+                    </article>
+                </article>
+            </section>
+            <section id="mvt-errors">
+                <h2>5. Błędy</h2>
+                <p>W tej sekcji wspomnę o wszystkich możliwych błędach, które mogą się trafić podczas konfiguracji, uruchamiania i używania mojego programu.</p>
+                <article id="mvt-errors-running">
+                    <h3>5.1. Błędy przy uruchamianiu</h3>
+                    <p>W tej sekcji opiszę wszystkie błędy, które mogą się pojawić jeszcze przed załadowaniem programu</p>
+                    <h4>Nieznane argumenty</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        loader.py: error: unrecognized arguments: &lt;argument&gt;<br># Kod wyjścia: 2
+                    </div>
+                    <p>Ta wiadomość oznacza, że próbujesz uruchomić program z argumentem, który nie istnieje. Aby to naprawić, sprawdź, czy wszystkie argumenty, których używasz, istnieją. Przejdź <a href="#mvt-running-flags">tutaj</a> aby zobaczyć wszystkie akceptowane argumenty.</p>
+                    <hr>
+                    <h4>Nieznana opcja</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        loader.py: error: argument &lt;argument&gt;: invalid choice: &lt;opcja&gt; (choose from &lt;możliwe opcje&gt;)<br># Kod wyjścia: 2
+                    </div>
+                    <p>Ta wiadomość oznacza, że w jakimś argumencie próbujesz ustawić niedozwoloną wartość. Przejdź <a href="#mvt-running-flags">tutaj</a> i przeczytaj całą sekcję dotyczącą danej flagi.</p>
+                    <hr>
+                    <h4>Uruchomienie jako root/administrator</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:30:52,561] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:30:52,561] [CRITICAL] Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it. Run it as a normal user! But if you really want to continue (VERY UNRECOMMENDED), add -runasroot flag (but keep in mind that you are doing it for YOUR OWN RESPONSIBILITY!!)<br># Kod wyjścia: 1
+                    </div>
+                    <p>Ta wiadomość oznacza, że uruchomiłeś program z uprawnieniami roota/administratora. Możesz to zignorować flagą -runasroot, ale <b>bardzo to odradzam</b>. Jeżeli chcesz przeczytać więcej o tej fladze, przejdź <a href="#mvt-running-flags-root">tutaj</a>.</p>
+                </article>
+                <article id="mvt-errors-config">
+                    <h3>5.2. Błędy pliku konfiguracyjnego</h3>
+                    <p>W tej sekcji wspomnę o wszystkich błędach, które są spowodowane przez jakieś problemy z plikiem konfiguracyjnym.</p>
+                    <h4>Brak biblioteki pyyaml</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        pyyaml lib isn't installed! Install it using: pip install pyyaml<br># Kod wyjścia: 1
+                    </div>
+                    <p>Ten błąd oznacza, że biblioteka pyyaml nie jest zainstalowana. Aby dowiedzieć się, jak ją zainstalować, przejdź <a href="#mvt-installation-pip">tutaj</a>.</p>
+                    <hr>
+                    <h4>Plik konfiguracyjny nie istnieje</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:36:59,141] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:36:59,141] [ERROR] Config file doesn't exist!<br># Kod wyjścia: 66
+                    </div>
+                    <p>Ten błąd oznacza, że plik konfiguracyjny nie istnieje lub ścieżka do niego jest niepoprawna. Aby dowiedzieć się, jak wygenerować domyślny plik konfiguracyjny, przejdź <a href="#mvt-installation-main">tutaj</a>.</p>
+                    <hr>
+                    <h4>Niepoprawna składnia YAML</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:39:33,190] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:39:33,190] [ERROR] Invalid YAML syntax in config file!<br># Kod wyjścia: 78
+                    </div>
+                    <p>Ten błąd oznacza, że składnia YAML w pliku konfiguracyjnym jest niepoprawna. Aby to naprawić, upewnij się, że składnia YAML jest poprawna, lub wygeneruj nowy plik konfiguracyjny. Jego składnia będzie zawsze poprawna, więc możesz go wygenerowąć i przepisać wszystkie wartości.</p>
+                    <hr>
+                    <h4>Wymagane ustawienie w pliku konfiguracyjnym nie istnieje</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:39:33,190] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:39:33,190] [ERROR] &lt;opcja&gt; isn't specified in config file!<br># Kod wyjścia: 78
+                    </div>
+                    <p>Gdy zobaczysz ten błąd, to oznacza, że jakaś opcja w pliku konfiguracyjnym (jej nazwa pojawi się zamiast &lt;opcja&gt;) nie jest ustawiona. Upewnij się, że skonfigurowałeś wszystko poprawnie, i pamiętaj, aby ustawić wszystkie wymagane opcje.</p>
+                </article>
+                <article id="mvt-errors-logfile">
+                    <h3>5.3. Błędy pliku logów</h3>
+                    <p>W tej sekcji wspomnę o wszystkich błędach powiązanych z plikiem logów Minecrafta.</p>
+                    <h4>Plik logów ne istnieje</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [ERROR] Log file in &lt;path&gt; doesn't exist!<br># Kod wyjścia: 66
+                    </div>
+                    <p>Ta wiadomość oznacza, że ścieżka do pliku logów ustawiona w pliku konfiguracyjnym nie jest poprawna. Jeżeli nie umiesz znaleźć tej ścieżki, przejdź <a href="#mvt-config-logfile">tutaj</a> - jest tam wyjaśniona pełna instrukcja, jak znaleźć ścieżkę do poprawnego pliku.</p>
+                </article>
+                <article id="mvt-errors-global">
+                    <h3>5.4. Globalne błędy</h3>
+                    <p>W tej sekcji wspomnę o wszystkich błędach, które mogą pojawić się w całym programie.</p>
+                    <h4>Wewnętrzny błąd aplikacji</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [CRITICAL] Internal app error<br># Kod wyjścia: 70
+                    </div>
+                    <p>Ten błąd może oznaczać właściwie wszystko. Nie może być on w prosty sposób rozwiązany przez użytkownika, ponieważ wymaga edycji kodu źródłowego.</p>
+                    <p><b>UWAGA!</b> Jeżeli odkryjesz taki błąd, uruchom program z flagą -loglevel debug, gdzie być może znajdzie się wyjaśnienie, i wyślij to na mojego E-Maila: <a href="mailto:airkeyooo@gmail.com?subject=Internal%20app%20error%20report&body=Internal%20app%20error%20report%0D%0A%0D%0ALog%20from%20debug%20level:%0D%0A%0D%0A&lt;replace%20with%20debug%20log&gt;">airkeyooo@gmail.com</a>. W przygotowanej wiadomości zastąp fragment &lt;replace with debug log&gt; skopiowanymi logami o poziomie debug.</p>
+                    <hr>
+                    <h4>Błąd Pythona</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        Traceback (most recent call last):<br>...<br># Kod wyjścia: 1
+                    </div>
+                    <p>Gdy ten błąd się pojawi, to oznacza, że wystąpił wewnętrzny błąd. W takiej sytuacji należy zgłosić to do mnie na E-Maila: <a href="mailto:airkeyooo@gmail.com?subject=Python%20error%20report&body=Python%20error%20report%0D%0A%0D%0APython%20error%20message:%0D%0A%0D%0A&lt;replace%20with%20python%20error&gt;">airkeyooo@gmail.com</a>. Zastąp fragment &lt;replace with python error&gt; skopiowaną wiadomością z błędem Pythona.</p>
+                    <hr>
+                    <h4>Brak uprawnień</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 13:25:34,750] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:25:34,750] [ERROR] Can't open &lt;ścieżka&gt;: Permission Denied<br># Kod wyjścia: 77
+                    </div>
+                    <p>Ten błąd oznacza, że program nie może odczytać pliku (jego ścieżka będzie podana w miejsce &lt;ścieżka&gt;), ponieważ nie ma do tego wystarczających uprawnień. Aby to naprawić, upewnij się, że użytkownik ma uprawnienia do odczytu tego pliku.</p>
+                    <hr>
+                    <h4>Niepoprawny typ danych</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 13:29:24,934] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:29:24,937] [ERROR] &lt;element&gt; can be only &lt;dozwolony typ&gt;, not &lt;użyty typ&gt;!<br># Kod wyjścia: 65
+                    </div>
+                    <p>Ta wiadomość oznacza, że w pliku konfiguracyjnym (lub gdzieś indziej w kodzie) ustawiłeś wartość (zobaczysz jej nazwę na miejscu &lt;element&gt;) innego typu danych niż program tego wymaga. Możesz zobaczyć dozwolony typ na miejscu &lt;dozwolony typ&gt; oraz użyty typ danych w miejscu &lt;użyty typ&gt;</p>
+                    <hr>
+                    <h4>Ścieżka wskazuje na folder</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 13:57:53,034] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:57:53,034] [ERROR] Path that you have specified points to a directory!<br># Kod wyjścia: 66
+                    </div>
+                    <p>Ta wiadomość oznacza, że ścieżka, którą podałeś, wskazuje do folderu zamiast do pliku. Gdy ten błąd się pojawi, sprawdź plik konfiguracyjny i spróbuj znaleźć miejsce, gdzie zamiast do pliku, podałeś ścieżkę do folderu.</p>
+                </article>
+                <article id="mvt-errors-notify">
+                    <h3>5.5. Błędy powiadomień</h3>
+                    <p>Tu znajdziesz opisy wszystkich błędów, które są powiązane z funkcją wysyłania powiadomień.</p>
+                    <h4>Nieobsługiwany system operacyjny</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 13:57:53,034] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:57:53,034] [ERROR] You can't use notifications function because you are running on &lt;twój system&gt;! Currently, you can only use it on those OSes: &lt;wspierane systemy&gt;<br># Kod wyjścia: 69
+                    </div>
+                    <p>Ten błąd oznacza, że próbujesz użyć funkcji powiadomień na systemie, na którym nie jest ona obecnie obsługiwana. Niestety, jedyną opcją na naprawę tego jest wyłączyć tą funkcję i poczekać, aż dodam wsparcie dla danego systemu operacyjnego.</p>
+                    <hr>
+                    <h4>Zależność notify-send nie jest zainstalowana</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:11:30,485] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:11:30,488] [ERROR] notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.<br># Kod wyjścia: 69
+                    </div>
+                    <p>Ta wiadomość oznacza, że wymagana zależność notify-send nie jest zainstalowana na twoim systemie. Aby ją zainstalować, użyj swojego menadżera pakietów (np. pacman, apt, dnf, ...)</p>
+                </article>
+                <article id="mvt-errors-copy">
+                    <h3>5.6. Błędy kopiowania</h3>
+                    <p>Poniżej znajdziesz wszystkie błędy powiązane z funkcją kopiowania kluczy do schowka.</p>
+                    <h4>Biblioteka pyperclip nie jest zainstalowana</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Can't copy to clipboard because pyperclip lib is not installed! If you want to use this function, run: pip install pyperclip<br># Kod wyjścia: 69
+                    </div>
+                    <p>Ten błąd oznacza, że na twoim systemie nie jest zainstalowana biblioteka pyperclip, wymagana do obsługi tej funkcji. Aby dowiedzieć się, jak ją zainstalować, przejdź <a href="#mvt-installation-pip">tutaj</a>.</p>
+                    <hr>
+                    <h4>Nie można kopiować do schowka</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info
+                    </div>
+                    <p>Jeżeli jesteś na Linuxie, wiadomość może się nieco różnić:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info. You are on Linux, so you can check is your copying backend (like wl-copy, xclip, xselect) installed
+                    </div>
+                    <p>Ta wiadomość oznacza, że biblioteka pyperclip z jakiegoś powodu nie może skopiować tekstu do schowka. Nie mam możliwości dokłanie powiedzieć, co się stało, ale możesz spróbować tych dwóch kroków:</p>
+                    <ol>
+                        <li>Zobacz -loglevel debug - zostanie tam wyświetlona dokładna informacja o błędzie, który się pojawił</li>
+                        <li>Jeżeli jesteś na Linuxie, zainstaluj swój backend kopiowania. Jeżeli jesteś na X11, zainstaluj pakiety xclip i xselect. Jeżeli jesteś na Waylandzie, zainstaluj wl-clipboard.</li>
+                    </ol>
+                    <hr>
+                    <h4>*Skopiowane teksty się różnią</h4>
+                    <p><b>INFORMACJA:</b> To nie jest błąd, tylko ostrzeżenie, więc program będzie kontynuował pracę nawet po jego wystąpieniu</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:31:03,141] [WARNING] Something went wrong: Copied and pasted texts aren't the same values!
+                    </div>
+                    <p>Za każdym razem, gdy program się uruchamia, kopiuje do schowka przykładowy tekst, aby upewnić się, że kopiowanie do schowka jest możliwe. Ten komunikat oznacza, że skopiowany i wklejony tekst się różnią. Jeżeli w trakcie uruchamiania programu kopiowałeś coś do schowka - możesz to zignorować. Ale jeżeli tego nie robiłeś, to oznacza, że coś poszło nie tak.</p>
+                </article>
+                <article id="mvt-errors-mysql">
+                    <h3>5.7. Błędy MySQLa</h3>
+                    <p>Tu znajdziesz informacje o wszystkich błędach MySQLa, jakie mogą się pojawić.</p>
+                    <h4>mysql.connector nie jest zainstalowany</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:31:03,068] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:31:03,141] [ERROR] Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python<br># Kod wyjścia: 69
+                    </div>
+                    <p>Ta wiadomość oznacza, że biblioteka mysql.connector nie jest zainstalowana. Aby dowiedzieć się, jak ją zainstalować, przejdź <a href="#mvt-installation-pip">tutaj</a>.</p>
+                    <hr>
+                    <h4>Brakujące opcje w pliku konfiguracyjnym</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:40:49,466] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:40:49,539] [ERROR] Some values in config file are missing! Make sure you've set host (by default localhost), port (optional, by default 3306), user, password and database!<br># Kod wyjścia: 78
+                    </div>
+                    <p>Ten błąd oznacza, że niektóre wymagane wartości w sekcji <i>mysql:</i> w pliku konfiguracyjnym nie zostały ustawione. Jeśli nie wiesz, co dokładnie musisz ustawić, wygeneruj nowy plik konfiguracyjny i przepisz wszystkie ustawienia do nowego pliku.</p>
+                    <hr>
+                    <p><b>INFORMACJA:</b> Wszystkie błędy MySQLa przedstawione poniżej staną się ostrzeżeniami, gdy ustawisz flagę <i>optional</i> w pliku konfiguracyjnym na <i>true</i>.</p>
+                    <h4>Odmowa dostępu</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:52:16,442] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:52:16,592] [ERROR] User &lt;nazwa użytkownika&gt; can't connect to the MySQL/MariaDB server: Permission Denied<br># Kod wyjścia: 77
+                    </div>
+                    <p>Ten błąd oznacza że użytkownik sprecyzowany w pliku konfiguracyjnym (&lt;nazwa użytkownika&gt;) nie może nawiązać połączenia z serwerem ze względu na błędny login lub hasło.</p>
+                    <hr>
+                    <h4>Połączenie nieudane</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 15:02:28,445] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:02:28,579] [ERROR] Can't connect to the MySQL server &lt;adres&gt;:&lt;port&gt; - Connection Timeout or the server refused the connection<br># Kod wyjścia: 68
+                    </div>
+                    <p>Ten błąd oznacza że serwer odrzucił połączenie lub host nie istnieje. Upewnij się, że adres i port są poprawne.</p>
+                    <hr>
+                    <h4>Brak bazy danych</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] User &lt;nazwa użytkownika&gt; can't access to the &lt;nazwa bazy danych&gt; DB: Permission Denied or this database doesn't exist<br># Kod wyjścia: 77
+                    </div>
+                    <p>Ta wiadomość oznacza, że baza danych sprecyzowana w pliku konfiguracyjnym nie istnieje lub użytkownik nie ma uprawnień, aby się z nią połączyć.</p>
+                    <hr>
+                    <h4>Brak wystarczających uprawnień</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] User &lt;nazwa użytkownika&gt; can't execute required commands: Permission Denied. Please make sure &lt;nazwa użytkownika&gt; can run a least CREATE and INSERT in &lt;nazwa bazy danych&gt; DB<br># Kod wyjścia: 77
+                    </div>
+                    <p>Ten błąd oznacza, że połączenie z bazą danych zostało nawiązane poprawnie, ale użytkownik nie może wykonać wymaganych zapytań. Pamiętaj, że użytkownik potrzebuje co najmniej uprawnień do wykonania zapytań CREATE i INSERT w całej bazie danych.</p>
+                    <hr>
+                    <h4>Wewnętrzny błąd MySQLa</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] Internal MySQL error: &lt;błąd&gt;<br># Kod wyjścia: 70
+                    </div>
+                    <p>Ten błąd oznacza, że wystąpił wewnętrzny błąd. Jeżeli znasz się na SQLu, możesz spróbować zrozumieć, co poszło nie tak - pełny komunikat błędu zostanie tu wyświetlony.</p>
+                </article>
+            </section>
+        </main>
+    </body>
+</html>

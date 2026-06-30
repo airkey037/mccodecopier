@@ -1,0 +1,4 @@
+Some program features were inspired by FFmpeg (like flag style and print formats), but all were implemented fully by me without copying ANY code. Copyright (c) 2000-2026 the FFmpeg developers
+https://ffmpeg.org/
+
+Currently, I am the only developer of this app, but this might change in the future (I don't belive it, but it can), so for detailed info see git log
