@@ -13,7 +13,7 @@ from pathlib import Path
 from signal import signal, SIGTERM, SIGINT, Signals
 from time import sleep, time
 from datetime import datetime, timedelta, timezone
-from subprocess import run as subrun, check_output as subcheckout, CalledProcessError, DEVNULL as subdevnull
+from subprocess import check_output as subcheckout, CalledProcessError, DEVNULL as subdevnull
 from platform import system
 import os
 from csv import DictReader, DictWriter, writer
@@ -22,6 +22,7 @@ from json import dumps
 # Import all program parts
 from tools import *
 from minecraft import *
+from codehooks import *
 # Function to check program privileges
 def is_root():
     if hasattr(os,"getuid"):
@@ -45,63 +46,6 @@ def get_version():
     except ImportError:
         pass
     return "v0.0.0-unknown"
-# Custom program exception
-class MCError(Exception):
-    def __init__(self,message:str,returncode:int=1,native_exception:Exception=Exception):
-        super().__init__(message)
-        self.returncode=returncode
-        self.native_exception=native_exception
-# Class to send notifications
-class Notify:
-    def __init__(self):
-        # Define logger
-        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        # Try to find out is notify-send installed and are we operating on Linux
-        self.logger.debug("Checking is your operating system supporting this function")
-        SUPPORTED_OS=["Linux"]
-        if system() not in SUPPORTED_OS:
-            raise RuntimeError(f"You can't use notifications function because you are running on {system()}! Currently, you can only use it on those OSes: {", ".join(SUPPORTED_OS)}")
-        if system() == "Linux":
-            self.logger.debug(f"Running on Linux, checking is notify-send installed")
-            try:
-                nfsendver=subrun(["notify-send","--version"],text=True,capture_output=True)
-                if nfsendver.returncode == 0:
-                    self.logger.debug(f"notify-send is installed! Version: {nfsendver.stdout.strip()}")
-                else:
-                    self.logger.debug(f"notify-send error: {nfsendver.stderr}")
-                    self.logger.warning("notify-send is installed but finished with an error. Program belives that everything is working correctly, so continuing its work. For more details please check -loglevel debug")
-            except FileNotFoundError:
-                raise RuntimeError("notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.")
-    def send_notification(self,title,msg):
-        # Send notification
-        self.logger.debug(f"Sending notification with app name 'MC Code Copier', title '{title}' and content '{msg}'")
-        subrun(["notify-send","--app-name=MC Code Copier",title,msg])
-# Class to copy code to the clipboard
-class CodeCopy:
-    def __init__(self):
-        # Define logger
-        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
-        # This part throws ImportError when library is not installed
-        try:
-            from pyperclip import copy as pypercopy, paste as pyperpaste, PyperclipException
-            self.logger.debug("pyperclip lib was imported successfully")
-        except ImportError:
-            raise RuntimeError("Can't copy to clipboard because pyperclip lib is not installed! If you want to use this function, run: pip install pyperclip")
-        try:
-            sample_text="Hello World from MC Code Copier! :)"
-            self.logger.debug(f"Trying to copy sample text: {sample_text}")
-            pypercopy(sample_text)
-            pasted_text=pyperpaste()
-            self.logger.debug(f"Pasted text: {pasted_text}")
-            if sample_text != pasted_text:
-                self.logger.warning("Something went wrong: Copied and pasted texts aren't the same values!")
-        except PyperclipException as e:
-            self.logger.debug(f"Original error message: {e}")
-            raise RuntimeError("Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info"+". You are on Linux, so you can check is your copying backend (like wl-copy, xclip, xselect) installed"if system()=="Linux"else"")
-    def copy(self,code:str):
-        from pyperclip import copy
-        self.logger.debug(f"Copying {code}")
-        copy(code)
 # Class to create and use .csv files
 class CSV:
     def __init__(self,file:str):
