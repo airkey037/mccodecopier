@@ -212,7 +212,13 @@
                 <li>
                     <a href="#mvt-errors">Errors</a>
                     <ol>
-                        
+                        <li><a href="#mvt-errors-running">Errors while running program</a></li>
+                        <li><a href="#mvt-errors-config">Errors with config file</a></li>
+                        <li><a href="#mvt-errors-logfile">Log file errors</a></li>
+                        <li><a href="#mvt-errors-global">Global app errors</a></li>
+                        <li><a href="#mvt-errors-notify">Notifications errors</a></li>
+                        <li><a href="#mvt-errors-copy">Code copying errors</a></li>
+                        <li><a href="#mvt-errors-mysql">MySQL errors</a></li>
                     </ol>
                 </li>
             </ol>
@@ -463,7 +469,7 @@
                     <p><b>NOTE:</b> This option requires <i>pyperclip</i> module. If you don't know how to install it, go <a href="#mvt-installation-pip">here</a>.</p>
                     <div class="codepreview">
                         <div class="codefilename">Yaml</div>
-                        # Should program automatically copy received code to the clipboard?<br># WARNING: Requires pyperclib module, which can be installed using: `pip install pyperclip`<br>copy_to_clipboard: false
+                        # Should program automatically copy received code to the clipboard?<br># WARNING: Requires pyperclip module, which can be installed using: `pip install pyperclip`<br>copy_to_clipboard: false
                     </div>
                     <p>I think I don't need to explain this option, but maybe I'll do it: when this is set to <i>true</i>, detected code is copied to the clipboard</p>
                 </article>
@@ -661,6 +667,214 @@
             <section id="mvt-errors">
                 <h2>5. Errors</h2>
                 <p>In this section I'll mention all errors, that may appear when configuring, running and using my program.</p>
+                <article id="mvt-errors-running">
+                    <h3>5.1. Errors while running program</h3>
+                    <p>In this section I'll write about all errors that can appear even before program fully loads</p>
+                    <h4>Unrecognized arguments</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        loader.py: error: unrecognized arguments: &lt;argument&gt;<br># Return code: 2
+                    </div>
+                    <p>This message means, that you are trying to run program with argument, that doesn't exist. To fix this issue, check, are all arguments, that you are using, existing. Go <a href="#mvt-running-flags">here</a> to see all possible arguments</p>
+                    <hr>
+                    <h4>Invalid choice</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        loader.py: error: argument &lt;argument&gt;: invalid choice: &lt;choice&gt; (choose from &lt;possible choices&gt;)<br># Return code: 2
+                    </div>
+                    <p>This message means, that you are trying to set not allowed value to &lt;argument&gt; parameter. Go <a href="#mvt-running-flags">here</a> and read whole section about flag displayed in place of &lt;argument&gt; to see all possible settings.</p>
+                    <hr>
+                    <h4>Running as root/admin</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:30:52,561] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:30:52,561] [CRITICAL] Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it. Run it as a normal user! But if you really want to continue (VERY UNRECOMMENDED), add -runasroot flag (but keep in mind that you are doing it for YOUR OWN RESPONSIBILITY!!)<br># Return code: 1
+                    </div>
+                    <p>This message means, that you are trying to run program with root/administrator privileges. This can be ignored with -runasroot flag, but <b>I do not recommend ignoring this!</b> If you want to read more about -runasroot flag, go <a href="#mvt-running-flags-root">here</a>.</p>
+                </article>
+                <article id="mvt-errors-config">
+                    <h3>5.2. Errors with config file</h3>
+                    <p>In this section I'll mention all errors, that are caused by some issue with config file.</p>
+                    <h4>pyyaml lib is missing</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        pyyaml lib isn't installed! Install it using: pip install pyyaml<br># Return code: 1
+                    </div>
+                    <p>This error means, that pyyaml lib isn't installed. To learn, how to install it, go <a href="#mvt-installation-pip">here</a>.</p>
+                    <hr>
+                    <h4>Config file doesn't exist!</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:36:59,141] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:36:59,141] [ERROR] Config file doesn't exist!<br># Return code: 66
+                    </div>
+                    <p>This error means that config file doesn't exist or path specified by you is invalid. If you want to learn, how to generate config file, go <a href="#mvt-installation-main">here</a>.</p>
+                    <hr>
+                    <h4>Invalid YAML syntax</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:39:33,190] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:39:33,190] [ERROR] Invalid YAML syntax in config file!<br># Return code: 78
+                    </div>
+                    <p>This error means that you have invalid YAML syntax in your config file. To fix it, make sure, that your YAML syntax is correct, or generate new config file; its YAML syntax is always correct, so you can generate new file and re-write all values.</p>
+                    <hr>
+                    <h4>Key in config file is missing</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:39:33,190] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:39:33,190] [ERROR] &lt;config element&gt; isn't specified in config file!<br># Return code: 78
+                    </div>
+                    <p>When you see this error, this means, that some config element (its name is given in place of &lt;config element&gt;) is missing. Make sure you've configured everything correctly, and remembered about all elements.</p>
+                </article>
+                <article id="mvt-errors-logfile">
+                    <h3>5.3. Log file errors</h3>
+                    <p>In this section I'll explain all errors highly related to Minecraft log file</p>
+                    <h4>Log file doesn't exist</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [ERROR] Log file in &lt;path&gt; doesn't exist!<br># Return code: 66
+                    </div>
+                    <p>This message means, that config file in path specified in config file doesn't exist. If you have trouble with finding it, please go <a href="#mvt-config-logfile">here</a> - there, you can find detailed instruction, how to find correct log file.</p>
+                </article>
+                <article id="mvt-errors-global">
+                    <h3>5.4. Global app errors</h3>
+                    <p>In this section I'll explain all errors, that can appear in whole program</p>
+                    <h4>Internal app error</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [CRITICAL] Internal app error<br># Return code: 70
+                    </div>
+                    <p>This error can actually mean anything. It can't be solved by end user, because it requires editing source code.</p>
+                    <p><b>WARNING!</b> If you see this error, please run program with -loglevel debug, where I can find explanation, and send it to me using E-Mail: <a href="mailto:airkeyooo@gmail.com?subject=Internal%20app%20error%20report&body=Internal%20app%20error%20report%0D%0A%0D%0ALog%20from%20debug%20level:%0D%0A%0D%0A&lt;replace%20with%20debug%20log&gt;">airkeyooo@gmail.com</a>. In prepared content, please paste debug log in place of a &lt;replace with debug log&gt;</p>
+                    <hr>
+                    <h4>Python error</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        Traceback (most recent call last):<br>...<br># Return code: 1
+                    </div>
+                    <p>When this message shows, this means, that some internal code error appeared. Please, report it to me using E-Mail: <a href="mailto:airkeyooo@gmail.com?subject=Python%20error%20report&body=Python%20error%20report%0D%0A%0D%0APython%20error%20message:%0D%0A%0D%0A&lt;replace%20with%20python%20error&gt;">airkeyooo@gmail.com</a>. Replace &lt;replace with python error&gt; with full Python error message, that appeared in console.</p>
+                    <hr>
+                    <h4>Permission error</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 13:25:34,750] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:25:34,750] [ERROR] Can't open &lt;path&gt;: Permission Denied<br># Return code: 77
+                    </div>
+                    <p>This error means that some file is unreadable because of missing permissions. To fix this, make sure, that user have permissions to read file specified in &lt;path&gt;</p>
+                    <hr>
+                    <h4>Invalid type</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 13:29:24,934] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:29:24,937] [ERROR] &lt;element&gt; can be only &lt;allowed type&gt;, not &lt;used type&gt;!<br># Return code: 65
+                    </div>
+                    <p>This message means that in config file or somewhere else you've set some value (you can see its name in place of &lt;element&gt;) to other data type then expected. You can see allowed typoe in place of &lt;allowed type&gt; and type, that you have used in place of &lt;used type&gt;.</p>
+                    <hr>
+                    <h4>Directory path</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 13:57:53,034] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:57:53,034] [ERROR] Path that you have specified points to a directory!<br># Return code: 66
+                    </div>
+                    <p>This message means, that in place, where path to a file is expected, you've specified path to a directory. Please, check your whole config file, and try to find a place, where you accidentally gave path to a directory.</p>
+                </article>
+                <article id="mvt-errors-notify">
+                    <h3>5.5. Notifications errors</h3>
+                    <p>Here you can find all errors, that are related with notifications function.</p>
+                    <h4>OS error</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 13:57:53,034] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:57:53,034] [ERROR] You can't use notifications function because you are running on &lt;your OS&gt;! Currently, you can only use it on those OSes: &lt;supported OSes&gt;<br># Return code: 69
+                    </div>
+                    <p>This means that you are trying to use notifications on operating system that isn't currently supported. Unfortunately, the only option to fix this is disabling this function and waiting for me to add this function on your OS.</p>
+                    <hr>
+                    <h4>notify-send is not installed</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:11:30,485] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:11:30,488] [ERROR] notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.<br># Return code: 69
+                    </div>
+                    <p>This message means, that notify-send runtime isn't installed on your operating system. Install it, using your distribution's package manager (like apt, pacman, dnf, ...)</p>
+                </article>
+                <article id="mvt-errors-copy">
+                    <h3>5.6. Code copying errors</h3>
+                    <p>Here you can find all errors, that are related with code copying function.</p>
+                    <h4>pyperclip module not installed</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Can't copy to clipboard because pyperclip lib is not installed! If you want to use this function, run: pip install pyperclip<br># Return code: 69
+                    </div>
+                    <p>This message means, that pyperclip lib isn't installed on your system. To learn, how to install it, go <a href="#mvt-installation-pip">here</a>.</p>
+                    <hr>
+                    <h4>Can't copy to clipboard</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info
+                    </div>
+                    <p>If you are on Linux, message will slightly differ:</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info. You are on Linux, so you can check is your copying backend (like wl-copy, xclip, xselect) installed
+                    </div>
+                    <p>This message means, that pyperclip can't copy code to clipboard. I can't tell you why this is happening, but:</p>
+                    <ol>
+                        <li>You can see -loglevel debug and try to figure out, what's going on</li>
+                        <li>If you are on Linux, install your copying backend. If you are on X11, install xclip and xselect. If you are on Wayland, install wl-clipboard.</li>
+                    </ol>
+                    <hr>
+                    <h4>*Copied and pasted texts are different</h4>
+                    <p><b>NOTE:</b> This is a warning, not an error, so program will continue its work, even after this message appears</p>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:31:03,141] [WARNING] Something went wrong: Copied and pasted texts aren't the same values!
+                    </div>
+                    <p>Each start, program is copying sample text to the clipboard to make sure that copying is possible. This communicate means, that copied and pasted texts are somehow different. If you copied something to clipboard while program was starting - you can ignore it. But if you didn't, this means that something gone wrong.</p>
+                </article>
+                <article id="mvt-errors-mysql">
+                    <h3>5.7. MySQL errors</h3>
+                    <p>Here you can find all errors, that are related with MySQL data saving method</p>
+                    <h4>mysql.connector is not installed</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:31:03,068] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:31:03,141] [ERROR] Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python<br># Return code: 69
+                    </div>
+                    <p>This message means, that mysql-connector-python lib isn't installed on your system. To learn, how to install it, go <a href="#mvt-installation-pip">here</a>.</p>
+                    <hr>
+                    <h4>Missing values in config file</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:40:49,466] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:40:49,539] [ERROR] Some values in config file are missing! Make sure you've set host, port (optional, by default 3306), user, password and database!<br># Return code: 78
+                    </div>
+                    <p>This error means that some required values in <i>mysql:</i> section in config file are missing. If you don't know, what should you specify there, generate a new config file and re-write all settings from previous one.</p>
+                    <hr>
+                    <p><b>NOTE:</b> All MySQL errors below will become a warnings, when you set <i>optional</i> flag in config file to <i>true</i></p>
+                    <h4>Permission denied for user</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 14:52:16,442] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:52:16,592] [ERROR] User &lt;user name&gt; can't connect to the MySQL/MariaDB server: Permission Denied<br># Return code: 77
+                    </div>
+                    <p>This error means that user specified in config file (&lt;user name&gt;) can't connect to the server because username or password is incorrect.</p>
+                    <hr>
+                    <h4>Connection failed</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 15:02:28,445] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:02:28,579] [ERROR] Can't connect to the MySQL server &lt;host&gt;:&lt;port&gt; - Connection Timeout or the server refused the connection<br># Return code: 68
+                    </div>
+                    <p>This error means that the server refused the connection or host doesn't exist. To fix it, make sure, that address and port is correct</p>
+                    <hr>
+                    <h4>No database</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] User &lt;user name&gt; can't access to the &lt;database&gt; DB: Permission Denied or this database doesn't exist<br># Return code: 77
+                    </div>
+                    <p>This message means that the database specified in config file doesn't exist or user specified in config file don't have enough privileges to access it.</p>
+                    <hr>
+                    <h4>User don't have enough privileges</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] User &lt;user name&gt; can't execute required commands: Permission Denied. Please make sure &lt;user name&gt; can run a least CREATE and INSERT in &lt;database&gt; DB<br># Return code: 77
+                    </div>
+                    <p>This error means that the user successfully connected to the database, but it can't execute required statements. Remember, that user needs at least CREATE and INSERT permissions in this whole database.</p>
+                    <hr>
+                    <h4>Internal MySQL error</h4>
+                    <div class="codepreview">
+                        <div class="codefilename">Log</div>
+                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] Internal MySQL error: &lt;error&gt;<br># Return code: 70
+                    </div>
+                    <p>This error means that some internal error ocurred. If you know SQL, you can try to understand its reason - full error message will be printed.</p>
+                </article>
             </section>
         </main>
     </body>

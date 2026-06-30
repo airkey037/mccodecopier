@@ -312,7 +312,7 @@ class CodeCopy:
                 self.logger.warning("Something went wrong: Copied and pasted texts aren't the same values!")
         except PyperclipException as e:
             self.logger.debug(f"Original error message: {e}")
-            raise RuntimeError("Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info"+". You are on Linux, so you can check is your copying backend (like wl-copy) installed"if system()=="Linux"else"")
+            raise RuntimeError("Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info"+". You are on Linux, so you can check is your copying backend (like wl-copy, xclip, xselect) installed"if system()=="Linux"else"")
     def copy(self,code:str):
         from pyperclip import copy
         self.logger.debug(f"Copying {code}")
@@ -384,7 +384,7 @@ class MySQL:
             self.logger.debug(f"Authenticating by user: {self.user} (Using password: {"Yes"if self.password else"No"})")
             self.logger.debug(f"Using database: {self.database}")
             self.logger.debug("Trying to connect...")
-            conn = mysql.connector.connect(host=hostname,user=user,password=password,database=database,port=port)
+            conn = mysql.connector.connect(host=hostname,user=user,password=password,database=database,port=port,connection_timeout=10)
             if conn:
                 self.logger.debug("Connection established")
                 stmt = conn.cursor()
@@ -396,9 +396,9 @@ class MySQL:
                 self.logger.debug("Connection and cursor closed")
         except mysql.connector.Error as err:
             if err.errno == 1045:
-                raise PermissionError(f"User {user} can't connect to the database {database}: Permission Denied") from None
+                raise PermissionError(f"User {user} can't connect to the MySQL/MariaDB server: Permission Denied") from None
             elif err.errno == 2003:
-                raise ConnectionRefusedError(f"Can't connect to the MySQL server because server address {hostname}:{port} isn't known") from None
+                raise ConnectionRefusedError(f"Can't connect to the MySQL server {hostname}:{port} - Connection timeout or the server refused the connection") from None
             elif err.errno == 1044:
                 raise PermissionError(f"User {user} can't access to the {database} DB: Permission Denied or this database doesn't exist") from None
             elif err.errno == 1142:
@@ -435,7 +435,7 @@ class Config:
         if fullpath.exists():
             self.logger.error("Config file already exists!")
             exit(rtn.EX_CANTCREAT)
-        DEFAULT_CONFIG_FILE=f'''# MC Code Copier default config file\n# Program maintainer: AirKeyooo <airkeyooo@gmail.com>\n# Generated: {datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")}\n\n# Add path to your latest.log file\nlog_file: /path/to/latest.log\n\n# How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage\nread_lines: 2\n\n# Should program send notifications about new codes?\n# WARNING: Works only on Linux and ends with error on any other OS!\nsend_notifications: false\n\n# Suggest when user should send code to don't look suspicious\n# Give value in seconds. If you don't want to use this function, comment it or set value to 0\nsuggest_timeout: 5\n\n# Change shuold program predict when next code will appear.\n# Program currently needs at least 2 codes in memory to predict next one\npredict_next_code: false\n\n# Should program automatically copy received code to the clipboard?\n# WARNING: Requires pyperclib module, which can be installed using: `pip install pyperclip`\ncopy_to_clipboard: false\n\n# Save results to .csv file\n# If you don't want to use this function, comment line below\nsave_to_csv: /path/to/file.csv\n\n# Set all nicknames that are yours\n# If you don't want to set your nicknames, comment/remove whole section below\nnicknames:\n  - Nickname1\n  - Nickname2\n\n# How frequently (in ms) chat should be scanned.\n# e.g. 200 -> messages will be scanned every 200ms\n# Smaller delay may improve efficiency, but will end up with higher CPU and disk usage\nscan_frequency: 300\n\n# MySQL DB Access config\n# If you want to use MySQL, uncomment all lines below and type your credentials\n# When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work\n# If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')\n# Minimal required user permissions: CREATE, INSERT\n# WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`\n#mysql:\n#  host: localhost\n#  port: 3306\n#  user: root\n#  password: \n#  database: my_database\n#  optional: false'''
+        DEFAULT_CONFIG_FILE=f'''# MC Code Copier default config file\n# Program maintainer: AirKeyooo <airkeyooo@gmail.com>\n# Generated: {datetime.now().astimezone().strftime("%d.%m.%Y %H:%M:%S %Z")}\n\n# Add path to your latest.log file\nlog_file: /path/to/latest.log\n\n# How many lines program should read. More lines = improved efficiency, but higher CPU and disk usage\nread_lines: 2\n\n# Should program send notifications about new codes?\n# WARNING: Works only on Linux and ends with error on any other OS!\nsend_notifications: false\n\n# Suggest when user should send code to don't look suspicious\n# Give value in seconds. If you don't want to use this function, comment it or set value to 0\nsuggest_timeout: 5\n\n# Change shuold program predict when next code will appear.\n# Program currently needs at least 2 codes in memory to predict next one\npredict_next_code: false\n\n# Should program automatically copy received code to the clipboard?\n# WARNING: Requires pyperclip module, which can be installed using: `pip install pyperclip`\ncopy_to_clipboard: false\n\n# Save results to .csv file\n# If you don't want to use this function, comment line below\nsave_to_csv: /path/to/file.csv\n\n# Set all nicknames that are yours\n# If you don't want to set your nicknames, comment/remove whole section below\nnicknames:\n  - Nickname1\n  - Nickname2\n\n# How frequently (in ms) chat should be scanned.\n# e.g. 200 -> messages will be scanned every 200ms\n# Smaller delay may improve efficiency, but will end up with higher CPU and disk usage\nscan_frequency: 300\n\n# MySQL DB Access config\n# If you want to use MySQL, uncomment all lines below and type your credentials\n# When optional is set to false, program will finish with an error when MySQL/MariaDB server is unreachable. When it is set to true, program will only warn that it can't save data to MySQL/MariaDB, but continue its work\n# If the user doesn't have password (VERY UNSAFE!), leave password field blank (nothing after ':')\n# Minimal required user permissions: CREATE, INSERT\n# WARNING: Requires mysql.connector module, which can be installed using: `pip install mysql-connector-python`\n#mysql:\n#  host: localhost\n#  port: 3306\n#  user: root\n#  password: \n#  database: my_database\n#  optional: false'''
         try:
             with open(file=fullpath.resolve(),mode="w",encoding="utf-8") as f:
                 f.write(DEFAULT_CONFIG_FILE)
