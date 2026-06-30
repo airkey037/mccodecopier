@@ -21,34 +21,6 @@ import ctypes
 from json import dumps
 # Import all program parts
 from tools import *
-# Function to read n last lines without loading whole log file
-def tail(path, n=1):
-    if n <= 0:
-        return ()
-    lines = []
-    with open(path, "rb") as f:
-        f.seek(0, 2)
-        filesize = f.tell()
-        if filesize == 0:
-            return ()
-        pos = filesize - 1
-        f.seek(pos)
-        while pos >= 0 and f.read(1) == b'\n':
-            pos -= 1
-            f.seek(pos)
-        buffer = bytearray()
-        while pos >= 0 and len(lines) < n:
-            f.seek(pos)
-            byte = f.read(1)
-            if byte == b'\n':
-                lines.append(buffer[::-1].decode(errors="replace"))
-                buffer.clear()
-            else:
-                buffer.append(byte[0])
-            pos -= 1
-        if buffer and len(lines) < n:
-            lines.append(buffer[::-1].decode(errors="replace"))
-    return tuple(reversed(lines))
 # Function to check program privileges
 def is_root():
     if hasattr(os,"getuid"):
@@ -57,46 +29,6 @@ def is_root():
         return ctypes.windll.shell32.IsUserAnAdmin() != 0
     except AttributeError:
         return False
-# Function that can escape recursive dicts
-def flatten_dict(d:dict,parent_key:str="",separator:str=".")->dict:
-	result={}
-	for key,value in d.items():
-		full_key=f"{parent_key}{separator}{key}"if parent_key else key
-		if isinstance(value,(list,tuple)):
-			readval=dict(enumerate(value))
-		else:
-			readval=value
-		if isinstance(readval,dict):
-			nested_dicts={}
-			for k,v in readval.items():
-				if isinstance(v,dict):
-					nested_dicts[k]=v
-			flat_values={}
-			for k,v in readval.items():
-				if not isinstance(v,dict):
-					if isinstance(v,(list,tuple)):
-						nested_dicts[k]=dict(enumerate(v))
-					else:
-						flat_values[k]=v
-			if flat_values:
-				result[full_key]=flat_values
-			if nested_dicts:
-				nested_result=flatten_dict(nested_dicts,full_key,separator)
-				result.update(nested_result)
-		else:
-			result[key]=value
-	return result
-# Function to return flatten values
-def flatten_values(d:dict,parent_key:str="")->dict:
-	result={}
-	flattened=flatten_dict(d=d)
-	for key,value in flattened.items():
-		if isinstance(value,dict):
-			for k,v in value.items():
-				result[f"{key}.{k}"]=v
-		else:
-			result[key]=value
-	return result
 # Function to escape " and ' in strings
 def escape_flat(s:str)->str:return(str(s).replace("\\","\\\\").replace('"','\\"').replace("'","\\'"))
 # Function to get program version
