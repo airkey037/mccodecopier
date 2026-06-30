@@ -730,7 +730,7 @@
                         <div class="codefilename">Log</div>
                         [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [ERROR] Log file in &lt;path&gt; doesn't exist!<br># Return code: 66
                     </div>
-                    <p>This message means, that config file in path specified in config file doesn't exist. If you have trouble with finding it, please go <a href="#mvt-config-logfile">here</a> - there, you can find detailed instruction, how to find correct log file.</p>
+                    <p>This message means, that log file in path specified in config file doesn't exist. If you have trouble with finding it, please go <a href="#mvt-config-logfile">here</a> - there, you can find detailed instruction, how to find correct log file.</p>
                 </article>
                 <article id="mvt-errors-global">
                     <h3>5.4. Global app errors</h3>
@@ -762,7 +762,7 @@
                         <div class="codefilename">Log</div>
                         [2026-06-30 13:29:24,934] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:29:24,937] [ERROR] &lt;element&gt; can be only &lt;allowed type&gt;, not &lt;used type&gt;!<br># Return code: 65
                     </div>
-                    <p>This message means that in config file or somewhere else you've set some value (you can see its name in place of &lt;element&gt;) to other data type then expected. You can see allowed typoe in place of &lt;allowed type&gt; and type, that you have used in place of &lt;used type&gt;.</p>
+                    <p>This message means that in config file or somewhere else you've set some value (you can see its name in place of &lt;element&gt;) to other data type then expected. You can see allowed type in place of &lt;allowed type&gt; and type, that you have used in place of &lt;used type&gt;.</p>
                     <hr>
                     <h4>Directory path</h4>
                     <div class="codepreview">
@@ -835,7 +835,7 @@
                     <h4>Missing values in config file</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:40:49,466] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:40:49,539] [ERROR] Some values in config file are missing! Make sure you've set host, port (optional, by default 3306), user, password and database!<br># Return code: 78
+                        [2026-06-30 14:40:49,466] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:40:49,539] [ERROR] Some values in config file are missing! Make sure you've set host (by default localhost), port (optional, by default 3306), user, password and database!<br># Return code: 78
                     </div>
                     <p>This error means that some required values in <i>mysql:</i> section in config file are missing. If you don't know, what should you specify there, generate a new config file and re-write all settings from previous one.</p>
                     <hr>

@@ -368,13 +368,13 @@ class CSV:
                 self.logger.debug("Successfully writed all needed data")
 # Class to save codes data to MySQL/MariaDB
 class MySQL:
-    def __init__(self,hostname:str,user:str,password:str,database:str,port=3306):
+    def __init__(self,user:str,password:str,database:str,hostname:str="localhost",port:int=3306):
         CREATE_TABLE_QUERY='''CREATE TABLE IF NOT EXISTS`wins_log`(`id`int(11)NOT NULL AUTO_INCREMENT COMMENT'Primary key',`code`varchar(10)DEFAULT NULL COMMENT'String that contains key, that player had to re-write',`appear_time`timestamp NOT NULL DEFAULT current_timestamp()COMMENT'Shows exact time when code appeared',`rewrite_time`float NOT NULL COMMENT'Time (in seconds) in what time player have re-writed the code',`nick`varchar(16)NOT NULL COMMENT'Who sent the code',`is_it_me`tinyint(1)NOT NULL COMMENT'True if I won the code',PRIMARY KEY(`id`))ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_polish_ci;'''
-        self.hostname = hostname
+        self.hostname = hostname if hostname else "localhost"
         self.user = user
         self.password = password
         self.database = database
-        self.port = port
+        self.port = port if port else 3306
         # Define logger
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         import mysql.connector
@@ -899,7 +899,7 @@ def main():
     try:
         if savetomysql:
             logger.debug("Trying to initalize MySQL class")
-            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port",3306),user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],)
+            mysqlf = MySQL(hostname=savetomysql.get("host","localhost"),port=savetomysql.get("port",3306),user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],)
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.error("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
@@ -917,7 +917,7 @@ def main():
             logger.error(str(crerr))
             exit(rtn.EX_NOHOST)
     except KeyError:
-        logger.error("Some values in config file are missing! Make sure you've set host, port (optional, by default 3306), user, password and database!")
+        logger.error("Some values in config file are missing! Make sure you've set host (by default localhost), port (optional, by default 3306), user, password and database!")
         exit(rtn.EX_CONFIG)
     except RuntimeError as rerr:
         logger.error(f"Internal MySQL error: {rerr}")
