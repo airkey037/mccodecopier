@@ -400,7 +400,7 @@ class MySQL:
             elif err.errno == 2003:
                 raise ConnectionRefusedError(f"Can't connect to the MySQL server because server address {hostname}:{port} isn't known") from None
             elif err.errno == 1044:
-                raise PermissionError(f"User {user} can't access to the {database} DB: Permission Denied or this database isn't existing") from None
+                raise PermissionError(f"User {user} can't access to the {database} DB: Permission Denied or this database doesn't exist") from None
             elif err.errno == 1142:
                 raise PermissionError(f"User {user} can't execute required commands: Permission Denied. Please make sure user {user} can run at least CREATE and INSERT in {database} DB") from None
             else:
@@ -840,6 +840,11 @@ def main():
         running = False
     signal(SIGINT,stop)
     signal(SIGTERM,stop)
+    try:
+        from signal import SIGHUP
+        signal(SIGHUP,stop)
+    except ImportError:
+        pass
     # Read from config file how many lines should we read backwards
     linestoread = config.read_lines
     # Read from config file how frequently should we scan the chat
@@ -894,7 +899,7 @@ def main():
     try:
         if savetomysql:
             logger.debug("Trying to initalize MySQL class")
-            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port")if savetomysql.get("port")else 3306,user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],)
+            mysqlf = MySQL(hostname=savetomysql["host"],port=savetomysql.get("port",3306),user=savetomysql["user"],password=savetomysql["password"],database=savetomysql["database"],)
             logger.debug("Initalized successfully!")
     except ImportError:
         logger.error("Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python")
