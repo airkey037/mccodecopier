@@ -615,15 +615,40 @@
                     </article>
                     <article id="mvt-running-flags-defconf">
                         <h3>4.2.3. -default_config</h3>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -default_config -config &lt;path&gt;
+                        </div>
+                        <p>You know this option, because I've mentioned it <a href="#mvt-installation-main">here</a>, but maybe I'll explain it once more: this option is used to generate default config file in path specified in -config parameter. If you have some errors during this step, please go <a href="#mvt-installation-error">here</a>.</p>
                     </article>
                     <article id="mvt-running-flags-root">
                         <h3>4.2.4. -runasroot</h3>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -runasroot
+                        </div>
+                        <p><b>WARNING!!!</b> Please avoid using this option by running program as a normal user! Remember, that you are doing it for your own responsibility!</p>
+                        <p>Normally, program doesn't allow to run as root/administrator. Add this flag to run program despite having those privileges</p>
                     </article>
                     <article id="mvt-running-flags-printf">
-                        <h3>4.2.3. -print_format, -output_format, -of</h3>
+                        <h3>4.2.5. -print_format, -output_format, -of</h3>
+                        <p>Possible settings: <i>default, flat, ini, json, xml</i></p>
+                        <p>This setting controls printing format. default is the default option. It higly integrates with all -show_* options - it is changing, how informations from those options are displayed.</p>
+                        <p><b>NOTE:</b> If you want for this program to integrate with other programs, remember to set -loglevel quiet - -show_* options will be still displayed, but program will hide all logs, keeping only -show_* visible.</p>
+                        <p>If you want to use JSON format:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -loglevel quiet -print_format json
+                        </div>
+                        <p>Alone, this option is useless, so please see all options with -show_* prefix below</p>
                     </article>
                     <article id="mvt-running-flags-shst">
-                        <h3>4.2.3. -show_statistics</h3>
+                        <h3>4.2.6. -show_statistics</h3>
+                        <p>Use this option to print statistics at the end in format specified in -print_format flag. For example, if you want to print statistics in flat format, use:</p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 loader.py -loglevel quiet -print_format flat -show_statistics
+                        </div>
                     </article>
                 </article>
             </section>
