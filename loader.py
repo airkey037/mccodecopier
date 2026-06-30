@@ -762,7 +762,7 @@ def main():
     # Initalize argument parser
     parser = ArgumentParser(description="MC Code Copier is listening for reward codes (In Anarchia.GG's OneBlock) in the chat, copies it to clipboard and stores it")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
-    parser.add_argument("-version",action="store_true",help="Version")
+    parser.add_argument("-version",action="store_true",help="Display current program version")
     parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file")
     parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path")
     parser.add_argument("-runasroot",action="store_true",help="Make possible for program to run as root")

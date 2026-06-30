@@ -201,6 +201,7 @@
                         <li><a href="#mvt-running-flags">Flags</a>
                             <ol>
                                 <li><a href="#mvt-running-flags-loglevel">-loglevel</a></li>
+                                <li><a href="#mvt-running-flags-version">-version</a></li>
                                 <li><a href="#mvt-running-flags-config">-config</a></li>
                                 <li><a href="#mvt-running-flags-defconf">-default_config</a></li>
                                 <li><a href="#mvt-running-flags-root">-runasroot</a></li>
@@ -581,8 +582,17 @@
                         </div>
                         <p>If you want to see all communicates, including debug ones, use level debug. If you don't want to see anything, use level quiet.</p>
                     </article>
+                    <article id="mvt-running-flags-version">
+                        <h3>4.2.2. -version</h3>
+                        <p><b>NOTE:</b> -v stands for -loglevel, not -version! Remember, that this is FFmpeg-like style :)</p>
+                        <p>This flag is displaying current program version and exits. If it doesn't know, what version is this exactly, it displays <i>v0.0.0-unknown</i></p>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            $ python3 loader.py -version<br><br>v1.5-21-gcc9bdbb<br># Return code: 0
+                        </div>
+                    </article>
                     <article id="mvt-running-flags-config">
-                        <h3>4.2.2. -config</h3>
+                        <h3>4.2.3. -config</h3>
                         <p>In this option, you can specify path to the configuration file. If you keep this option blank, program will search for it in another paths. Here you can see all paths, from the least priority to the most</p>
                         <h4>System-specific paths</h4>
                         <p>Program can try to load config files from those paths (username is your user's name):</p>
@@ -632,7 +642,7 @@
                         <p>-config parameter is the most important. Even, when some file exists in system paths or env variable, -config parameter will always win.</p>
                     </article>
                     <article id="mvt-running-flags-defconf">
-                        <h3>4.2.3. -default_config</h3>
+                        <h3>4.2.4. -default_config</h3>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
                             python3 loader.py -default_config -config &lt;path&gt;
@@ -640,7 +650,7 @@
                         <p>You know this option, because I've mentioned it <a href="#mvt-installation-main">here</a>, but maybe I'll explain it once more: this option is used to generate default config file in path specified in -config parameter. If you have some errors during this step, please go <a href="#mvt-installation-error">here</a>.</p>
                     </article>
                     <article id="mvt-running-flags-root">
-                        <h3>4.2.4. -runasroot</h3>
+                        <h3>4.2.5. -runasroot</h3>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
                             python3 loader.py -runasroot
@@ -649,7 +659,7 @@
                         <p>Normally, program doesn't allow to run as root/administrator. Add this flag to run program despite having those privileges</p>
                     </article>
                     <article id="mvt-running-flags-printf">
-                        <h3>4.2.5. -print_format, -output_format, -of</h3>
+                        <h3>4.2.6. -print_format, -output_format, -of</h3>
                         <p>Possible settings: <i>default, flat, ini, json, xml</i></p>
                         <p>This setting controls printing format. default is the default option. It higly integrates with all -show_* options - it is changing, how informations from those options are displayed.</p>
                         <p><b>NOTE:</b> If you want for this program to integrate with other programs, remember to set -loglevel quiet - -show_* options will be still displayed, but program will hide all logs, keeping only -show_* visible.</p>
@@ -661,7 +671,7 @@
                         <p>Alone, this option is useless, so please see all options with -show_* prefix below</p>
                     </article>
                     <article id="mvt-running-flags-shst">
-                        <h3>4.2.6. -show_statistics</h3>
+                        <h3>4.2.7. -show_statistics</h3>
                         <p>Use this option to print statistics at the end in format specified in -print_format flag. For example, if you want to print statistics in flat format, use:</p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
