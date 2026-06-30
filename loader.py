@@ -19,6 +19,8 @@ import os
 from csv import DictReader, DictWriter, writer
 import ctypes
 from json import dumps
+# Import all program parts
+from tools import *
 # Function to read n last lines without loading whole log file
 def tail(path, n=1):
     if n <= 0:
@@ -97,27 +99,6 @@ def flatten_values(d:dict,parent_key:str="")->dict:
 	return result
 # Function to escape " and ' in strings
 def escape_flat(s:str)->str:return(str(s).replace("\\","\\\\").replace('"','\\"').replace("'","\\'"))
-# Class to manage return codes
-class ReturnCodes:
-    def __init__(self):
-        self.EX_CANTCREAT=getattr(os,"EX_CANTCREAT",73)
-        self.EX_CONFIG=getattr(os,"EX_CONFIG",78)
-        self.EX_DATAERR=getattr(os,"EX_DATAERR",65)
-        self.EX_IOERR=getattr(os,"EX_IOERR",74)
-        self.EX_NOHOST=getattr(os,"EX_NOHOST",68)
-        self.EX_NOINPUT=getattr(os,"EX_NOINPUT",66)
-        self.EX_NOPERM=getattr(os,"EX_NOPERM",77)
-        self.EX_NOUSER=getattr(os,"EX_NOUSER",67)
-        self.EX_OK=getattr(os,"EX_OK",0)
-        self.EX_OSERR=getattr(os,"EX_OSERR",71)
-        self.EX_OSFILE=getattr(os,"EX_OSFILE",72)
-        self.EX_PROTOCOL=getattr(os,"EX_PROTOCOL",76)
-        self.EX_SOFTWARE=getattr(os,"EX_SOFTWARE",70)
-        self.EX_TEMPFAIL=getattr(os,"EX_TEMPFAIL",75)
-        self.EX_UNAVAILABLE=getattr(os,"EX_UNAVAILABLE",69)
-        self.EX_USAGE=getattr(os,"EX_USAGE",64)
-# Initalize ReturnCodes class
-rtn=ReturnCodes()
 # Function to get program version
 def get_version():
     try:
