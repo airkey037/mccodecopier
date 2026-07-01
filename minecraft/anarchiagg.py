@@ -2,8 +2,9 @@
 # Maintainer: AirKeyooo <airkeyooo@gmail.com>
 # File contains AnarchiaGG class that manages... Almost every parsing and logic in this program!
 # Import needed modules
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
+import re
 # Import required elements
 from ._code import Code
 from ._mc_log_integrate import Minecraft
@@ -23,64 +24,59 @@ class AnarchiaGG(Minecraft):
         self.my_wins = 0
         self.last_code = None
         self.last_code_ts = None
-    def read_messages_after_code(self,n=1)->tuple:
+    def read_messages(self,n=1)->tuple:
         lastlines=self.read_raw_messages(n=n)
         lines=[]
         for line in reversed(lastlines):
             lines.append(line)
-            if "Przepisz kod " in line and " aby otrzymać nagrodę!" in line:
+            if re.search(r"Przepisz kod [a-z,A-Z,1-9]{10} aby otrzymać nagrodę!",line.strip()):
                 break
         return tuple(reversed(lines))
-    def get_code(self,n=1)->str:
+    def get_code(self,messages:tuple)->str:
         # Search for code to copy
-        lastlines=self.read_raw_messages(n=n)
-        for l in lastlines:
-            if "Przepisz kod " in l and " aby otrzymać nagrodę!" in l:
-                code = l.split("Przepisz kod ")[1].split(" ")[0]
-                if code not in self.codes:
-                    self.logger.debug(f"Found unknown code: {code}")
-                    self.codes.append(code)
-                    self.last_code = code
-                    self.last_code_ts = datetime.now().astimezone()
-                    self.logger.debug(f"Last code variable is set to {self.last_code}")
-                    self.logger.debug(f"Last code timestamp variable is set to {self.last_code_ts}")
-                    return code
+        codesearch = re.search(r"Przepisz kod ([a-z,A-Z,1-9]{10}) aby otrzymać nagrodę!","\n".join(messages))
+        if codesearch:
+            code = codesearch.group(1)
+            if code not in self.codes:
+                self.logger.debug(f"Found unknown code: {code}")
+                self.codes.append(code)
+                self.last_code = code
+                self.last_code_ts = datetime.now().astimezone()
+                self.logger.debug(f"Last code variable is set to {self.last_code}")
+                self.logger.debug(f"Last code timestamp variable is set to {self.last_code_ts}")
+                return code
         return None
-    def get_winner(self,n=1):
+    def get_winner(self,messages:tuple):
+        # If code wasn't captured, exit immediately
+        if not self.last_code and not self.last_code_ts:
+            return None
         # Search for winner info to save it
-        lastlines=self.read_messages_after_code(n=n)
-        for l in lastlines:
-            if "Gracz " in l and " jako pierwszy przepisał kod w czasie " in l and "s i otrzymał(a) 3 Klucze AFK!" in l and self.last_code and self.last_code_ts:
-                splitted = l.split(" jako pierwszy przepisał kod w czasie ")
-                player = splitted[0].split("Gracz ")[1]
-                time = float(splitted[1].split(" ")[0].replace("s",""))
-                self.logger.debug(f"Found new winner info! Player: {player}; Time: {time}")
-                infoobj = Code(self.last_code,self.last_code_ts,player,time,self.nicknames)
-                self.logger.debug(f"Loaded last code variable: {self.last_code}")
-                self.logger.debug(f"Loaded last code timestamp variable: {self.last_code_ts}")
-                self.last_code = None
-                self.last_code_ts = None
-                self.logger.debug("Both values set to None")
-                if infoobj not in self.wins:
-                    self.wins.append(infoobj)
-                    if infoobj.isitme:
-                        self.my_wins += 1
-                        self.logger.debug("Sender is classified as me, incrementing my_wins counter")
-                    return infoobj
+        winnersearch = re.search(r"Gracz (.+) jako pierwszy przepisał kod w czasie (\d.\d{2})s i otrzymał\(a\) 3 Klucze AFK!","\n".join(messages))
+        if winnersearch:
+            player = winnersearch.group(1)
+            time = float(winnersearch.group(2))
+            self.logger.debug(f"Found new winner info! Player: {player}; Time: {time}")
+            infoobj = Code(self.last_code,self.last_code_ts,player,time,self.nicknames)
+            self.logger.debug(f"Loaded last code variable: {self.last_code}")
+            self.logger.debug(f"Loaded last code timestamp variable: {self.last_code_ts}")
+            self.last_code = None
+            self.last_code_ts = None
+            self.logger.debug("Both values set to None")
+            if infoobj not in self.wins:
+                self.wins.append(infoobj)
+                if infoobj.isitme:
+                    self.my_wins += 1
+                    self.logger.debug("Sender is classified as me, incrementing my_wins counter")
+                return infoobj
         return None
     def predict_next_code(self):
         # Predict, when next code will appear
-        if len(self.wins) < 2:
-            self.logger.debug(f"Not enough codes in memory to predict next's appear time. Function needs at least 2, but {len(self.wins)} is available")
+        if len(self.wins) < 1:
             return None
         self.logger.debug("Predicting next code appear time")
         last_code=self.wins[-1].tsobj
         self.logger.debug(f"Date from last code: {last_code}")
-        timediff=last_code-self.wins[-2].tsobj
-        self.logger.debug(f"Time difference between last and second last code: {timediff}")
-        time_since_last_code=datetime.now().astimezone()-last_code
-        self.logger.debug(f"Time since last code: {time_since_last_code}")
-        predicted_time=timediff-time_since_last_code
+        predicted_time=last_code+timedelta(minutes=30)
         self.logger.debug(f"Predicted time to next code: {predicted_time}")
         return predicted_time.total_seconds()
     def get_stats(self)->dict:

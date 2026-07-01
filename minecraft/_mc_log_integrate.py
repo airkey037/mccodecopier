@@ -3,6 +3,7 @@
 # File contains Minecraft class that can read some information from Minecraft through latest.log file
 # Import needed modules
 from pathlib import Path
+import re
 # Import needed tools
 from tools import tail
 # Class to parse info from latest.log file
@@ -20,14 +21,10 @@ class Minecraft:
     def is_mc_running(self)->bool:
         # Check is Minecraft running by checking log
         lastlines = tail(self.logfile,n=5)
-        return not " [Render thread/INFO]: Stopping!" in "".join(lastlines)
+        return not re.search(r"\[\d{2}:\d{2}:\d{2}\] \[Render thread/INFO\]: Stopping!","\n".join(lastlines))
     def read_raw_messages(self,n=1)->tuple:
         # Read only messages from chat and remove all log-like formatting
         if not self.is_mc_running():
             return tuple()
-        messages = []
         lastmsgs=tail(path=self.logfile,n=n)
-        for msg in lastmsgs:
-            if " [System] [CHAT] " in msg:
-                messages.append(msg.split(" [System] [CHAT] ")[1])
-        return tuple(messages)
+        return tuple(re.findall(r"\[\d{2}:\d{2}:\d{2}\] \[Render thread/INFO\]: \[System\] \[CHAT\] (.+)","\n".join(lastmsgs)))
