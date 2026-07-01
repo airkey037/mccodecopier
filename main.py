@@ -29,15 +29,16 @@ def get_version():
     from subprocess import check_output as subcheckout, CalledProcessError, DEVNULL as subdevnull
     try:
         version=subcheckout(["git","describe","--tags","--always"],stderr=subdevnull).decode("utf-8").strip()
-        return version
+        commit_hash=subcheckout(["git","rev-parse","HEAD"],stderr=subdevnull).decode("utf-8").strip()
+        return version, commit_hash
     except (CalledProcessError,FileNotFoundError):
         pass
     try:
-        from version import __version__
-        return __version__
+        from version import __version__, COMMIT_HASH
+        return __version__, COMMIT_HASH
     except ImportError:
         pass
-    return "v0.0.0-unknown"
+    return "v0.0.0-unknown", "UNKNOWN"
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
@@ -270,12 +271,14 @@ def main(args):
     if print_additional_info:
         logger.debug("Printing")
         output=printcl.parse()
+        if args.report:
+            file_handler.writeline("PRINT BEGINNING\n"+output+"\nPRINT ENDING")
         print(output,file=stdout)
     logger.info("Program finished job")
 # Run whole program if this code is not imported
 if __name__=="__main__":
     # Get version
-    __version__=get_version()
+    __version__,COMMIT_HASH=get_version()
     # Initalize argument parser
     parser = ArgumentParser(description="MC Code Copier is listening for reward codes (In Anarchia.GG's OneBlock) in the chat, copies it to clipboard and stores it")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
@@ -311,7 +314,7 @@ if __name__=="__main__":
         root_logger.addHandler(file_handler)
         # Add system informations to log file
         information = system_info()
-        file_handler.writeline(f"MC Code Copier Reloaded\nCommand line: {os.getenv("_","python3")} {" ".join(information["Command line"])}\nSystem information:")
+        file_handler.writeline(f"MC Code Copier Reloaded\nProgram version: {__version__}\nLast commit hash: {COMMIT_HASH}\nCommand line: {os.getenv("_","python3")} {" ".join(information["Command line"])}\nSystem information:")
         for k, v in information.items():
             if isinstance(v,dict):
                 file_handler.writeline(f"+ {k}:")
