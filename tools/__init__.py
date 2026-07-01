@@ -6,6 +6,7 @@ from .return_codes import ReturnCodes
 from .dict_operations import flatten_dict, flatten_values
 from .tail import tail
 from .split_log_stream import StreamSplitHandler
+from .log_report_file import ReportFileHandler
 # Define rtn object
 rtn = ReturnCodes()
 # Define all imported parts

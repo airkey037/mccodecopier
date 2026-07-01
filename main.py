@@ -316,4 +316,15 @@ def main():
         print(output,file=stdout)
     logger.info("Program finished job")
 if __name__=="__main__":
-    main()
+    try:
+        main()
+    except SystemExit as e:
+        returncode = e.code
+        if returncode is None:
+            returncode = 0
+        elif isinstance(returncode,str):
+            # Add string to file
+            returncode = 1
+    finally:
+        # Save to file
+        exit(returncode)
