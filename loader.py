@@ -59,16 +59,23 @@ def main():
     if args.version:
         print(__version__)
         exit(rtn.EX_OK)
-    if args.loglevel == "debug":
-        logger_format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
-        logger_global_lvl=logging.DEBUG
-    else:
-        logger_format="[%(asctime)s] [%(levelname)s] %(message)s"
-        logger_global_lvl=logging.CRITICAL+1
-    # Initalize logger
-    logging.basicConfig(level=logger_global_lvl,stream=stdout,format=logger_format)
+    # Define root logger with lowest possible level
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    # Add primary program logger with __name__
     logger = logging.getLogger(__name__)
-    logger.setLevel(LOGLVLS[args.loglevel])
+    # Find used level's number
+    used_loglevel = LOGLVLS.get(args.loglevel,logging.INFO)
+    # Define some formatters
+    advanced_formatter = logging.Formatter("[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s")
+    basic_formatter = logging.Formatter("[%(levelname)s] %(message)s")
+    # Add console handler using StreamSplitHandler from tools/split_log_stream.py
+    console_handler = StreamSplitHandler()
+    console_handler.setLevel(used_loglevel)
+    console_handler.setFormatter(advanced_formatter if used_loglevel == logging.DEBUG else basic_formatter)
+    # Add handler(s) to root logger
+    root_logger.addHandler(console_handler)
+    # Show init message and version
     logger.info("Anarchia.GG Code Copier started")
     logger.info(f"Version: {__version__}")
     # Check program privileges
