@@ -1,6 +1,6 @@
 # A part of MC Code Copier Reloaded
 # Maintainer: AirKeyooo <airkeyooo@gmail.com>
-# File contains CSV class that saves winner info to CSV
+# File contains MySQL class that saves data to MySQL/MariaDB
 # Import needed modules
 import logging
 # Class to save codes data to MySQL/MariaDB
