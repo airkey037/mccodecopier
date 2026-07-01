@@ -204,7 +204,8 @@ def main(args):
         # Get tick start time
         stime = time()
         # Try to load code and winner info
-        code = chat.get_code(n=linestoread)
+        messages = chat.read_messages(n=config.read_lines)
+        code = chat.get_code(messages)
         # If code has appeared...
         if code:
             # Process, copy and display info about it
@@ -221,7 +222,7 @@ def main(args):
             if sendnf:
                 notifications.send_notification("Code appeared",sendtxt)
         else:
-            winner = chat.get_winner(n=linestoread)
+            winner = chat.get_winner(messages)
             if winner:
                 # Process and save winner info
                 logger.info(winner.to_msg())
