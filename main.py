@@ -49,6 +49,7 @@ def main():
     # Initalize argument parser
     parser = ArgumentParser(description="MC Code Copier is listening for reward codes (In Anarchia.GG's OneBlock) in the chat, copies it to clipboard and stores it")
     parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
+    parser.add_argument("-report",action="store_true",help="Create log file with all debugging informations")
     parser.add_argument("-version",action="store_true",help="Display current program version")
     parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file")
     parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path")
@@ -69,11 +70,20 @@ def main():
     # Define some formatters
     advanced_formatter = logging.Formatter("[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s")
     basic_formatter = logging.Formatter("[%(levelname)s] %(message)s")
+    # If -report flag was given, open FileHandler
+    if args.report:
+        from tools import ReportFileHandler
+        # Define file handler
+        file_handler = ReportFileHandler(filename=datetime.now().astimezone().strftime("codecopier-%Y%m%d-%H%M%S.log"),mode="w",encoding="utf-8")
+        file_handler.setFormatter(advanced_formatter)
+        file_handler.setLevel(logging.DEBUG)
+        # Add file handler to root logger
+        root_logger.addHandler(file_handler)
     # Add console handler using StreamSplitHandler from tools/split_log_stream.py
     console_handler = StreamSplitHandler()
     console_handler.setLevel(used_loglevel)
     console_handler.setFormatter(advanced_formatter if used_loglevel == logging.DEBUG else basic_formatter)
-    # Add handler(s) to root logger
+    # Add console handler to root logger
     root_logger.addHandler(console_handler)
     # Show init message and version
     logger.info("Anarchia.GG Code Copier started")
@@ -317,14 +327,18 @@ def main():
     logger.info("Program finished job")
 if __name__=="__main__":
     try:
+        returncode = 0
         main()
     except SystemExit as e:
         returncode = e.code
         if returncode is None:
             returncode = 0
         elif isinstance(returncode,str):
-            # Add string to file
+            # Add f"Return message: {returncode}" to file
             returncode = 1
+    except Exception as e:
+        # Add f"{e.__class__.__name__}: {e}" to file
+        returncode = 1
     finally:
-        # Save to file
+        # Add f"Return code: {returncode}" to file
         exit(returncode)
