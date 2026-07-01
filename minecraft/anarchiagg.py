@@ -2,7 +2,7 @@
 # Maintainer: AirKeyooo <airkeyooo@gmail.com>
 # File contains AnarchiaGG class that manages... Almost every parsing and logic in this program!
 # Import needed modules
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import re
 # Import required elements
@@ -47,9 +47,12 @@ class AnarchiaGG(Minecraft):
                 return code
         return None
     def get_winner(self,messages:tuple):
+        # If code wasn't captured, exit immediately
+        if not self.last_code and not self.last_code_ts:
+            return None
         # Search for winner info to save it
         winnersearch = re.search(r"Gracz (.+) jako pierwszy przepisał kod w czasie (\d.\d{2})s i otrzymał\(a\) 3 Klucze AFK!","\n".join(messages))
-        if winnersearch and self.last_code and self.last_code_ts:
+        if winnersearch:
             player = winnersearch.group(1)
             time = float(winnersearch.group(2))
             self.logger.debug(f"Found new winner info! Player: {player}; Time: {time}")
@@ -68,17 +71,12 @@ class AnarchiaGG(Minecraft):
         return None
     def predict_next_code(self):
         # Predict, when next code will appear
-        if len(self.wins) < 2:
-            self.logger.debug(f"Not enough codes in memory to predict next's appear time. Function needs at least 2, but {len(self.wins)} is available")
+        if len(self.wins) < 1:
             return None
         self.logger.debug("Predicting next code appear time")
         last_code=self.wins[-1].tsobj
         self.logger.debug(f"Date from last code: {last_code}")
-        timediff=last_code-self.wins[-2].tsobj
-        self.logger.debug(f"Time difference between last and second last code: {timediff}")
-        time_since_last_code=datetime.now().astimezone()-last_code
-        self.logger.debug(f"Time since last code: {time_since_last_code}")
-        predicted_time=timediff-time_since_last_code
+        predicted_time=last_code+timedelta(minutes=30)
         self.logger.debug(f"Predicted time to next code: {predicted_time}")
         return predicted_time.total_seconds()
     def get_stats(self)->dict:
