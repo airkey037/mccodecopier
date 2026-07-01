@@ -29,66 +29,24 @@ def get_version():
     from subprocess import check_output as subcheckout, CalledProcessError, DEVNULL as subdevnull
     try:
         version=subcheckout(["git","describe","--tags","--always"],stderr=subdevnull).decode("utf-8").strip()
-        return version
+        commit_hash=subcheckout(["git","rev-parse","HEAD"],stderr=subdevnull).decode("utf-8").strip()
+        return version, commit_hash
     except (CalledProcessError,FileNotFoundError):
         pass
     try:
-        from version import __version__
-        return __version__
+        from version import __version__, COMMIT_HASH
+        return __version__, COMMIT_HASH
     except ImportError:
         pass
-    return "v0.0.0-unknown"
+    return "v0.0.0-unknown", "UNKNOWN"
 # Match log level names with log levels
 LOGLVLS={"quiet":logging.CRITICAL+1,"critical":logging.CRITICAL,"error":logging.ERROR,"warning":logging.WARNING,"info":logging.INFO,"verbose":logging.INFO,"debug":logging.DEBUG}
 # Main function contains all code that should be executed when this program is NOT IMPORTED
-def main():
+def main(args):
+    # Define function-level logger
+    logger=logging.getLogger(f"{__name__}.{main.__name__}")
     # Save start time
     start_time = datetime.now()
-    # Get version
-    __version__=get_version()
-    # Initalize argument parser
-    parser = ArgumentParser(description="MC Code Copier is listening for reward codes (In Anarchia.GG's OneBlock) in the chat, copies it to clipboard and stores it")
-    parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
-    parser.add_argument("-version",action="store_true",help="Display current program version")
-    parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file")
-    parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path")
-    parser.add_argument("-runasroot",action="store_true",help="Make possible for program to run as root")
-    parser.add_argument("-print_format","-output_format","-of",help="Choose output printing format",default="default",choices=("default","flat","ini","json","xml"),type=str)
-    parser.add_argument("-show_statistics",action="store_true",help="Print statistics using format specified in -print_format option")
-    args = parser.parse_args()
-    if args.version:
-        print(__version__)
-        exit(rtn.EX_OK)
-    # Define root logger with lowest possible level
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)
-    # Add primary program logger with __name__
-    logger = logging.getLogger(__name__)
-    # Find used level's number
-    used_loglevel = LOGLVLS.get(args.loglevel,logging.INFO)
-    # Define some formatters
-    advanced_formatter = logging.Formatter("[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s")
-    basic_formatter = logging.Formatter("[%(levelname)s] %(message)s")
-    # Add console handler using StreamSplitHandler from tools/split_log_stream.py
-    console_handler = StreamSplitHandler()
-    console_handler.setLevel(used_loglevel)
-    console_handler.setFormatter(advanced_formatter if used_loglevel == logging.DEBUG else basic_formatter)
-    # Add handler(s) to root logger
-    root_logger.addHandler(console_handler)
-    # Show init message and version
-    logger.info("Anarchia.GG Code Copier started")
-    logger.info(f"Version: {__version__}")
-    # Check program privileges
-    logger.debug("Checking program privileges")
-    amirooted=is_root()
-    if amirooted:
-        if args.runasroot:
-            logger.critical("Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it.")
-        else:
-            logger.critical("Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it. Run it as a normal user! But if you really want to continue (VERY UNRECOMMENDED), add -runasroot flag (but keep in mind that you are doing it for YOUR OWN RESPONSIBILITY!!)")
-            exit(1)
-    else:
-        logger.debug("Program is not running as root/admin, continuing safely")
     # Initalize Config class
     try:
         logger.debug("Trying to initalize config class")
@@ -110,7 +68,7 @@ def main():
         logger.error(e)
         exit(rtn.EX_DATAERR)
     except Exception as e:
-        logger.debug(f"Program error: {e}")
+        logger.debug(f"Program error: {e.__class__.__name__}: {e}")
         logger.critical("Internal app error!")
         exit(rtn.EX_SOFTWARE)
     # Initalize Printing class
@@ -125,7 +83,7 @@ def main():
         logger.error(e.args[0])
         exit(rtn.EX_USAGE)
     except Exception as e:
-        logger.debug(f"Program error: {e}")
+        logger.debug(f"Program error: {e.__class__.__name__}: {e}")
         logger.critical("Internal app error!")
         exit(rtn.EX_SOFTWARE)
     # Create an object to manage chat reading
@@ -142,7 +100,7 @@ def main():
         logger.error(e)
         exit(rtn.EX_NOPERM)
     except Exception as e:
-        logger.debug(f"Program error: {e}")
+        logger.debug(f"Program error: {e.__class__.__name__}: {e}")
         logger.critical("Internal app error!")
         exit(rtn.EX_SOFTWARE)
     # Define some variables
@@ -174,7 +132,7 @@ def main():
         logger.error(e)
         exit(rtn.EX_UNAVAILABLE)
     except Exception as e:
-        logger.debug(f"Program error: {e}")
+        logger.debug(f"Program error: {e.__class__.__name__}: {e}")
         logger.critical("Internal app error!")
         exit(rtn.EX_SOFTWARE)
     # Initalize CodeCopy class
@@ -188,7 +146,7 @@ def main():
         logger.error(e)
         exit(rtn.EX_UNAVAILABLE)
     except Exception as e:
-        logger.debug(f"Program error: {e}")
+        logger.debug(f"Program error: {e.__class__.__name__}: {e}")
         logger.critical("Internal app error!")
         exit(rtn.EX_SOFTWARE)
     # Initalize CSV class
@@ -205,7 +163,7 @@ def main():
         logger.error(e)
         exit(rtn.EX_OSFILE)
     except Exception as e:
-        logger.debug(f"Program error: {e}")
+        logger.debug(f"Program error: {e.__class__.__name__}: {e}")
         logger.critical("Internal app error!")
         exit(rtn.EX_SOFTWARE)
     # Initalize MySQL class
@@ -237,7 +195,7 @@ def main():
         logger.error(f"Internal MySQL error: {rerr}")
         exit(rtn.EX_SOFTWARE)
     except Exception as e:
-        logger.debug(f"Program error: {e}")
+        logger.debug(f"Program error: {e.__class__.__name__}: {e}")
         logger.critical("Internal app error!")
         exit(rtn.EX_SOFTWARE)
     # Start main loop
@@ -275,7 +233,7 @@ def main():
                     except RuntimeError as e:
                         logger.warning(f"Code info wasn't saved to MySQL. MySQL error: {e}")
                     except Exception as e:
-                        logger.debug(f"Program error: {e}")
+                        logger.debug(f"Program error: {e.__class__.__name__}: {e}")
                         logger.critical("Internal app error!")
                         exit(rtn.EX_SOFTWARE)
                 if config.predict_next_code:
@@ -313,7 +271,103 @@ def main():
     if print_additional_info:
         logger.debug("Printing")
         output=printcl.parse()
+        if args.report:
+            file_handler.writeline("PRINT BEGINNING\n"+output+"\nPRINT ENDING")
         print(output,file=stdout)
     logger.info("Program finished job")
+# Run whole program if this code is not imported
 if __name__=="__main__":
-    main()
+    # Get version
+    __version__,COMMIT_HASH=get_version()
+    # Initalize argument parser
+    parser = ArgumentParser(description="MC Code Copier is listening for reward codes (In Anarchia.GG's OneBlock) in the chat, copies it to clipboard and stores it")
+    parser.add_argument("-loglevel","-v",choices=LOGLVLS.keys(),default="info",help="Logging level")
+    parser.add_argument("-report",action="store_true",help="Create log file with all debugging informations")
+    parser.add_argument("-version",action="store_true",help="Display current program version")
+    parser.add_argument("-config",type=str,default="config.yml",help="Path to configuration file")
+    parser.add_argument("-default_config",action="store_true",help="After specifying this flag, program will create default configuration file in pointed path")
+    parser.add_argument("-runasroot",action="store_true",help="Make possible for program to run as root")
+    parser.add_argument("-print_format","-output_format","-of",help="Choose output printing format",default="default",choices=("default","flat","ini","json","xml"),type=str)
+    parser.add_argument("-show_statistics",action="store_true",help="Print statistics using format specified in -print_format option")
+    args = parser.parse_args()
+    if args.version:
+        print(__version__)
+        exit(rtn.EX_OK)
+    # Define root logger with lowest possible level
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    # Add primary program logger with __name__
+    logger = logging.getLogger(__name__)
+    # Find used level's number
+    used_loglevel = LOGLVLS.get(args.loglevel,logging.INFO)
+    # Define some formatters
+    advanced_formatter = logging.Formatter("[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s")
+    basic_formatter = logging.Formatter("[%(levelname)s] %(message)s")
+    # If -report flag was given, open FileHandler
+    if args.report:
+        from tools import ReportFileHandler, system_info
+        # Define file handler
+        file_handler = ReportFileHandler(filename=datetime.now().astimezone().strftime("codecopier-%Y%m%d-%H%M%S.log"),mode="w",encoding="utf-8")
+        file_handler.setFormatter(advanced_formatter)
+        file_handler.setLevel(logging.DEBUG)
+        # Add file handler to root logger
+        root_logger.addHandler(file_handler)
+        # Add system informations to log file
+        information = system_info()
+        file_handler.writeline(f"MC Code Copier Reloaded\nProgram version: {__version__}\nLast commit hash: {COMMIT_HASH}\nCommand line: {os.getenv("_","python3")} {" ".join(information["Command line"])}\nSystem information:")
+        for k, v in information.items():
+            if isinstance(v,dict):
+                file_handler.writeline(f"+ {k}:")
+                for key, value in v.items():
+                    file_handler.writeline(f"|   {key} -> {value}")
+            elif type(v)is list or type(v) is tuple:
+                file_handler.writeline(f"+ {k}:")
+                for element in v:
+                    file_handler.writeline(f"|   {element}")
+            else:
+                file_handler.writeline(f"+ {k} -> {v}")
+        file_handler.writeline("Arguments:")
+        for arg in dir(args):
+            if not arg.startswith("_"):
+                file_handler.writeline(f"+ {arg} -> {getattr(args,arg)}")
+    # Add console handler using StreamSplitHandler from tools/split_log_stream.py
+    console_handler = StreamSplitHandler()
+    console_handler.setLevel(used_loglevel)
+    console_handler.setFormatter(advanced_formatter if used_loglevel == logging.DEBUG else basic_formatter)
+    # Add console handler to root logger
+    root_logger.addHandler(console_handler)
+    # Show init message and version
+    logger.info("Anarchia.GG Code Copier started")
+    logger.info(f"Version: {__version__}")
+    # Check program privileges
+    logger.debug("Checking program privileges")
+    amirooted=is_root()
+    if amirooted:
+        if args.runasroot:
+            logger.critical("Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it.")
+        else:
+            logger.critical("Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it. Run it as a normal user! But if you really want to continue (VERY UNRECOMMENDED), add -runasroot flag (but keep in mind that you are doing it for YOUR OWN RESPONSIBILITY!!)")
+            exit(rtn.EX_ERROR)
+    else:
+        logger.debug("Program is not running as root/admin, continuing safely")
+    try:
+        returncode = 0
+        logger.debug("Starting function main()")
+        main(args=args)
+        logger.debug("Function main() finished")
+    except SystemExit as e:
+        returncode = e.code
+        if returncode is None:
+            returncode = 0
+        elif isinstance(returncode,str):
+            if args.report:
+                file_handler.writeline(f"Program ended with message: {returncode}")
+            returncode = 1
+    except Exception as e:
+        logger.debug(f"Program error: {e.__class__.__name__}: {e}")
+        logger.critical("Internal app error!")
+        returncode = 70
+    finally:
+        if args.report:
+            file_handler.writeline(f"Return code: {returncode}")
+        exit(returncode)

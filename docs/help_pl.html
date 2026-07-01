@@ -201,6 +201,7 @@
                         <li><a href="#mvt-running-flags">Flagi</a>
                             <ol>
                                 <li><a href="#mvt-running-flags-loglevel">-loglevel</a></li>
+                                <li><a href="#mvt-running-flags-report">-report</a></li>
                                 <li><a href="#mvt-running-flags-version">-version</a></li>
                                 <li><a href="#mvt-running-flags-config">-config</a></li>
                                 <li><a href="#mvt-running-flags-defconf">-default_config</a></li>
@@ -366,12 +367,12 @@
                     <p><b>INFORMACJA:</b> Gdy nie podasz parametru -config, domyślny plik konfiguracyjny zostanie wygenerowany w obecnym folderze w pliku <i>config.yml</i></p>
                     <div class="codepreview">
                         <div class="codefilename">PowerShell / Bash</div>
-                        python3 loader.py -default_config -config &lt;ścieżka do pliku konfiguracyjnego&gt;
+                        python3 main.py -default_config -config &lt;ścieżka do pliku konfiguracyjnego&gt;
                     </div>
                     <p>Po uruchomieniu tej komendy, nowy i czysty plik konfiguracyjny ze wszystkimi komentarzami powinien zostać wygenerowany. W terminalu powinieneś zobaczyć coś takiego:</p>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-26 19:21:10,197] [INFO] Anarchia.GG Code Copier started<br>[2026-06-26 19:21:10,197] [INFO] Default config file was created successfully<br><i># Kod wyjścia: 0</i>
+                        [INFO] Anarchia.GG Code Copier started<br>[INFO] Default config file was created successfully<br><i># Kod wyjścia: 0</i>
                     </div>
                     <p>Ten komunikat oznacza, że wszystko zostało zrobione pomyślnie. Teraz możesz prześć <a href="#mvt-config">tutaj</a>. Ale jeśli napotkałeś jakieś błędy, przejdź do sekcji poniżej, aby je naprawić</p>
                 </article>
@@ -381,13 +382,13 @@
                     <h4>1. Plik konfiguracyjny już istnieje</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-26 19:20:57,654] [ERROR] Config file already exists!<br><i># Kod wyjścia: 73</i>
+                        [ERROR] Config file already exists!<br><i># Kod wyjścia: 73</i>
                     </div>
                     <p>Gdy otrzymasz tą wiadomość, to oznacza, że jakiś plik istnieje już pod ścieżką podaną we fladze -config. Aby to rozwiązać, po prostu ustaw/zmień ten parametr, aby wskazywał na jeszcze nieistniejącą ścieżkę.</p>
                     <h4>2. Brak uprawnień</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-26 19:38:46,557] [ERROR] Can't save file in &lt;ścieżka&gt;: Permission Denied<br><i># Kod wyjścia: 77</i>
+                        [ERROR] Can't save file in &lt;ścieżka&gt;: Permission Denied<br><i># Kod wyjścia: 77</i>
                     </div>
                     <p>Gdy otrzymasz ten komunikat, to oznacza, że próbujesz zapisać plik konfiguracyjny tam, gdzie nie masz uprawnień do zapisania go. Aby rozwiązać ten problem, po prostu zmień ścieżkę we fladze -config na ścieżkę, gdzie możesz zapisywać pliki.</p>
                 </article>
@@ -541,17 +542,17 @@
                     <p>Aby uruchomić program z podstawowymi opcjami, nie potrzebujesz żadnych zaawansowanych flag. Wpisz komendę poniżej:</p>
                     <div class="codepreview">
                         <div class="codefilename">PowerShell / Bash</div>
-                        python3 loader.py -config &lt;ścieżka pliku konfiguracyjnego&gt;
+                        python3 main.py -config &lt;ścieżka pliku konfiguracyjnego&gt;
                     </div>
                     <p>Po uruchomieniu tej komendy powinieneś w konsoli zobaczyć coś takiego:</p>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-29 17:40:56,905] [INFO] Anarchia.GG Code Copier started<br>[2026-06-29 17:40:57,066] [INFO] Started listening
+                        [INFO] Anarchia.GG Code Copier started<br>[INFO] Started listening
                     </div>
                     <p>To oznacza, że program uruchomił się poprawnie i wszystko jest OK. I, w sumie, to wszystko! Program już działa i nasłuchuje w poszukiwaniu nowych kodów. Aby go zatrzymać, wciśnij Ctrl+C (SIGINT - sygnał 2), lub - jeżeli jesteś na Linuxie - możesz wysłać SIGTERM (sygnał 15) lub SIGHUP (sygnał 1) - program obsłuży je poprawnie. Po zatrzymaniu, w konsoli pojawi się coś takiego:</p>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-29 17:40:58,628] [INFO] Received SIGINT, QUITTING!<br>[2026-06-29 17:40:58,868] [INFO] ### STATISTICS ###<br>[2026-06-29 17:40:58,868] [INFO] Total runtime: 0:00:01.969867<br>[2026-06-29 17:40:58,868] [INFO] Total codes captured: 0<br>[2026-06-29 17:40:58,868] [INFO] Codes re-writed by me: 0<br>[2026-06-29 17:40:58,868] [INFO] Keys received by me: 0<br>[2026-06-29 17:40:58,868] [INFO] My wins percentage: 0%<br>[2026-06-29 17:40:58,868] [INFO] Program finished job
+                        [INFO] Received SIGINT, QUITTING!<br>[INFO] ### STATISTICS ###<br>[INFO] Total runtime: 0:00:01.969867<br>[INFO] Total codes captured: 0<br>[INFO] Codes re-writed by me: 0<br>[INFO] Keys received by me: 0<br>[INFO] My wins percentage: 0%<br>[INFO] Program finished job
                     </div>
                     <p>Program na końcu zawsze wyświetla statystyki. W nich możesz znaleść m.in.:</p>
                     <ul>
@@ -568,7 +569,7 @@
                     <p>Program ma różne flagi, które mogą zmieniać jego zachowanie. Aby je zobaczyć, uruchom program z flagą -help:</p>
                     <div class="codepreview">
                         <div class="codefilename">PowerShell / Bash</div>
-                        python3 loader.py -help
+                        python3 main.py -help
                     </div>
                     <p>Poniżej możesz znaleźć listę i opis wszystkich możliwych flag, jakie program wspiera:</p>
                     <article id="mvt-running-flags-loglevel">
@@ -577,21 +578,30 @@
                         <p>To ustawienie kontroluje, ile informacji program wyświetla na wyjściu. info to domyślny poziom. Na przykład, jeśli chcesz widzieć tylko błędy, uruchom:</p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -loglevel error
+                            python3 main.py -loglevel error
                         </div>
                         <p>Jeżeli chcesz widzieć wszystkie komunikaty (włącznie z komunikatami diagnostycznymi), użyj poziomu debug. Jeśli nie chcesz widzieć niczego, użyj poziomu quiet.</p>
                     </article>
+                    <article id="mvt-running-flags-report">
+                        <h3>4.2.2. -report</h3>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 main.py -report
+                        </div>
+                        <p>Ta flaga tworzy w obecnym folderze bardzo szczegółowy plik logów o nazwie <i>codecopier-YYYYMMDD-HHMMSS.log</i>. Ten plik jest używany w głębokiej diagnostyce i przy rozwiązywaniu błędów.</p>
+                        <p><b>INFORMACJA:</b> Niestety, obecnie program nie ma opcji ustawienia tego parametru w zmiennej środowiskowej w stylu <i>FFREPORT</i>, ale możliwe, że dodam tą funkcję w przyszłych aktualizacjach.</p>
+                    </article>
                     <article id="mvt-running-flags-version">
-                        <h3>4.2.2. -version</h3>
+                        <h3>4.2.3. -version</h3>
                         <p><b>INFORMACJA:</b> -v odpowiada opcji -loglevel, a nie -version! Pamiętaj, że program wzoruje się stylem FFmpeg :)</p>
                         <p>Ta flaga wyświetla obecną wersję programu i wychodzi. Gdy wersja nie jest znana, wyświetla <i>v0.0.0-unknown</i></p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            $ python3 loader.py -version<br><br>v1.5-21-gcc9bdbb<br># Kod wyjścia: 0
+                            $ python3 main.py -version<br><br>v1.5-21-gcc9bdbb<br># Kod wyjścia: 0
                         </div>
                     </article>
                     <article id="mvt-running-flags-config">
-                        <h3>4.2.3. -config</h3>
+                        <h3>4.2.4. -config</h3>
                         <p>Używając tej opcji, możesz wskazać programowi ścieżkę do pliku konfiguracyjnego. Jeśli pozostawisz tą opcję pustą, program przeszuka inne ścieżki. Poniżej możesz zobaczyć wszystkie ścieżki, od tych z najniższym priorytetem, do tych z najwyższym.</p>
                         <h4>Ścieżki zależne od systemu</h4>
                         <p>Program spróbuje wczytać plik konfiguracyjny z tych ścieżek (username to twoja nazwa użytkownika):</p>
@@ -641,40 +651,40 @@
                         <p>Parametr -config jest najważniejszym ustawieniem. Nawet, jeżeli w ścieżkach systemowych lub w zmiennej środowiskowej jakiś plik będzie istniał, i tak to parametr -config zdecyduje o tym, skąd program weźmie konfiugrację.</p>
                     </article>
                     <article id="mvt-running-flags-defconf">
-                        <h3>4.2.4. -default_config</h3>
+                        <h3>4.2.5. -default_config</h3>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -default_config -config &lt;ścieżka&gt;
+                            python3 main.py -default_config -config &lt;ścieżka&gt;
                         </div>
                         <p>Znasz tą opcję, ponieważ już o niej wspomniałem <a href="#mvt-installation-main">tutaj</a>, ale może wspomnę o tym jeszcze raz: ta opcja służy do wygenerowania domyślnego pliku konfiguracyjnego w lokalizacji sprecyzowanej w parametrze -config. Jeżeli podczas tego kroku wystąpiłyby jakieś błędy, przejdź <a href="#mvt-installation-error">tutaj</a>.</p>
                     </article>
                     <article id="mvt-running-flags-root">
-                        <h3>4.2.5. -runasroot</h3>
+                        <h3>4.2.6. -runasroot</h3>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -runasroot
+                            python3 main.py -runasroot
                         </div>
                         <p><b>UWAGA!!!</b> Należy unikać używania tej opcji przez uruchamianie programu jako zwykły użytkownik! Pamiętaj, że używasz tej opcji na swoją własną odpowiedzialność!</p>
                         <p>Normalnie, program nie pozwala na uruchomienie go z uprawnieniami roota/administratora. Dodaj tą flagę, aby uruchomić program pomimo tych uprawnień.</p>
                     </article>
                     <article id="mvt-running-flags-printf">
-                        <h3>4.2.6. -print_format, -output_format, -of</h3>
+                        <h3>4.2.7. -print_format, -output_format, -of</h3>
                         <p>Możliwe ustawienia: <i>default, flat, ini, json, xml</i></p>
                         <p>To ustawienie kontroluje wyświetlany format. default jest domyślną opcją. To ustawienie mocno integruje się z opcjami -show_* - zmienia bowiem ono, jak informacje tam ustawione, będą wyświetlane.</p>
                         <p><b>INFORMACJA:</b> Jeżeli chcesz, aby ten program integrował się z innymi programami, pamiętaj o ustawieniu -loglevel quiet - opcje -show_* będą nadal wyświetlane, ale program ukryje wszystkie logi, pozostawiając jedynie opcje -show_* widoczne.</p>
                         <p>Jeżeli chcesz użyć formatu JSON:</p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -loglevel quiet -print_format json
+                            python3 main.py -loglevel quiet -print_format json
                         </div>
                         <p>Sama ta opcja jest bezużyteczna. Aby jej poprawnie użyć, zobacz dokumentację dla opcji zaczynających się od -show_*, które znajdziesz poniżej.</p>
                     </article>
                     <article id="mvt-running-flags-shst">
-                        <h3>4.2.7. -show_statistics</h3>
+                        <h3>4.2.8. -show_statistics</h3>
                         <p>Użyj tej opcji, aby wyświetlić statystyki na końcu działania programu w formacie ustawionym we fladze -print_format. Na przykład, jeżeli chcesz wyświetlić na końcu statystyki w formacie flat, użyj:</p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -loglevel quiet -print_format flat -show_statistics
+                            python3 main.py -loglevel quiet -print_format flat -show_statistics
                         </div>
                     </article>
                 </article>
@@ -688,21 +698,21 @@
                     <h4>Nieznane argumenty</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        loader.py: error: unrecognized arguments: &lt;argument&gt;<br># Kod wyjścia: 2
+                        main.py: error: unrecognized arguments: &lt;argument&gt;<br># Kod wyjścia: 2
                     </div>
                     <p>Ta wiadomość oznacza, że próbujesz uruchomić program z argumentem, który nie istnieje. Aby to naprawić, sprawdź, czy wszystkie argumenty, których używasz, istnieją. Przejdź <a href="#mvt-running-flags">tutaj</a> aby zobaczyć wszystkie akceptowane argumenty.</p>
                     <hr>
                     <h4>Nieznana opcja</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        loader.py: error: argument &lt;argument&gt;: invalid choice: &lt;opcja&gt; (choose from &lt;możliwe opcje&gt;)<br># Kod wyjścia: 2
+                        main.py: error: argument &lt;argument&gt;: invalid choice: &lt;opcja&gt; (choose from &lt;możliwe opcje&gt;)<br># Kod wyjścia: 2
                     </div>
                     <p>Ta wiadomość oznacza, że w jakimś argumencie próbujesz ustawić niedozwoloną wartość. Przejdź <a href="#mvt-running-flags">tutaj</a> i przeczytaj całą sekcję dotyczącą danej flagi.</p>
                     <hr>
                     <h4>Uruchomienie jako root/administrator</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:30:52,561] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:30:52,561] [CRITICAL] Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it. Run it as a normal user! But if you really want to continue (VERY UNRECOMMENDED), add -runasroot flag (but keep in mind that you are doing it for YOUR OWN RESPONSIBILITY!!)<br># Kod wyjścia: 1
+                        [INFO] Anarchia.GG Code Copier started<br>[CRITICAL] Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it. Run it as a normal user! But if you really want to continue (VERY UNRECOMMENDED), add -runasroot flag (but keep in mind that you are doing it for YOUR OWN RESPONSIBILITY!!)<br># Kod wyjścia: 1
                     </div>
                     <p>Ta wiadomość oznacza, że uruchomiłeś program z uprawnieniami roota/administratora. Możesz to zignorować flagą -runasroot, ale <b>bardzo to odradzam</b>. Jeżeli chcesz przeczytać więcej o tej fladze, przejdź <a href="#mvt-running-flags-root">tutaj</a>.</p>
                 </article>
@@ -719,21 +729,21 @@
                     <h4>Plik konfiguracyjny nie istnieje</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:36:59,141] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:36:59,141] [ERROR] Config file doesn't exist!<br># Kod wyjścia: 66
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Config file doesn't exist!<br># Kod wyjścia: 66
                     </div>
                     <p>Ten błąd oznacza, że plik konfiguracyjny nie istnieje lub ścieżka do niego jest niepoprawna. Aby dowiedzieć się, jak wygenerować domyślny plik konfiguracyjny, przejdź <a href="#mvt-installation-main">tutaj</a>.</p>
                     <hr>
                     <h4>Niepoprawna składnia YAML</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:39:33,190] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:39:33,190] [ERROR] Invalid YAML syntax in config file!<br># Kod wyjścia: 78
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Invalid YAML syntax in config file!<br># Kod wyjścia: 78
                     </div>
                     <p>Ten błąd oznacza, że składnia YAML w pliku konfiguracyjnym jest niepoprawna. Aby to naprawić, upewnij się, że składnia YAML jest poprawna, lub wygeneruj nowy plik konfiguracyjny. Jego składnia będzie zawsze poprawna, więc możesz go wygenerowąć i przepisać wszystkie wartości.</p>
                     <hr>
                     <h4>Wymagane ustawienie w pliku konfiguracyjnym nie istnieje</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:39:33,190] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:39:33,190] [ERROR] &lt;opcja&gt; isn't specified in config file!<br># Kod wyjścia: 78
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] &lt;opcja&gt; isn't specified in config file!<br># Kod wyjścia: 78
                     </div>
                     <p>Gdy zobaczysz ten błąd, to oznacza, że jakaś opcja w pliku konfiguracyjnym (jej nazwa pojawi się zamiast &lt;opcja&gt;) nie jest ustawiona. Upewnij się, że skonfigurowałeś wszystko poprawnie, i pamiętaj, aby ustawić wszystkie wymagane opcje.</p>
                 </article>
@@ -743,7 +753,7 @@
                     <h4>Plik logów ne istnieje</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [ERROR] Log file in &lt;path&gt; doesn't exist!<br># Kod wyjścia: 66
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Log file in &lt;path&gt; doesn't exist!<br># Kod wyjścia: 66
                     </div>
                     <p>Ta wiadomość oznacza, że ścieżka do pliku logów ustawiona w pliku konfiguracyjnym nie jest poprawna. Jeżeli nie umiesz znaleźć tej ścieżki, przejdź <a href="#mvt-config-logfile">tutaj</a> - jest tam wyjaśniona pełna instrukcja, jak znaleźć ścieżkę do poprawnego pliku.</p>
                 </article>
@@ -753,10 +763,10 @@
                     <h4>Wewnętrzny błąd aplikacji</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [CRITICAL] Internal app error<br># Kod wyjścia: 70
+                        [INFO] Anarchia.GG Code Copier started<br>[CRITICAL] Internal app error<br># Kod wyjścia: 70
                     </div>
                     <p>Ten błąd może oznaczać właściwie wszystko. Nie może być on w prosty sposób rozwiązany przez użytkownika, ponieważ wymaga edycji kodu źródłowego.</p>
-                    <p><b>UWAGA!</b> Jeżeli odkryjesz taki błąd, uruchom program z flagą -loglevel debug, gdzie być może znajdzie się wyjaśnienie, i wyślij to na mojego E-Maila: <a href="mailto:airkeyooo@gmail.com?subject=Internal%20app%20error%20report&body=Internal%20app%20error%20report%0D%0A%0D%0ALog%20from%20debug%20level:%0D%0A%0D%0A&lt;replace%20with%20debug%20log&gt;">airkeyooo@gmail.com</a>. W przygotowanej wiadomości zastąp fragment &lt;replace with debug log&gt; skopiowanymi logami o poziomie debug.</p>
+                    <p><b>UWAGA!</b> Jeżeli odkryjesz taki błąd, uruchom program z flagą -report, gdzie być może znajdzie się wyjaśnienie, i wyślij to na mojego E-Maila: <a href="mailto:airkeyooo@gmail.com?subject=Internal%20app%20error%20report&body=Internal%20app%20error%20report">airkeyooo@gmail.com</a>. Załącz do tej wiadomości plik logów wygenerowany przez flagę -report.</p>
                     <hr>
                     <h4>Błąd Pythona</h4>
                     <div class="codepreview">
@@ -768,21 +778,21 @@
                     <h4>Brak uprawnień</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 13:25:34,750] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:25:34,750] [ERROR] Can't open &lt;ścieżka&gt;: Permission Denied<br># Kod wyjścia: 77
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Can't open &lt;ścieżka&gt;: Permission Denied<br># Kod wyjścia: 77
                     </div>
                     <p>Ten błąd oznacza, że program nie może odczytać pliku (jego ścieżka będzie podana w miejsce &lt;ścieżka&gt;), ponieważ nie ma do tego wystarczających uprawnień. Aby to naprawić, upewnij się, że użytkownik ma uprawnienia do odczytu tego pliku.</p>
                     <hr>
                     <h4>Niepoprawny typ danych</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 13:29:24,934] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:29:24,937] [ERROR] &lt;element&gt; can be only &lt;dozwolony typ&gt;, not &lt;użyty typ&gt;!<br># Kod wyjścia: 65
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] &lt;element&gt; can be only &lt;dozwolony typ&gt;, not &lt;użyty typ&gt;!<br># Kod wyjścia: 65
                     </div>
                     <p>Ta wiadomość oznacza, że w pliku konfiguracyjnym (lub gdzieś indziej w kodzie) ustawiłeś wartość (zobaczysz jej nazwę na miejscu &lt;element&gt;) innego typu danych niż program tego wymaga. Możesz zobaczyć dozwolony typ na miejscu &lt;dozwolony typ&gt; oraz użyty typ danych w miejscu &lt;użyty typ&gt;</p>
                     <hr>
                     <h4>Ścieżka wskazuje na folder</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 13:57:53,034] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:57:53,034] [ERROR] Path that you have specified points to a directory!<br># Kod wyjścia: 66
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Path that you have specified points to a directory!<br># Kod wyjścia: 66
                     </div>
                     <p>Ta wiadomość oznacza, że ścieżka, którą podałeś, wskazuje do folderu zamiast do pliku. Gdy ten błąd się pojawi, sprawdź plik konfiguracyjny i spróbuj znaleźć miejsce, gdzie zamiast do pliku, podałeś ścieżkę do folderu.</p>
                 </article>
@@ -792,14 +802,14 @@
                     <h4>Nieobsługiwany system operacyjny</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 13:57:53,034] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:57:53,034] [ERROR] You can't use notifications function because you are running on &lt;twój system&gt;! Currently, you can only use it on those OSes: &lt;wspierane systemy&gt;<br># Kod wyjścia: 69
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] You can't use notifications function because you are running on &lt;twój system&gt;! Currently, you can only use it on those OSes: &lt;wspierane systemy&gt;<br># Kod wyjścia: 69
                     </div>
                     <p>Ten błąd oznacza, że próbujesz użyć funkcji powiadomień na systemie, na którym nie jest ona obecnie obsługiwana. Niestety, jedyną opcją na naprawę tego jest wyłączyć tą funkcję i poczekać, aż dodam wsparcie dla danego systemu operacyjnego.</p>
                     <hr>
                     <h4>Zależność notify-send nie jest zainstalowana</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:11:30,485] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:11:30,488] [ERROR] notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.<br># Kod wyjścia: 69
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.<br># Kod wyjścia: 69
                     </div>
                     <p>Ta wiadomość oznacza, że wymagana zależność notify-send nie jest zainstalowana na twoim systemie. Aby ją zainstalować, użyj swojego menadżera pakietów (np. pacman, apt, dnf, ...)</p>
                 </article>
@@ -809,19 +819,19 @@
                     <h4>Biblioteka pyperclip nie jest zainstalowana</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Can't copy to clipboard because pyperclip lib is not installed! If you want to use this function, run: pip install pyperclip<br># Kod wyjścia: 69
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Can't copy to clipboard because pyperclip lib is not installed! If you want to use this function, run: pip install pyperclip<br># Kod wyjścia: 69
                     </div>
                     <p>Ten błąd oznacza, że na twoim systemie nie jest zainstalowana biblioteka pyperclip, wymagana do obsługi tej funkcji. Aby dowiedzieć się, jak ją zainstalować, przejdź <a href="#mvt-installation-pip">tutaj</a>.</p>
                     <hr>
                     <h4>Nie można kopiować do schowka</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info
                     </div>
                     <p>Jeżeli jesteś na Linuxie, wiadomość może się nieco różnić:</p>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info. You are on Linux, so you can check is your copying backend (like wl-copy, xclip, xselect) installed
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info. You are on Linux, so you can check is your copying backend (like wl-copy, xclip, xselect) installed
                     </div>
                     <p>Ta wiadomość oznacza, że biblioteka pyperclip z jakiegoś powodu nie może skopiować tekstu do schowka. Nie mam możliwości dokłanie powiedzieć, co się stało, ale możesz spróbować tych dwóch kroków:</p>
                     <ol>
@@ -833,7 +843,7 @@
                     <p><b>INFORMACJA:</b> To nie jest błąd, tylko ostrzeżenie, więc program będzie kontynuował pracę nawet po jego wystąpieniu</p>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:31:03,141] [WARNING] Something went wrong: Copied and pasted texts aren't the same values!
+                        [WARNING] Something went wrong: Copied and pasted texts aren't the same values!
                     </div>
                     <p>Za każdym razem, gdy program się uruchamia, kopiuje do schowka przykładowy tekst, aby upewnić się, że kopiowanie do schowka jest możliwe. Ten komunikat oznacza, że skopiowany i wklejony tekst się różnią. Jeżeli w trakcie uruchamiania programu kopiowałeś coś do schowka - możesz to zignorować. Ale jeżeli tego nie robiłeś, to oznacza, że coś poszło nie tak.</p>
                 </article>
@@ -843,14 +853,14 @@
                     <h4>mysql.connector nie jest zainstalowany</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:31:03,068] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:31:03,141] [ERROR] Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python<br># Kod wyjścia: 69
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python<br># Kod wyjścia: 69
                     </div>
                     <p>Ta wiadomość oznacza, że biblioteka mysql.connector nie jest zainstalowana. Aby dowiedzieć się, jak ją zainstalować, przejdź <a href="#mvt-installation-pip">tutaj</a>.</p>
                     <hr>
                     <h4>Brakujące opcje w pliku konfiguracyjnym</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:40:49,466] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:40:49,539] [ERROR] Some values in config file are missing! Make sure you've set host (by default localhost), port (optional, by default 3306), user, password and database!<br># Kod wyjścia: 78
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Some values in config file are missing! Make sure you've set host (by default localhost), port (optional, by default 3306), user, password and database!<br># Kod wyjścia: 78
                     </div>
                     <p>Ten błąd oznacza, że niektóre wymagane wartości w sekcji <i>mysql:</i> w pliku konfiguracyjnym nie zostały ustawione. Jeśli nie wiesz, co dokładnie musisz ustawić, wygeneruj nowy plik konfiguracyjny i przepisz wszystkie ustawienia do nowego pliku.</p>
                     <hr>
@@ -858,35 +868,35 @@
                     <h4>Odmowa dostępu</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:52:16,442] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:52:16,592] [ERROR] User &lt;nazwa użytkownika&gt; can't connect to the MySQL/MariaDB server: Permission Denied<br># Kod wyjścia: 77
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] User &lt;nazwa użytkownika&gt; can't connect to the MySQL/MariaDB server: Permission Denied<br># Kod wyjścia: 77
                     </div>
                     <p>Ten błąd oznacza że użytkownik sprecyzowany w pliku konfiguracyjnym (&lt;nazwa użytkownika&gt;) nie może nawiązać połączenia z serwerem ze względu na błędny login lub hasło.</p>
                     <hr>
                     <h4>Połączenie nieudane</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 15:02:28,445] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:02:28,579] [ERROR] Can't connect to the MySQL server &lt;adres&gt;:&lt;port&gt; - Connection Timeout or the server refused the connection<br># Kod wyjścia: 68
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Can't connect to the MySQL server &lt;adres&gt;:&lt;port&gt; - Connection Timeout or the server refused the connection<br># Kod wyjścia: 68
                     </div>
                     <p>Ten błąd oznacza że serwer odrzucił połączenie lub host nie istnieje. Upewnij się, że adres i port są poprawne.</p>
                     <hr>
                     <h4>Brak bazy danych</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] User &lt;nazwa użytkownika&gt; can't access to the &lt;nazwa bazy danych&gt; DB: Permission Denied or this database doesn't exist<br># Kod wyjścia: 77
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] User &lt;nazwa użytkownika&gt; can't access to the &lt;nazwa bazy danych&gt; DB: Permission Denied or this database doesn't exist<br># Kod wyjścia: 77
                     </div>
                     <p>Ta wiadomość oznacza, że baza danych sprecyzowana w pliku konfiguracyjnym nie istnieje lub użytkownik nie ma uprawnień, aby się z nią połączyć.</p>
                     <hr>
                     <h4>Brak wystarczających uprawnień</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] User &lt;nazwa użytkownika&gt; can't execute required commands: Permission Denied. Please make sure &lt;nazwa użytkownika&gt; can run a least CREATE and INSERT in &lt;nazwa bazy danych&gt; DB<br># Kod wyjścia: 77
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] User &lt;nazwa użytkownika&gt; can't execute required commands: Permission Denied. Please make sure &lt;nazwa użytkownika&gt; can run a least CREATE and INSERT in &lt;nazwa bazy danych&gt; DB<br># Kod wyjścia: 77
                     </div>
                     <p>Ten błąd oznacza, że połączenie z bazą danych zostało nawiązane poprawnie, ale użytkownik nie może wykonać wymaganych zapytań. Pamiętaj, że użytkownik potrzebuje co najmniej uprawnień do wykonania zapytań CREATE i INSERT w całej bazie danych.</p>
                     <hr>
                     <h4>Wewnętrzny błąd MySQLa</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] Internal MySQL error: &lt;błąd&gt;<br># Kod wyjścia: 70
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Internal MySQL error: &lt;błąd&gt;<br># Kod wyjścia: 70
                     </div>
                     <p>Ten błąd oznacza, że wystąpił wewnętrzny błąd. Jeżeli znasz się na SQLu, możesz spróbować zrozumieć, co poszło nie tak - pełny komunikat błędu zostanie tu wyświetlony.</p>
                 </article>
