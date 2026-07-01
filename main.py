@@ -72,13 +72,18 @@ def main():
     basic_formatter = logging.Formatter("[%(levelname)s] %(message)s")
     # If -report flag was given, open FileHandler
     if args.report:
-        from tools import ReportFileHandler
+        from tools import ReportFileHandler, system_info
         # Define file handler
         file_handler = ReportFileHandler(filename=datetime.now().astimezone().strftime("codecopier-%Y%m%d-%H%M%S.log"),mode="w",encoding="utf-8")
         file_handler.setFormatter(advanced_formatter)
         file_handler.setLevel(logging.DEBUG)
         # Add file handler to root logger
         root_logger.addHandler(file_handler)
+        # Add system informations to log file
+        file_handler.writeline("MC Code Copier Reloaded\nSystem information:")
+        information = system_info()
+        for k, v in information.items():
+            file_handler.writeline(f"+ {k} -> {v}")
     # Add console handler using StreamSplitHandler from tools/split_log_stream.py
     console_handler = StreamSplitHandler()
     console_handler.setLevel(used_loglevel)
@@ -334,7 +339,6 @@ if __name__=="__main__":
         if returncode is None:
             returncode = 0
         elif isinstance(returncode,str):
-            # Add f"Return message: {returncode}" to file
             returncode = 1
     except Exception as e:
         # Add f"{e.__class__.__name__}: {e}" to file
