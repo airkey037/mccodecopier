@@ -373,7 +373,7 @@
                     <p>After running this command, new and blank configuration file with all comments will be generated. In your console you should now get something like this:</p>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-26 19:21:10,197] [INFO] Anarchia.GG Code Copier started<br>[2026-06-26 19:21:10,197] [INFO] Default config file was created successfully<br><i># Return code: 0</i>
+                        [INFO] Anarchia.GG Code Copier started<br>[INFO] Default config file was created successfully<br><i># Return code: 0</i>
                     </div>
                     <p>This communicate means that everything was done correctly. Now, you can continue <a href="#mvt-config">here</a>. If you received some errors, read section below to fix it</p>
                 </article>
@@ -383,13 +383,13 @@
                     <h4>1. Config file already exists</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-26 19:20:57,654] [ERROR] Config file already exists!<br><i># Return code: 73</i>
+                        [ERROR] Config file already exists!<br><i># Return code: 73</i>
                     </div>
                     <p>When you receive this message, this means, that some file exists in location specified in -config flag. To fix it, simply change/set this parameter to point to a path that doesn't exist</p>
                     <h4>2. Permission error</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-26 19:38:46,557] [ERROR] Can't save file in &lt;path&gt;: Permission Denied<br><i># Return code: 77</i>
+                        [ERROR] Can't save file in &lt;path&gt;: Permission Denied<br><i># Return code: 77</i>
                     </div>
                     <p>When you receive this communicate, this means, that you are trying to save configuration file in path, where you don't have permission to save to. To fix this, simply change path in -config parameter to path where you are able to save files</p>
                 </article>
@@ -548,12 +548,12 @@
                     <p>After running this command, you should see something like this:</p>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-29 17:40:56,905] [INFO] Anarchia.GG Code Copier started<br>[2026-06-29 17:40:57,066] [INFO] Started listening
+                        [INFO] Anarchia.GG Code Copier started<br>[INFO] Started listening
                     </div>
                     <p>This means that program is running correctly and everything is OK. And, basically, that's all! Program is running and listening for new codes. To stop it, you can press Ctrl+C (SIGINT - signal 2) or, if you are on Linux, you can also send SIGTERM (signal 15) or SIGHUP (signal 1) - program will react correctly also to those signals. After stopping, this will show up in console:</p>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-29 17:40:58,628] [INFO] Received SIGINT, QUITTING!<br>[2026-06-29 17:40:58,868] [INFO] ### STATISTICS ###<br>[2026-06-29 17:40:58,868] [INFO] Total runtime: 0:00:01.969867<br>[2026-06-29 17:40:58,868] [INFO] Total codes captured: 0<br>[2026-06-29 17:40:58,868] [INFO] Codes re-writed by me: 0<br>[2026-06-29 17:40:58,868] [INFO] Keys received by me: 0<br>[2026-06-29 17:40:58,868] [INFO] My wins percentage: 0%<br>[2026-06-29 17:40:58,868] [INFO] Program finished job
+                        [INFO] Received SIGINT, QUITTING!<br>[INFO] ### STATISTICS ###<br>[INFO] Total runtime: 0:00:01.969867<br>[INFO] Total codes captured: 0<br>[INFO] Codes re-writed by me: 0<br>[INFO] Keys received by me: 0<br>[INFO] My wins percentage: 0%<br>[INFO] Program finished job
                     </div>
                     <p>Program is printing statistics at the end. Here, you can see:</p>
                     <ul>
@@ -713,7 +713,7 @@
                     <h4>Running as root/admin</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:30:52,561] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:30:52,561] [CRITICAL] Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it. Run it as a normal user! But if you really want to continue (VERY UNRECOMMENDED), add -runasroot flag (but keep in mind that you are doing it for YOUR OWN RESPONSIBILITY!!)<br># Return code: 1
+                        [INFO] Anarchia.GG Code Copier started<br>[CRITICAL] Program is running as root/admin! It is VERY UNSAFE to run this program with those privileges, because program doesn't need it. Run it as a normal user! But if you really want to continue (VERY UNRECOMMENDED), add -runasroot flag (but keep in mind that you are doing it for YOUR OWN RESPONSIBILITY!!)<br># Return code: 1
                     </div>
                     <p>This message means, that you are trying to run program with root/administrator privileges. This can be ignored with -runasroot flag, but <b>I do not recommend ignoring this!</b> If you want to read more about -runasroot flag, go <a href="#mvt-running-flags-root">here</a>.</p>
                 </article>
@@ -730,21 +730,21 @@
                     <h4>Config file doesn't exist!</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:36:59,141] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:36:59,141] [ERROR] Config file doesn't exist!<br># Return code: 66
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Config file doesn't exist!<br># Return code: 66
                     </div>
                     <p>This error means that config file doesn't exist or path specified by you is invalid. If you want to learn, how to generate config file, go <a href="#mvt-installation-main">here</a>.</p>
                     <hr>
                     <h4>Invalid YAML syntax</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:39:33,190] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:39:33,190] [ERROR] Invalid YAML syntax in config file!<br># Return code: 78
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Invalid YAML syntax in config file!<br># Return code: 78
                     </div>
                     <p>This error means that you have invalid YAML syntax in your config file. To fix it, make sure, that your YAML syntax is correct, or generate new config file; its YAML syntax is always correct, so you can generate new file and re-write all values.</p>
                     <hr>
                     <h4>Key in config file is missing</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:39:33,190] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:39:33,190] [ERROR] &lt;config element&gt; isn't specified in config file!<br># Return code: 78
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] &lt;config element&gt; isn't specified in config file!<br># Return code: 78
                     </div>
                     <p>When you see this error, this means, that some config element (its name is given in place of &lt;config element&gt;) is missing. Make sure you've configured everything correctly, and remembered about all elements.</p>
                 </article>
@@ -754,7 +754,7 @@
                     <h4>Log file doesn't exist</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [ERROR] Log file in &lt;path&gt; doesn't exist!<br># Return code: 66
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Log file in &lt;path&gt; doesn't exist!<br># Return code: 66
                     </div>
                     <p>This message means, that log file in path specified in config file doesn't exist. If you have trouble with finding it, please go <a href="#mvt-config-logfile">here</a> - there, you can find detailed instruction, how to find correct log file.</p>
                 </article>
@@ -764,7 +764,7 @@
                     <h4>Internal app error</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [CRITICAL] Internal app error<br># Return code: 70
+                        [INFO] Anarchia.GG Code Copier started<br>[CRITICAL] Internal app error<br># Return code: 70
                     </div>
                     <p>This error can actually mean anything. It can't be solved by end user, because it requires editing source code.</p>
                     <p><b>WARNING!</b> If you see this error, please run program with -report, where I can find explanation, and send it to me using E-Mail: <a href="mailto:airkeyooo@gmail.com?subject=Internal%20app%20error%20report&body=Internal%20app%20error%20report">airkeyooo@gmail.com</a>. Send log file generated by -report option as an attachment.</p>
@@ -779,21 +779,21 @@
                     <h4>Permission error</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 13:25:34,750] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:25:34,750] [ERROR] Can't open &lt;path&gt;: Permission Denied<br># Return code: 77
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Can't open &lt;path&gt;: Permission Denied<br># Return code: 77
                     </div>
                     <p>This error means that some file is unreadable because of missing permissions. To fix this, make sure, that user have permissions to read file specified in &lt;path&gt;</p>
                     <hr>
                     <h4>Invalid type</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 13:29:24,934] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:29:24,937] [ERROR] &lt;element&gt; can be only &lt;allowed type&gt;, not &lt;used type&gt;!<br># Return code: 65
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] &lt;element&gt; can be only &lt;allowed type&gt;, not &lt;used type&gt;!<br># Return code: 65
                     </div>
                     <p>This message means that in config file or somewhere else you've set some value (you can see its name in place of &lt;element&gt;) to other data type then expected. You can see allowed type in place of &lt;allowed type&gt; and type, that you have used in place of &lt;used type&gt;.</p>
                     <hr>
                     <h4>Directory path</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 13:57:53,034] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:57:53,034] [ERROR] Path that you have specified points to a directory!<br># Return code: 66
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Path that you have specified points to a directory!<br># Return code: 66
                     </div>
                     <p>This message means, that in place, where path to a file is expected, you've specified path to a directory. Please, check your whole config file, and try to find a place, where you accidentally gave path to a directory.</p>
                 </article>
@@ -803,14 +803,14 @@
                     <h4>OS error</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 13:57:53,034] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 13:57:53,034] [ERROR] You can't use notifications function because you are running on &lt;your OS&gt;! Currently, you can only use it on those OSes: &lt;supported OSes&gt;<br># Return code: 69
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] You can't use notifications function because you are running on &lt;your OS&gt;! Currently, you can only use it on those OSes: &lt;supported OSes&gt;<br># Return code: 69
                     </div>
                     <p>This means that you are trying to use notifications on operating system that isn't currently supported. Unfortunately, the only option to fix this is disabling this function and waiting for me to add this function on your OS.</p>
                     <hr>
                     <h4>notify-send is not installed</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:11:30,485] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:11:30,488] [ERROR] notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.<br># Return code: 69
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] notify-send is not installed on your system! Install it using your package manager, like pacman -S libnotify, apt install libnotify-bin, etc.<br># Return code: 69
                     </div>
                     <p>This message means, that notify-send runtime isn't installed on your operating system. Install it, using your distribution's package manager (like apt, pacman, dnf, ...)</p>
                 </article>
@@ -820,19 +820,19 @@
                     <h4>pyperclip module not installed</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Can't copy to clipboard because pyperclip lib is not installed! If you want to use this function, run: pip install pyperclip<br># Return code: 69
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Can't copy to clipboard because pyperclip lib is not installed! If you want to use this function, run: pip install pyperclip<br># Return code: 69
                     </div>
                     <p>This message means, that pyperclip lib isn't installed on your system. To learn, how to install it, go <a href="#mvt-installation-pip">here</a>.</p>
                     <hr>
                     <h4>Can't copy to clipboard</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info
                     </div>
                     <p>If you are on Linux, message will slightly differ:</p>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:19:18,628] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:19:18,634] [ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info. You are on Linux, so you can check is your copying backend (like wl-copy, xclip, xselect) installed
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Something went wrong and you can't copy anything to the clipboard! See -loglevel debug for more info. You are on Linux, so you can check is your copying backend (like wl-copy, xclip, xselect) installed
                     </div>
                     <p>This message means, that pyperclip can't copy code to clipboard. I can't tell you why this is happening, but:</p>
                     <ol>
@@ -844,7 +844,7 @@
                     <p><b>NOTE:</b> This is a warning, not an error, so program will continue its work, even after this message appears</p>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:31:03,141] [WARNING] Something went wrong: Copied and pasted texts aren't the same values!
+                        [WARNING] Something went wrong: Copied and pasted texts aren't the same values!
                     </div>
                     <p>Each start, program is copying sample text to the clipboard to make sure that copying is possible. This communicate means, that copied and pasted texts are somehow different. If you copied something to clipboard while program was starting - you can ignore it. But if you didn't, this means that something gone wrong.</p>
                 </article>
@@ -854,14 +854,14 @@
                     <h4>mysql.connector is not installed</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:31:03,068] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:31:03,141] [ERROR] Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python<br># Return code: 69
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Can't connect with MySQL/MariaDB because mysql.connector isn't installed! Install it using: pip install mysql-connector-python<br># Return code: 69
                     </div>
                     <p>This message means, that mysql-connector-python lib isn't installed on your system. To learn, how to install it, go <a href="#mvt-installation-pip">here</a>.</p>
                     <hr>
                     <h4>Missing values in config file</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:40:49,466] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:40:49,539] [ERROR] Some values in config file are missing! Make sure you've set host (by default localhost), port (optional, by default 3306), user, password and database!<br># Return code: 78
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Some values in config file are missing! Make sure you've set host (by default localhost), port (optional, by default 3306), user, password and database!<br># Return code: 78
                     </div>
                     <p>This error means that some required values in <i>mysql:</i> section in config file are missing. If you don't know, what should you specify there, generate a new config file and re-write all settings from previous one.</p>
                     <hr>
@@ -869,35 +869,35 @@
                     <h4>Permission denied for user</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 14:52:16,442] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 14:52:16,592] [ERROR] User &lt;user name&gt; can't connect to the MySQL/MariaDB server: Permission Denied<br># Return code: 77
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] User &lt;user name&gt; can't connect to the MySQL/MariaDB server: Permission Denied<br># Return code: 77
                     </div>
                     <p>This error means that user specified in config file (&lt;user name&gt;) can't connect to the server because username or password is incorrect.</p>
                     <hr>
                     <h4>Connection failed</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 15:02:28,445] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:02:28,579] [ERROR] Can't connect to the MySQL server &lt;host&gt;:&lt;port&gt; - Connection Timeout or the server refused the connection<br># Return code: 68
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Can't connect to the MySQL server &lt;host&gt;:&lt;port&gt; - Connection Timeout or the server refused the connection<br># Return code: 68
                     </div>
                     <p>This error means that the server refused the connection or host doesn't exist. To fix it, make sure, that address and port is correct</p>
                     <hr>
                     <h4>No database</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] User &lt;user name&gt; can't access to the &lt;database&gt; DB: Permission Denied or this database doesn't exist<br># Return code: 77
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] User &lt;user name&gt; can't access to the &lt;database&gt; DB: Permission Denied or this database doesn't exist<br># Return code: 77
                     </div>
                     <p>This message means that the database specified in config file doesn't exist or user specified in config file don't have enough privileges to access it.</p>
                     <hr>
                     <h4>User don't have enough privileges</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] User &lt;user name&gt; can't execute required commands: Permission Denied. Please make sure &lt;user name&gt; can run a least CREATE and INSERT in &lt;database&gt; DB<br># Return code: 77
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] User &lt;user name&gt; can't execute required commands: Permission Denied. Please make sure &lt;user name&gt; can run a least CREATE and INSERT in &lt;database&gt; DB<br># Return code: 77
                     </div>
                     <p>This error means that the user successfully connected to the database, but it can't execute required statements. Remember, that user needs at least CREATE and INSERT permissions in this whole database.</p>
                     <hr>
                     <h4>Internal MySQL error</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        [2026-06-30 15:23:57,551] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 15:23:57,704] [ERROR] Internal MySQL error: &lt;error&gt;<br># Return code: 70
+                        [INFO] Anarchia.GG Code Copier started<br>[ERROR] Internal MySQL error: &lt;error&gt;<br># Return code: 70
                     </div>
                     <p>This error means that some internal error ocurred. If you know SQL, you can try to understand its reason - full error message will be printed.</p>
                 </article>
