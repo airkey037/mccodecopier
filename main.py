@@ -1,4 +1,4 @@
-# Anarchia.GG Code Copier (Loader)
+# MC Code Copier Reloaded
 # Maintainer: AirKeyooo <airkeyooo@gmail.com>
 # Import all needed libraries
 from argparse import ArgumentParser
