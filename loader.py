@@ -7,11 +7,8 @@ from sys import stdout, exit
 from signal import signal, SIGTERM, SIGINT, Signals
 from time import sleep, time
 from datetime import datetime, timedelta, timezone
-from subprocess import check_output as subcheckout, CalledProcessError, DEVNULL as subdevnull
-from platform import system
 import os
 import ctypes
-from json import dumps
 # Import all program parts
 from tools import *
 from minecraft import *
@@ -29,6 +26,7 @@ def is_root():
         return False
 # Function to get program version
 def get_version():
+    from subprocess import check_output as subcheckout, CalledProcessError, DEVNULL as subdevnull
     try:
         version=subcheckout(["git","describe","--tags","--always"],stderr=subdevnull).decode("utf-8").strip()
         return version
