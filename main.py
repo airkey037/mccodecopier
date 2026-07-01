@@ -240,8 +240,7 @@ def main(args):
                 if config.predict_next_code:
                     prediction=chat.predict_next_code()
                     if prediction:
-                        prediction_dt=datetime.now()+timedelta(seconds=prediction)
-                        logger.info(f"Next code appear time prediction: {prediction_dt.hour:02}:{prediction_dt.minute:02}:{prediction_dt.second:02}")
+                        logger.info(f"Next code appear time prediction: {prediction.hour:02}:{prediction.minute:02}:{prediction.second:02}")
         # Sleep loop
         timetosleep = (sleepms/1000)-(time()-stime)
         if timetosleep > 0:

@@ -78,7 +78,7 @@ class AnarchiaGG(Minecraft):
         self.logger.debug(f"Date from last code: {last_code}")
         predicted_time=last_code+timedelta(minutes=30)
         self.logger.debug(f"Predicted time to next code: {predicted_time}")
-        return predicted_time.total_seconds()
+        return predicted_time
     def get_stats(self)->dict:
         self.logger.debug("Calculating all statistics...")
         try:
