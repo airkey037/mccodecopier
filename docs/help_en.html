@@ -201,6 +201,7 @@
                         <li><a href="#mvt-running-flags">Flags</a>
                             <ol>
                                 <li><a href="#mvt-running-flags-loglevel">-loglevel</a></li>
+                                <li><a href="#mvt-running-flags-report">-report</a></li>
                                 <li><a href="#mvt-running-flags-version">-version</a></li>
                                 <li><a href="#mvt-running-flags-config">-config</a></li>
                                 <li><a href="#mvt-running-flags-defconf">-default_config</a></li>
@@ -367,7 +368,7 @@
                     <p><b>NOTE:</b> When you won't give -config, the default config file will be automatically generated in current directory with name <i>config.yml</i></p>
                     <div class="codepreview">
                         <div class="codefilename">PowerShell / Bash</div>
-                        python3 loader.py -default_config -config &lt;config file path&gt;
+                        python3 main.py -default_config -config &lt;config file path&gt;
                     </div>
                     <p>After running this command, new and blank configuration file with all comments will be generated. In your console you should now get something like this:</p>
                     <div class="codepreview">
@@ -542,7 +543,7 @@
                     <p>To run program with basic options, you don't need any advanced flags. Just type command below</p>
                     <div class="codepreview">
                         <div class="codefilename">PowerShell / Bash</div>
-                        python3 loader.py -config &lt;path to config file&gt;
+                        python3 main.py -config &lt;path to config file&gt;
                     </div>
                     <p>After running this command, you should see something like this:</p>
                     <div class="codepreview">
@@ -569,7 +570,7 @@
                     <p>Program have some flags, that may change its behavior. To see them all, you can run program with -help flag:</p>
                     <div class="codepreview">
                         <div class="codefilename">PowerShell / Bash</div>
-                        python3 loader.py -help
+                        python3 main.py -help
                     </div>
                     <p>Below, I'll list all possible flags:</p>
                     <article id="mvt-running-flags-loglevel">
@@ -578,21 +579,30 @@
                         <p>This setting can control, how many informations program is giving to the output. info is the default level. For example, if you want to see only errors:</p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -loglevel error
+                            python3 main.py -loglevel error
                         </div>
                         <p>If you want to see all communicates, including debug ones, use level debug. If you don't want to see anything, use level quiet.</p>
                     </article>
+                    <article id="mvt-running-flags-report">
+                        <h3>4.2.2. -report</h3>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 main.py -report
+                        </div>
+                        <p>This flag is creating very detailed log file in current directory with name <i>codecopier-YYYYMMDD-HHMMSS.log</i>. This file is used for deep diagnostics and error solving.</p>
+                        <p><b>NOTE:</b> Unfortunately, currently program doesn't support environment variable like <i>FFREPORT</i> to control report file parameters, but maybe I'll add this feature in future updates.</p>
+                    </article>
                     <article id="mvt-running-flags-version">
-                        <h3>4.2.2. -version</h3>
+                        <h3>4.2.3. -version</h3>
                         <p><b>NOTE:</b> -v stands for -loglevel, not -version! Remember, that this is FFmpeg-like style :)</p>
                         <p>This flag is displaying current program version and exits. If it doesn't know, what version is this exactly, it displays <i>v0.0.0-unknown</i></p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            $ python3 loader.py -version<br><br>v1.5-21-gcc9bdbb<br># Return code: 0
+                            $ python3 main.py -version<br><br>v1.5-21-gcc9bdbb<br># Return code: 0
                         </div>
                     </article>
                     <article id="mvt-running-flags-config">
-                        <h3>4.2.3. -config</h3>
+                        <h3>4.2.4. -config</h3>
                         <p>In this option, you can specify path to the configuration file. If you keep this option blank, program will search for it in another paths. Here you can see all paths, from the least priority to the most</p>
                         <h4>System-specific paths</h4>
                         <p>Program can try to load config files from those paths (username is your user's name):</p>
@@ -642,40 +652,40 @@
                         <p>-config parameter is the most important. Even, when some file exists in system paths or env variable, -config parameter will always win.</p>
                     </article>
                     <article id="mvt-running-flags-defconf">
-                        <h3>4.2.4. -default_config</h3>
+                        <h3>4.2.5. -default_config</h3>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -default_config -config &lt;path&gt;
+                            python3 main.py -default_config -config &lt;path&gt;
                         </div>
                         <p>You know this option, because I've mentioned it <a href="#mvt-installation-main">here</a>, but maybe I'll explain it once more: this option is used to generate default config file in path specified in -config parameter. If you have some errors during this step, please go <a href="#mvt-installation-error">here</a>.</p>
                     </article>
                     <article id="mvt-running-flags-root">
-                        <h3>4.2.5. -runasroot</h3>
+                        <h3>4.2.6. -runasroot</h3>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -runasroot
+                            python3 main.py -runasroot
                         </div>
                         <p><b>WARNING!!!</b> Please avoid using this option by running program as a normal user! Remember, that you are doing it for your own responsibility!</p>
                         <p>Normally, program doesn't allow to run as root/administrator. Add this flag to run program despite having those privileges</p>
                     </article>
                     <article id="mvt-running-flags-printf">
-                        <h3>4.2.6. -print_format, -output_format, -of</h3>
+                        <h3>4.2.7. -print_format, -output_format, -of</h3>
                         <p>Possible settings: <i>default, flat, ini, json, xml</i></p>
                         <p>This setting controls printing format. default is the default option. It higly integrates with all -show_* options - it is changing, how informations from those options are displayed.</p>
                         <p><b>NOTE:</b> If you want for this program to integrate with other programs, remember to set -loglevel quiet - -show_* options will be still displayed, but program will hide all logs, keeping only -show_* visible.</p>
                         <p>If you want to use JSON format:</p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -loglevel quiet -print_format json
+                            python3 main.py -loglevel quiet -print_format json
                         </div>
                         <p>Alone, this option is useless, so please see all options with -show_* prefix below</p>
                     </article>
                     <article id="mvt-running-flags-shst">
-                        <h3>4.2.7. -show_statistics</h3>
+                        <h3>4.2.8. -show_statistics</h3>
                         <p>Use this option to print statistics at the end in format specified in -print_format flag. For example, if you want to print statistics in flat format, use:</p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -loglevel quiet -print_format flat -show_statistics
+                            python3 main.py -loglevel quiet -print_format flat -show_statistics
                         </div>
                     </article>
                 </article>
@@ -689,14 +699,14 @@
                     <h4>Unrecognized arguments</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        loader.py: error: unrecognized arguments: &lt;argument&gt;<br># Return code: 2
+                        main.py: error: unrecognized arguments: &lt;argument&gt;<br># Return code: 2
                     </div>
                     <p>This message means, that you are trying to run program with argument, that doesn't exist. To fix this issue, check, are all arguments, that you are using, existing. Go <a href="#mvt-running-flags">here</a> to see all possible arguments</p>
                     <hr>
                     <h4>Invalid choice</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        loader.py: error: argument &lt;argument&gt;: invalid choice: &lt;choice&gt; (choose from &lt;possible choices&gt;)<br># Return code: 2
+                        main.py: error: argument &lt;argument&gt;: invalid choice: &lt;choice&gt; (choose from &lt;possible choices&gt;)<br># Return code: 2
                     </div>
                     <p>This message means, that you are trying to set not allowed value to &lt;argument&gt; parameter. Go <a href="#mvt-running-flags">here</a> and read whole section about flag displayed in place of &lt;argument&gt; to see all possible settings.</p>
                     <hr>
@@ -757,7 +767,7 @@
                         [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [CRITICAL] Internal app error<br># Return code: 70
                     </div>
                     <p>This error can actually mean anything. It can't be solved by end user, because it requires editing source code.</p>
-                    <p><b>WARNING!</b> If you see this error, please run program with -loglevel debug, where I can find explanation, and send it to me using E-Mail: <a href="mailto:airkeyooo@gmail.com?subject=Internal%20app%20error%20report&body=Internal%20app%20error%20report%0D%0A%0D%0ALog%20from%20debug%20level:%0D%0A%0D%0A&lt;replace%20with%20debug%20log&gt;">airkeyooo@gmail.com</a>. In prepared content, please paste debug log in place of a &lt;replace with debug log&gt;</p>
+                    <p><b>WARNING!</b> If you see this error, please run program with -report, where I can find explanation, and send it to me using E-Mail: <a href="mailto:airkeyooo@gmail.com?subject=Internal%20app%20error%20report&body=Internal%20app%20error%20report">airkeyooo@gmail.com</a>. Send log file generated by -report option as an attachment.</p>
                     <hr>
                     <h4>Python error</h4>
                     <div class="codepreview">

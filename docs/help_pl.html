@@ -201,6 +201,7 @@
                         <li><a href="#mvt-running-flags">Flagi</a>
                             <ol>
                                 <li><a href="#mvt-running-flags-loglevel">-loglevel</a></li>
+                                <li><a href="#mvt-running-flags-report">-report</a></li>
                                 <li><a href="#mvt-running-flags-version">-version</a></li>
                                 <li><a href="#mvt-running-flags-config">-config</a></li>
                                 <li><a href="#mvt-running-flags-defconf">-default_config</a></li>
@@ -366,7 +367,7 @@
                     <p><b>INFORMACJA:</b> Gdy nie podasz parametru -config, domyślny plik konfiguracyjny zostanie wygenerowany w obecnym folderze w pliku <i>config.yml</i></p>
                     <div class="codepreview">
                         <div class="codefilename">PowerShell / Bash</div>
-                        python3 loader.py -default_config -config &lt;ścieżka do pliku konfiguracyjnego&gt;
+                        python3 main.py -default_config -config &lt;ścieżka do pliku konfiguracyjnego&gt;
                     </div>
                     <p>Po uruchomieniu tej komendy, nowy i czysty plik konfiguracyjny ze wszystkimi komentarzami powinien zostać wygenerowany. W terminalu powinieneś zobaczyć coś takiego:</p>
                     <div class="codepreview">
@@ -541,7 +542,7 @@
                     <p>Aby uruchomić program z podstawowymi opcjami, nie potrzebujesz żadnych zaawansowanych flag. Wpisz komendę poniżej:</p>
                     <div class="codepreview">
                         <div class="codefilename">PowerShell / Bash</div>
-                        python3 loader.py -config &lt;ścieżka pliku konfiguracyjnego&gt;
+                        python3 main.py -config &lt;ścieżka pliku konfiguracyjnego&gt;
                     </div>
                     <p>Po uruchomieniu tej komendy powinieneś w konsoli zobaczyć coś takiego:</p>
                     <div class="codepreview">
@@ -568,7 +569,7 @@
                     <p>Program ma różne flagi, które mogą zmieniać jego zachowanie. Aby je zobaczyć, uruchom program z flagą -help:</p>
                     <div class="codepreview">
                         <div class="codefilename">PowerShell / Bash</div>
-                        python3 loader.py -help
+                        python3 main.py -help
                     </div>
                     <p>Poniżej możesz znaleźć listę i opis wszystkich możliwych flag, jakie program wspiera:</p>
                     <article id="mvt-running-flags-loglevel">
@@ -577,21 +578,30 @@
                         <p>To ustawienie kontroluje, ile informacji program wyświetla na wyjściu. info to domyślny poziom. Na przykład, jeśli chcesz widzieć tylko błędy, uruchom:</p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -loglevel error
+                            python3 main.py -loglevel error
                         </div>
                         <p>Jeżeli chcesz widzieć wszystkie komunikaty (włącznie z komunikatami diagnostycznymi), użyj poziomu debug. Jeśli nie chcesz widzieć niczego, użyj poziomu quiet.</p>
                     </article>
+                    <article id="mvt-running-flags-report">
+                        <h3>4.2.2. -report</h3>
+                        <div class="codepreview">
+                            <div class="codefilename">PowerShell / Bash</div>
+                            python3 main.py -report
+                        </div>
+                        <p>Ta flaga tworzy w obecnym folderze bardzo szczegółowy plik logów o nazwie <i>codecopier-YYYYMMDD-HHMMSS.log</i>. Ten plik jest używany w głębokiej diagnostyce i przy rozwiązywaniu błędów.</p>
+                        <p><b>INFORMACJA:</b> Niestety, obecnie program nie ma opcji ustawienia tego parametru w zmiennej środowiskowej w stylu <i>FFREPORT</i>, ale możliwe, że dodam tą funkcję w przyszłych aktualizacjach.</p>
+                    </article>
                     <article id="mvt-running-flags-version">
-                        <h3>4.2.2. -version</h3>
+                        <h3>4.2.3. -version</h3>
                         <p><b>INFORMACJA:</b> -v odpowiada opcji -loglevel, a nie -version! Pamiętaj, że program wzoruje się stylem FFmpeg :)</p>
                         <p>Ta flaga wyświetla obecną wersję programu i wychodzi. Gdy wersja nie jest znana, wyświetla <i>v0.0.0-unknown</i></p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            $ python3 loader.py -version<br><br>v1.5-21-gcc9bdbb<br># Kod wyjścia: 0
+                            $ python3 main.py -version<br><br>v1.5-21-gcc9bdbb<br># Kod wyjścia: 0
                         </div>
                     </article>
                     <article id="mvt-running-flags-config">
-                        <h3>4.2.3. -config</h3>
+                        <h3>4.2.4. -config</h3>
                         <p>Używając tej opcji, możesz wskazać programowi ścieżkę do pliku konfiguracyjnego. Jeśli pozostawisz tą opcję pustą, program przeszuka inne ścieżki. Poniżej możesz zobaczyć wszystkie ścieżki, od tych z najniższym priorytetem, do tych z najwyższym.</p>
                         <h4>Ścieżki zależne od systemu</h4>
                         <p>Program spróbuje wczytać plik konfiguracyjny z tych ścieżek (username to twoja nazwa użytkownika):</p>
@@ -641,40 +651,40 @@
                         <p>Parametr -config jest najważniejszym ustawieniem. Nawet, jeżeli w ścieżkach systemowych lub w zmiennej środowiskowej jakiś plik będzie istniał, i tak to parametr -config zdecyduje o tym, skąd program weźmie konfiugrację.</p>
                     </article>
                     <article id="mvt-running-flags-defconf">
-                        <h3>4.2.4. -default_config</h3>
+                        <h3>4.2.5. -default_config</h3>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -default_config -config &lt;ścieżka&gt;
+                            python3 main.py -default_config -config &lt;ścieżka&gt;
                         </div>
                         <p>Znasz tą opcję, ponieważ już o niej wspomniałem <a href="#mvt-installation-main">tutaj</a>, ale może wspomnę o tym jeszcze raz: ta opcja służy do wygenerowania domyślnego pliku konfiguracyjnego w lokalizacji sprecyzowanej w parametrze -config. Jeżeli podczas tego kroku wystąpiłyby jakieś błędy, przejdź <a href="#mvt-installation-error">tutaj</a>.</p>
                     </article>
                     <article id="mvt-running-flags-root">
-                        <h3>4.2.5. -runasroot</h3>
+                        <h3>4.2.6. -runasroot</h3>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -runasroot
+                            python3 main.py -runasroot
                         </div>
                         <p><b>UWAGA!!!</b> Należy unikać używania tej opcji przez uruchamianie programu jako zwykły użytkownik! Pamiętaj, że używasz tej opcji na swoją własną odpowiedzialność!</p>
                         <p>Normalnie, program nie pozwala na uruchomienie go z uprawnieniami roota/administratora. Dodaj tą flagę, aby uruchomić program pomimo tych uprawnień.</p>
                     </article>
                     <article id="mvt-running-flags-printf">
-                        <h3>4.2.6. -print_format, -output_format, -of</h3>
+                        <h3>4.2.7. -print_format, -output_format, -of</h3>
                         <p>Możliwe ustawienia: <i>default, flat, ini, json, xml</i></p>
                         <p>To ustawienie kontroluje wyświetlany format. default jest domyślną opcją. To ustawienie mocno integruje się z opcjami -show_* - zmienia bowiem ono, jak informacje tam ustawione, będą wyświetlane.</p>
                         <p><b>INFORMACJA:</b> Jeżeli chcesz, aby ten program integrował się z innymi programami, pamiętaj o ustawieniu -loglevel quiet - opcje -show_* będą nadal wyświetlane, ale program ukryje wszystkie logi, pozostawiając jedynie opcje -show_* widoczne.</p>
                         <p>Jeżeli chcesz użyć formatu JSON:</p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -loglevel quiet -print_format json
+                            python3 main.py -loglevel quiet -print_format json
                         </div>
                         <p>Sama ta opcja jest bezużyteczna. Aby jej poprawnie użyć, zobacz dokumentację dla opcji zaczynających się od -show_*, które znajdziesz poniżej.</p>
                     </article>
                     <article id="mvt-running-flags-shst">
-                        <h3>4.2.7. -show_statistics</h3>
+                        <h3>4.2.8. -show_statistics</h3>
                         <p>Użyj tej opcji, aby wyświetlić statystyki na końcu działania programu w formacie ustawionym we fladze -print_format. Na przykład, jeżeli chcesz wyświetlić na końcu statystyki w formacie flat, użyj:</p>
                         <div class="codepreview">
                             <div class="codefilename">PowerShell / Bash</div>
-                            python3 loader.py -loglevel quiet -print_format flat -show_statistics
+                            python3 main.py -loglevel quiet -print_format flat -show_statistics
                         </div>
                     </article>
                 </article>
@@ -688,14 +698,14 @@
                     <h4>Nieznane argumenty</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        loader.py: error: unrecognized arguments: &lt;argument&gt;<br># Kod wyjścia: 2
+                        main.py: error: unrecognized arguments: &lt;argument&gt;<br># Kod wyjścia: 2
                     </div>
                     <p>Ta wiadomość oznacza, że próbujesz uruchomić program z argumentem, który nie istnieje. Aby to naprawić, sprawdź, czy wszystkie argumenty, których używasz, istnieją. Przejdź <a href="#mvt-running-flags">tutaj</a> aby zobaczyć wszystkie akceptowane argumenty.</p>
                     <hr>
                     <h4>Nieznana opcja</h4>
                     <div class="codepreview">
                         <div class="codefilename">Log</div>
-                        loader.py: error: argument &lt;argument&gt;: invalid choice: &lt;opcja&gt; (choose from &lt;możliwe opcje&gt;)<br># Kod wyjścia: 2
+                        main.py: error: argument &lt;argument&gt;: invalid choice: &lt;opcja&gt; (choose from &lt;możliwe opcje&gt;)<br># Kod wyjścia: 2
                     </div>
                     <p>Ta wiadomość oznacza, że w jakimś argumencie próbujesz ustawić niedozwoloną wartość. Przejdź <a href="#mvt-running-flags">tutaj</a> i przeczytaj całą sekcję dotyczącą danej flagi.</p>
                     <hr>
@@ -756,7 +766,7 @@
                         [2026-06-30 12:42:32,872] [INFO] Anarchia.GG Code Copier started<br>[2026-06-30 12:42:32,874] [CRITICAL] Internal app error<br># Kod wyjścia: 70
                     </div>
                     <p>Ten błąd może oznaczać właściwie wszystko. Nie może być on w prosty sposób rozwiązany przez użytkownika, ponieważ wymaga edycji kodu źródłowego.</p>
-                    <p><b>UWAGA!</b> Jeżeli odkryjesz taki błąd, uruchom program z flagą -loglevel debug, gdzie być może znajdzie się wyjaśnienie, i wyślij to na mojego E-Maila: <a href="mailto:airkeyooo@gmail.com?subject=Internal%20app%20error%20report&body=Internal%20app%20error%20report%0D%0A%0D%0ALog%20from%20debug%20level:%0D%0A%0D%0A&lt;replace%20with%20debug%20log&gt;">airkeyooo@gmail.com</a>. W przygotowanej wiadomości zastąp fragment &lt;replace with debug log&gt; skopiowanymi logami o poziomie debug.</p>
+                    <p><b>UWAGA!</b> Jeżeli odkryjesz taki błąd, uruchom program z flagą -report, gdzie być może znajdzie się wyjaśnienie, i wyślij to na mojego E-Maila: <a href="mailto:airkeyooo@gmail.com?subject=Internal%20app%20error%20report&body=Internal%20app%20error%20report">airkeyooo@gmail.com</a>. Załącz do tej wiadomości plik logów wygenerowany przez flagę -report.</p>
                     <hr>
                     <h4>Błąd Pythona</h4>
                     <div class="codepreview">
